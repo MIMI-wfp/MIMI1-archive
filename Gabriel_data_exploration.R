@@ -18,9 +18,10 @@ path_to_data <- "../IND_00062/"
 
 consumption <- read_csv(paste0(path_to_data, "consumption_user.csv"))
 user <- read_csv(paste0(path_to_data, "subject_user.csv"))
-food_dict <- read_excel(paste0(path_to_data, "FoodEx2_Exposure_dict.xlsx"))
+food_dict <- read_excel(paste0(path_to_data, "food_groups/FoodEx2_Exposure_dict.xlsx"))
 code_list <- read_csv(paste0(path_to_data, "code_lists.csv"))
-DQQ <- read_csv(paste0(path_to_data, "DQQ_library.csv"))
+DQQ <- read_csv(paste0(path_to_data, "food_groups/DQQ_library.csv"))
+GDQS <- read_csv(paste0(path_to_data, "food_groups/GDQS_library.csv"))
 
 #summarise the data 
 summary(consumption)
@@ -54,19 +55,23 @@ table(consumption$CONSUMPTION_MONTH)#more results in the winter months? bias?
 
 unique(joined$ADM2_NAME)
 ###### joining the data
+names(user)
+names(consumption)
 
-joined <- full_join(user, consumption, by = "SUBJECT") 
+joined <- full_join(user, consumption, by = c("SUBJECT","ROUND")) 
 head(joined)
 nrow(joined)
+names(joined)
 
 
 # calculate the sum of vitamins for a subject
 # maybe write a function to do this 
 
 total_vitA <- joined %>% 
-  group_by(SUBJECT, ROUND.x) %>% 
+  group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
   summarise(sum =  sum(VITA_RAE_mcg)) %>% 
-  select(SUBJECT, ROUND.x, sum)
+  arrange(HOUSEHOLD)
+
 
 hist(total_vitA$sum)
 summary(total_vitA$sum)
@@ -77,14 +82,28 @@ which.max(total_vitA$sum)
 MICRONUT_SUM <- function(data, micronutrient){
   # takes in the data frame and micronutrient wanted and calculates the sum for each subject
   data %>% 
-    group_by(SUBJECT) %>% 
-    summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) #%>% 
-    # select(SUBJECT, ROUND.x, sum)
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
+    summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) %>% 
+    arrange(HOUSEHOLD)
+  # total
+}
+
+##### TO DO ##########################################################################################
+DIFF_HEAD_OF_HOUSE <- function(data, micronutrient){
+  # takes in the data frame and micronutrient wanted and calculates the sum for each subject
+  data %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
+    summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) %>% 
+    arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>% 
+    mutate(
+      difference = "sum_{{micronutrient}}"
+    )
+    
   # total
 }
 
 
-vit_a <- MICRONUT_SUM(joined, VITA_RAE_mcg)
+vit_a <- DIFF_HEAD_OF_HOUSE(joined, VITA_RAE_mcg)
 vit_c <- MICRONUT_SUM(joined, VITC_mg)
 thia <- MICRONUT_SUM(joined, THIA_mg)
 
@@ -112,8 +131,7 @@ food_group <- joined %>% group_by(SUBJECT) %>%
   summarise(
     food_group_A = sum(food_list_A %in% FOODEX2_INGR_CODE),
     food_group_B = sum(food_list_B %in% FOODEX2_INGR_CODE),
-  ) %>% 
-  select(SUBJECT,food_group_A, food_group_B) 
+  ) 
 
 #join for one data set with the target (vitamin intake) and a covariate (food group)
 food_group <- food_group %>% left_join(vit_a, by = "SUBJECT") %>% 
