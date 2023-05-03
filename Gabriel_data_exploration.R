@@ -63,21 +63,10 @@ head(joined)
 nrow(joined)
 names(joined)
 
+###### FUNCTIONS ########
 
 # calculate the sum of vitamins for a subject
 # maybe write a function to do this 
-
-total_vitA <- joined %>% 
-  group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
-  summarise(sum =  sum(VITA_RAE_mcg)) %>% 
-  arrange(HOUSEHOLD)
-
-
-hist(total_vitA$sum)
-summary(total_vitA$sum)
-which.max(total_vitA$sum)
-# some huge values 9222.0 = 9g!
-
 
 MICRONUT_SUM <- function(data, micronutrient){
   # takes in the data frame and micronutrient wanted and calculates the sum for each subject
@@ -93,21 +82,41 @@ DIFF_HEAD_OF_HOUSE <- function(data, micronutrient){
   # takes in the data frame and micronutrient wanted and calculates the sum for each subject
   data %>% 
     group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
-    summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) %>% 
-    arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>% 
-    mutate(
-      difference = "sum_{{micronutrient}}"
-    )
-    
+    summarise(SUM = sum({{micronutrient}})) %>% 
+    arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
+    mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+    ungroup() %>%
+    group_by(HOUSEHOLD, SEX) %>%
+    filter(AGE_YEAR == max(AGE_YEAR)) %>% 
+    ungroup() %>% 
+    group_by(HOUSEHOLD) %>% 
+    mutate("DIFF_{{micronutrient}}" := SUM - lag(SUM, default = SUM[2])) %>% 
+    select(!c(SEX,AGE_YEAR,SUM, ROUND))
+  
+  
+  
+  
+  
+  # filter((SEX == "Male" & AGE_YEAR == max(AGE_YEAR) ) & (SEX == "Female" & AGE_YEAR == max(AGE_YEAR!=max(AGE_YEAR))))# | (SEX == "Female" & AGE_YEAR == max(AGE_YEAR) ))
+  
+  # mutate(
+  #   difference = sum_{{micronutrient}}
+  # )
+  
+  ### create a flag, filter b y flag,
+  
+  ## pivot table with one row per household 
+  
   # total
 }
 
 
+# test of the function 
 vit_a <- DIFF_HEAD_OF_HOUSE(joined, VITA_RAE_mcg)
-vit_c <- MICRONUT_SUM(joined, VITC_mg)
-thia <- MICRONUT_SUM(joined, THIA_mg)
+vit_c <- sum_
+vit_c$sum_VITC_mg <- ifelse(vit_c>200, mean(vit_c$sum_VITC_mg), vit_c$sum_VITC_mg)## this is prob not good practice
 
-vit_c$sum_VITC_mg <- ifelse(vit_c>200, mean(vit_c$sum_VITC_mg), vit_c$sum_VITC_mg)
+#
 
 hist(vit_c$sum_VITC_mg)
 hist(thia$sum_THIA_mg)
@@ -281,6 +290,25 @@ food_group
 
 # code_list_name <- food_dict
 
+### test for making the food lists
+names(joined)
 
-consumption %>% unique()
+sum_or_function <- function(x){
+  y = sum(x)
+  y = ifelse(y != 0, 1, 0)
+  y
+}
 
+DQQ_table <- joined %>% 
+  select(SUBJECT, FOODEX2_INGR_CODE) %>% 
+  full_join(DQQ, by = "FOODEX2_INGR_CODE") %>% 
+  select(!c(FOODEX2_INGR_CODE, INGREDIENT_ENG)) %>% 
+  group_by(SUBJECT) %>% 
+  summarise_all(sum_or_function)
+  
+DQQ_final_dataset <- inner_join(vit_a,DQQ_table, by = "SUBJECT")
+  
+# select only the subject, food code and the groups,
+# mutate the table so the count of food groups is added up per subject
+# mutate again so that if number != 0, make it one and factor
+# finally select only subejct and food groups

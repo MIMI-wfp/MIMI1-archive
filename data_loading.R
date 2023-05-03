@@ -1,0 +1,113 @@
+#### Gabriel Battcock
+#### Data extraction from NIN dataset to machine learning dataframe
+####
+#### Extracts data from the NIN dataset, calculates the difference in mean MN intake 
+#### between the head male and head female of the household. This is matched with binary data
+#### of food group intake for the DQQ, GDQD and MDD. 
+
+#packages
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(readr)
+library(readxl)
+library(sf)
+library(ggmap)
+
+setwd("~/Documents/LSHTM/WFP_project/MIMI")#set path for myself, please change if you want to use it
+path_to_data <- "../IND_00062/"
+
+# read in all the data files 
+consumption <- read_csv(paste0(path_to_data, "consumption_user.csv"))
+user <- read_csv(paste0(path_to_data, "subject_user.csv"))
+food_dict <- read_excel(paste0(path_to_data, "food_groups/FoodEx2_Exposure_dict.xlsx"))
+code_list <- read_csv(paste0(path_to_data, "code_lists.csv"))
+DQQ <- read_csv(paste0(path_to_data, "food_groups/DQQ_library.csv"))
+GDQS <- read_csv(paste0(path_to_data, "food_groups/GDQS_library.csv"))
+MDD <- read_csv(paste0(path_to_data, "food_groups/MDD_library.csv"))
+
+
+######## Functions ###########
+
+###### FUNCTIONS ########
+
+# calculate the sum of vitamins for a subject
+# maybe write a function to do this 
+
+MICRONUT_SUM <- function(data, micronutrient){
+  # takes in the data frame and micronutrient wanted and calculates the sum for each subject
+  data %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
+    summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) %>% 
+    arrange(HOUSEHOLD)
+  # total
+}
+
+##### TO DO ##########################################################################################
+DIFF_HEAD_OF_HOUSE <- function(data, micronutrient){
+  # takes in the data frame and micronutrient wanted and calculates the sum for each subject
+  data %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
+    summarise(SUM = sum({{micronutrient}})) %>% 
+    arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
+    mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+    ungroup() %>%
+    group_by(HOUSEHOLD, SEX) %>%
+    filter(AGE_YEAR == max(AGE_YEAR)) %>% 
+    ungroup() %>% 
+    group_by(HOUSEHOLD) %>% 
+    mutate("DIFF_{{micronutrient}}" := SUM - lag(SUM, default = SUM[2])) %>% 
+    select(!c(SEX,AGE_YEAR,SUM, ROUND))
+}
+
+FOOD_GROUP_LIST <- function(data, food_list){
+  # takes take in the conumption data and transforms it into a single row with a 1 or 0 for whether
+  # or not a food group was consumed
+  
+  sum_or_function <- function(x){
+    y = sum(x)
+    y = ifelse(y != 0, 1, 0)
+    y
+  }
+  
+  data  %>% 
+    select(SUBJECT, FOODEX2_INGR_CODE) %>% 
+    full_join(food_list, by = "FOODEX2_INGR_CODE") %>% 
+    select(!c(FOODEX2_INGR_CODE, INGREDIENT_ENG)) %>% 
+    group_by(SUBJECT) %>% 
+    summarise_all(sum_or_function) 
+}
+
+# create the initial datasets
+
+#create a joined user and consumption
+joined <- full_join(user, consumption, by = c("SUBJECT","ROUND")) 
+#micronutrients
+vitamin_A_calc <- DIFF_HEAD_OF_HOUSE(joined, VITA_RAE_mcg)
+folate_calc <- DIFF_HEAD_OF_HOUSE(joined, FOLDFE_mcg)
+iron_calc <- DIFF_HEAD_OF_HOUSE(joined, IRON_mg)
+zinc_calc <- DIFF_HEAD_OF_HOUSE(joined, ZINC_mg)
+# food lists
+DQQ_list <- FOOD_GROUP_LIST(joined,DQQ)
+GDQS_list <- FOOD_GROUP_LIST(joined,GDQS)
+MDD_list <- FOOD_GROUP_LIST(joined, MDD)
+
+# usable data frames
+# DQQ
+DQQ_vit_a <- inner_join(vitamin_A_calc, DQQ_list, by = "SUBJECT")
+DQQ_folate <- inner_join(folate_calc, DQQ_list, by = "SUBJECT")
+DQQ_iron <- inner_join(iron_calc, DQQ_list, by = "SUBJECT")
+DQQ_zinc <- inner_join(zinc_calc, DQQ_list, by = "SUBJECT")
+
+#GDQS
+GDQS_vit_a <- inner_join(vitamin_A_calc, GDQS_list, by = "SUBJECT")
+GDQS_folate <- inner_join(folate_calc, GDQS_list, by = "SUBJECT")
+GDQS_iron <- inner_join(iron_calc, GDQS_list, by = "SUBJECT")
+GDQS_zinc <- inner_join(zinc_calc, GDQS_list, by = "SUBJECT")
+
+#MDD
+MDD_vit_a <- inner_join(vitamin_A_calc, MDD_list, by = "SUBJECT")
+MDD_folate <- inner_join(folate_calc, MDD_list, by = "SUBJECT")
+MDD_iron <- inner_join(iron_calc, MDD_list, by = "SUBJECT")
+MDD_zinc <- inner_join(zinc_calc, MDD_list, by = "SUBJECT")
+
