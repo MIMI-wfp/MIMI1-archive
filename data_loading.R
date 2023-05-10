@@ -38,6 +38,7 @@ MICRONUT_SUM <- function(data, micronutrient){
   # takes in the data frame and micronutrient wanted and calculates the sum for each subject
   data %>% 
     group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
+    mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
     summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) %>% 
     arrange(HOUSEHOLD)
   # total
@@ -56,15 +57,58 @@ DIFF_HEAD_OF_HOUSE <- function(data, micronutrient){
     filter(AGE_YEAR == max(AGE_YEAR)) %>% 
     ungroup() %>% 
     group_by(HOUSEHOLD) %>% 
+    na.omit() %>% 
     mutate("DIFF_{{micronutrient}}" := SUM - lag(SUM, default = SUM[2])) %>% 
     select(!c(SEX,AGE_YEAR,SUM, ROUND))
 }
 
+
+DIFF_HOUSEHOLD <- function(data, micronutrient){
+  # takes in the data frame and micronutrient wanted and calculates the sum for each subject
+  male <- data %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
+    summarise(SUM = sum({{micronutrient}})) %>% 
+    arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
+    mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+    ungroup() %>%
+    group_by(HOUSEHOLD, SEX) %>%
+    filter(AGE_YEAR == max(AGE_YEAR)) %>% 
+    filter(SEX == "Male") %>% 
+    mutate(SUM_MALE = SUM)
+    # ungroup() %>% 
+    # group_by(HOUSEHOLD) %>% 
+    # na.omit() %>% 
+    # mutate("DIFF_{{micronutrient}}" := SUM - lag(SUM, default = SUM[2])) %>% 
+    # select(!c(SEX,AGE_YEAR,SUM, ROUND))
+  
+  female <- data %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
+    summarise(SUM = sum({{micronutrient}})) %>% 
+    arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
+    mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+    ungroup() %>%
+    group_by(HOUSEHOLD, SEX) %>%
+    filter(AGE_YEAR == max(AGE_YEAR)) %>%
+    filter(SEX == "Female") %>% 
+    mutate(SUM_FEMALE = SUM)
+  
+  output <- male %>% 
+    select(HOUSEHOLD, SUM_MALE) %>% 
+    inner_join((female %>% select(HOUSEHOLD, SUM_FEMALE)), by = "HOUSEHOLD") %>% 
+    mutate(DIFF = SUM_MALE - SUM_FEMALE)
+    
+  output
+}
+
+
+
+
 FOOD_GROUP_LIST <- function(data, food_list){
-  # takes take in the conumption data and transforms it into a single row with a 1 or 0 for whether
+  # takes take in the consumption data and transforms it into a single row with a 1 or 0 for whether
   # or not a food group was consumed
   
   sum_or_function <- function(x){
+    #creates OR logic gate
     y = sum(x)
     y = ifelse(y != 0, 1, 0)
     y
@@ -87,6 +131,14 @@ vitamin_A_calc <- DIFF_HEAD_OF_HOUSE(joined, VITA_RAE_mcg)
 folate_calc <- DIFF_HEAD_OF_HOUSE(joined, FOLDFE_mcg)
 iron_calc <- DIFF_HEAD_OF_HOUSE(joined, IRON_mg)
 zinc_calc <- DIFF_HEAD_OF_HOUSE(joined, ZINC_mg)
+
+#difference per household
+vit_a_household <- DIFF_HOUSEHOLD(joined, VITA_RAE_mcg)
+folate_household <- DIFF_HOUSEHOLD(joined, FOLDFE_mcg)
+iron_household <- DIFF_HOUSEHOLD(joined, IRON_mg)
+zinc_household <- DIFF_HOUSEHOLD(joined, ZINC_mg)
+
+
 # food lists
 DQQ_list <- FOOD_GROUP_LIST(joined,DQQ)
 GDQS_list <- FOOD_GROUP_LIST(joined,GDQS)
@@ -110,4 +162,10 @@ MDD_vit_a <- inner_join(vitamin_A_calc, MDD_list, by = "SUBJECT")
 MDD_folate <- inner_join(folate_calc, MDD_list, by = "SUBJECT")
 MDD_iron <- inner_join(iron_calc, MDD_list, by = "SUBJECT")
 MDD_zinc <- inner_join(zinc_calc, MDD_list, by = "SUBJECT")
+
+
+# mean intake for all types of demographics within households
+# how mean intakes interact between population groups
+# estimating intake inadequacy for the different MNs
+# 
 
