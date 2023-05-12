@@ -4,7 +4,13 @@
 
 library(ggplot2)
 library(hrbrthemes)
+
 source("data_loading.R")#sources the functions and data
+
+My_Theme = theme(
+  axis.title.x = element_text(size = 16),
+  axis.text.x = element_text(size = 14),
+  axis.title.y = element_text(size = 16))
 
 #take in date for the whole population for each MN
 vit_a_population <- MICRONUT_SUM(joined, VITA_RAE_mcg)
@@ -13,62 +19,74 @@ iron_population <- MICRONUT_SUM(joined, IRON_mg)
 zinc_population <- MICRONUT_SUM(joined, ZINC_mg)
 
 #histograms per sex
-vit_a_population %>% 
-  filter(sum_VITA_RAE_mcg<1000) %>% 
+sex_hist_vita <-   vit_a_population %>% 
+  filter(sum_VITA_RAE_mcg<750) %>% 
   # mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
   ggplot(aes(x = sum_VITA_RAE_mcg, fill = SEX)) +
   geom_histogram( color="#e9ecef", alpha = 1, position = 'dodge') +
   scale_fill_manual(values=c("#69b3a2", "#404080")) +
   theme_ipsum() +
-  labs(title = "Disrtibution of mean intake: \n Vitamin A",
+  labs(title = "Distribution of mean intake: \n Vitamin A",
        x = "Mean intake (mcg)", 
        fill = "Sex")
 
-folate_population %>% 
+sex_hist_vita + My_Theme
+
+sex_hist_folate <- folate_population %>% 
   filter(sum_FOLDFE_mcg<750) %>% 
   # mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
   ggplot(aes(x = sum_FOLDFE_mcg, fill = SEX)) +
   geom_histogram( color="#e9ecef", alpha = 1, position = 'dodge') +
   scale_fill_manual(values=c("#69b3a2", "#404080")) +
   theme_ipsum() +
-  labs(title = "Disrtibution of mean intake: \n Folate",
+  labs(title = "Distribution of mean intake: \n Folate",
        x = "Mean intake (mcg)", 
        fill = "Sex")
 
-iron_population %>% 
+sex_hist_folate + My_Theme
+
+sex_hist_iron <- iron_population %>% 
   filter(sum_IRON_mg<50) %>% 
   # mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
   ggplot(aes(x = sum_IRON_mg, fill = SEX)) +
   geom_histogram( color="#e9ecef", alpha = 1, position = 'dodge') +
   scale_fill_manual(values=c("#69b3a2", "#404080")) +
   theme_ipsum() +
-  labs(title = "Disrtibution of mean intake: \n Iron",
+  labs(title = "Distribution of mean intake: \n Iron",
        x = "Mean intake (mg)", 
        fill = "Sex")
 
-zinc_population %>% 
-  filter(sum_ZINC_mg<25) %>% 
+sex_hist_iron + My_Theme
+
+
+
+sex_hist_zinc <- zinc_population %>% 
+  filter(sum_ZINC_mg<50) %>% 
   # mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
   ggplot(aes(x = sum_ZINC_mg, fill = SEX)) +
   geom_histogram( color="#e9ecef", alpha = 1, position = 'dodge') +
   scale_fill_manual(values=c("#69b3a2", "#404080")) +
   theme_ipsum() +
-  labs(title = "Disrtibution of mean intake: \n Zinc",
+  labs(title = "Distribution of mean intake: \n Zinc",
        x = "Mean intake (mg)", 
        fill = "Sex")
 
+sex_hist_zinc + My_Theme
+
 #violin plots
 #whole population
-user %>% 
+violin_plot <- user %>% 
   # filter(sum_VITA_RAE_mcg<1000) %>%
   mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
   ggplot(aes(x = SEX, y = AGE_YEAR, fill = SEX)) +
-  geom_violin( alpha = 1, position = 'dodge', show.legend = FALSE) +
+  geom_violin(alpha = 1, position = 'dodge', show.legend = FALSE) +
   scale_fill_manual(values=c("#69b3a2", "#404080")) +
   theme_ipsum() +
   labs(title = "Age distribution of population",
        x = "Sex",
        y = "Age (years)")
+
+violin_plot + My_Theme
 
 # heads of household
 user %>% 
@@ -81,14 +99,14 @@ user %>%
   group_by(HOUSEHOLD) %>% 
   ggplot(aes(x = SEX, y = AGE_YEAR, fill = SEX)) +
   geom_violin( alpha = 1, position = 'dodge') +
-  scale_fill_manual(values=c("#69b3a2", "#404080")) +
+  scale_fill_manual(values=c( "#404080", "#69b3a2")) +
   theme_ipsum() +
   labs(fill="")
 
 
+# household difference
 
-
-vit_a_population %>% 
+vit_a_household <- vit_a_population %>% 
   arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
   ungroup() %>%
   group_by(HOUSEHOLD, SEX) %>%
@@ -103,45 +121,51 @@ vit_a_population %>%
   scale_fill_manual(values=c("#69b3a2", "#404080")) +
   theme_ipsum() +
   labs(fill="")
-  
+
 
 # Head of household difference in intake (Male - Female )
 
 
 summary(vit_a_household)
 
-vit_a_household %>% 
+vita_hh_plot <- vit_a_household %>% 
   filter(DIFF > -100 & DIFF < 100) %>% 
   ggplot(aes(x = DIFF)) + 
-  geom_histogram(  fill="#404080", alpha = 1, position = 'dodge') +
+  geom_histogram( color = "#69b3a2", fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
   labs(title = "Difference in mean intake per household:\n Vitamin A",
        x = "Difference (male - female) in mean intake (RAE mcg)")
+vita_hh_plot+My_Theme
 
-folate_household %>% 
+folate_hh_plot <- folate_household %>% 
   filter(DIFF > -100 & DIFF < 100) %>% 
   ggplot(aes(x = DIFF)) + 
-  geom_histogram( fill="#404080", alpha = 1, position = 'dodge') +
+  geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
   labs(title = "Difference in mean intake per household:\n Folate",
        x = "Difference (male - female) in mean intake (mcg)")
+folate_hh_plot+My_Theme
 
-iron_household %>% 
+iron_hh_mean <- mean(iron_household$DIFF)
+
+iron_hh_plot <- iron_household %>% 
   filter(DIFF > -25 & DIFF < 25) %>% 
+  # mutate(DIFF_NORM = DIFF/iron_hh_mean) %>% 
   ggplot(aes(x = DIFF)) + 
-  geom_histogram(  fill="#404080", alpha = 1, position = 'dodge') +
+  geom_histogram(  color = "#69b3a2",fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
   labs(title = "Difference in mean intake per household:\n Iron",
        x = "Difference (male - female) in mean intake (mg)")
+iron_hh_plot + My_Theme
 
-zinc_household %>% 
+zinc_hh_plot <- zinc_household %>% 
   filter(DIFF > -25 & DIFF < 25) %>% 
   ggplot(aes(x = DIFF)) + 
-  geom_histogram(  fill="#404080", alpha = 1, position = 'dodge') +
+  geom_histogram(color = "#69b3a2",  fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
   labs(title = "Difference in mean intake per household:\n Zinc",
        x = "Difference (male - female) in mean intake (mg)")
-
+zinc_hh_plot + My_Theme
 ## two sided T-test
 
 with(vit_a_household, t.test(SUM_MALE, SUM_FEMALE)) #not a significant difference 
@@ -149,4 +173,5 @@ with(folate_household, t.test(SUM_MALE, SUM_FEMALE))
 with(iron_household, t.test(SUM_MALE, SUM_FEMALE))
 with(zinc_household, t.test(SUM_MALE, SUM_FEMALE))
 
-###
+### looking at state level distribution
+
