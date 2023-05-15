@@ -11,7 +11,7 @@ library(dplyr)
 library(stringr)
 library(readr)
 library(readxl)
-library(sf)
+# library(sf)
 library(ggmap)
 
 setwd("~/Documents/LSHTM/WFP_project/MIMI")#set path for myself, please change if you want to use it
