@@ -102,7 +102,6 @@ DIFF_HOUSEHOLD <- function(data, micronutrient){
 
 
 
-
 FOOD_GROUP_LIST <- function(data, food_list){
   # takes take in the consumption data and transforms it into a single row with a 1 or 0 for whether
   # or not a food group was consumed
