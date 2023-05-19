@@ -44,7 +44,7 @@ MICRONUT_SUM <- function(data, micronutrient){
   # total
 }
 
-##### TO DO ##########################################################################################
+######
 DIFF_HEAD_OF_HOUSE <- function(data, micronutrient){
   # takes in the data frame and micronutrient wanted and calculates the sum for each subject
   data %>% 
@@ -59,7 +59,7 @@ DIFF_HEAD_OF_HOUSE <- function(data, micronutrient){
     group_by(HOUSEHOLD) %>% 
     na.omit() %>% 
     mutate("DIFF_{{micronutrient}}" := SUM - lag(SUM, default = SUM[2])) %>% 
-    select(!c(SEX,AGE_YEAR,SUM, ROUND))
+    select(!c(SEX,AGE_YEAR,SUM, ROUND, ADM1_NAME, ADM2_NAME))
 }
 
 
@@ -75,11 +75,7 @@ DIFF_HOUSEHOLD <- function(data, micronutrient){
     filter(AGE_YEAR == max(AGE_YEAR)) %>% 
     filter(SEX == "Male") %>% 
     mutate(SUM_MALE = SUM)
-    # ungroup() %>% 
-    # group_by(HOUSEHOLD) %>% 
-    # na.omit() %>% 
-    # mutate("DIFF_{{micronutrient}}" := SUM - lag(SUM, default = SUM[2])) %>% 
-    # select(!c(SEX,AGE_YEAR,SUM, ROUND))
+    
   
   female <- data %>% 
     group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
@@ -93,8 +89,8 @@ DIFF_HOUSEHOLD <- function(data, micronutrient){
     mutate(SUM_FEMALE = SUM)
   
   output <- male %>% 
-    select(HOUSEHOLD, SUM_MALE) %>% 
-    inner_join((female %>% select(HOUSEHOLD, SUM_FEMALE)), by = "HOUSEHOLD") %>% 
+    select(HOUSEHOLD, SUM_MALE, ADM1_NAME, ADM2_NAME) %>% 
+    inner_join((female %>% select(HOUSEHOLD, SUM_FEMALE, ADM1_NAME, ADM2_NAME)), by = c("HOUSEHOLD","ADM1_NAME", "ADM2_NAME")) %>% 
     mutate(DIFF = SUM_MALE - SUM_FEMALE)
     
   output

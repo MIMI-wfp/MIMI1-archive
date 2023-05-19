@@ -106,7 +106,7 @@ user %>%
 
 # household difference
 
-vit_a_household <- vit_a_population %>% 
+vit_a_hh <- vit_a_population %>% 
   arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
   ungroup() %>%
   group_by(HOUSEHOLD, SEX) %>%
@@ -174,4 +174,31 @@ with(iron_household, t.test(SUM_MALE, SUM_FEMALE))
 with(zinc_household, t.test(SUM_MALE, SUM_FEMALE))
 
 ### looking at state level distribution
+
+
+### look at distribution of BMI/ weight between adult men and women
+
+user$BMI <- round(with(user, (WEIGHT/(HEIGHT/100)**2)),2)
+user %>% 
+  filter(AGE_YEAR>17) %>% 
+  mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+  ggplot(aes(x = BMI, fill = SEX)) +
+  geom_histogram(color="#e9ecef", alpha = 1, position = 'dodge') +
+  scale_fill_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(fill="")
+
+### stratify micronutrient intake by age AND sex
+
+vit_a_population %>% 
+  mutate(AGE_GROUP = factor(case_when(
+    AGE_YEAR<1 ~ "0-1",
+    AGE_YEAR<13 ~ "2-12",
+    AGE_YEAR<18 ~ "13-17",
+    AGE_YEAR<30 ~ "18-29",
+    AGE_YEAR<65 ~ "30-65",
+    AGE_YEAR>=65 ~ "65+"
+  )))
+
+### 
 
