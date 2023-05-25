@@ -251,7 +251,7 @@ zinc_population %>%
   arrange(AGE_GROUP) %>% 
   summarise(MEAN_ZINC = mean(sum_ZINC_mg)) %>% 
   ggplot(aes(x = AGE_GROUP, y = MEAN_ZINC, fill = SEX)) +
-  geom_col(position = 'dodge')
+  geom_col(position = 'dodge') +
   scale_fill_manual(values=c("#69b3a2", "#404080")) +
   theme_ipsum() +
   labs(x = "Age group",
