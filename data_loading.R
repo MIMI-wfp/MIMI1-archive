@@ -26,6 +26,24 @@ DQQ <- read_csv(paste0(path_to_data, "food_groups/DQQ_library.csv"))
 GDQS <- read_csv(paste0(path_to_data, "food_groups/GDQS_library.csv"))
 MDD <- read_csv(paste0(path_to_data, "food_groups/MDD_library.csv"))
 
+###### Constant variables to be used ###############
+
+# Using EAR from the NIN to calculate minimum requirements 
+
+vita_EAR_men_mcg <- 460
+vita_EAR_women_mcg <- 390
+folate_EAR_men_mcg  <-  250
+folate_EAR_women_mcg <- 180
+iron_EAR_men_mg <- 11
+iron_EAR_women_mg <- 15
+zinc_EAR_men_mg <- 14
+zinc_EAR_women_mg <- 11
+
+# upper limit taken from Chan. Public Health  <- https://www.hsph.harvard.edu/nutritionsource
+iron_UL_mg <- 45
+zinc_UL_mg <- 40
+folate_UL_mcg <-  1000
+vita_UL_mcg <- 3000
 
 ######## Functions ###########
 
@@ -44,10 +62,11 @@ MICRONUT_SUM <- function(data, micronutrient){
       AGE_YEAR<13 ~ "2-12",
       AGE_YEAR<18 ~ "13-17",
       AGE_YEAR<30 ~ "18-29",
-      AGE_YEAR<65 ~ "30-65",
+      AGE_YEAR<65 ~ "30-64",
       AGE_YEAR>=65 ~ "65+"
-    ))) %>% 
-    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR, AGE_GROUP) %>% 
+    ),levels = c("0-1", "2-12", "13-17", "18-29", "30-64", "65+"))) %>% 
+    mutate(BMI = )
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR, AGE_GROUP, ADM1_NAME, ADM2_NAME) %>% 
     summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) %>% 
     arrange(HOUSEHOLD)
   # total
@@ -74,6 +93,39 @@ DIFF_HEAD_OF_HOUSE <- function(data, micronutrient){
 
 
 DIFF_HOUSEHOLD <- function(data, micronutrient){
+  # takes in the data frame and micronutrient wanted and calculates the sum for each subject
+  male <- data %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
+    summarise(SUM = sum({{micronutrient}})) %>% 
+    arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
+    mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+    ungroup() %>%
+    group_by(HOUSEHOLD, SEX) %>%
+    filter(AGE_YEAR == max(AGE_YEAR)) %>% 
+    filter(SEX == "Male") %>% 
+    mutate(SUM_MALE = SUM)
+    
+  
+  female <- data %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR,ADM1_NAME, ADM2_NAME) %>% 
+    summarise(SUM = sum({{micronutrient}})) %>% 
+    arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
+    mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+    ungroup() %>%
+    group_by(HOUSEHOLD, SEX) %>%
+    filter(AGE_YEAR == max(AGE_YEAR)) %>%
+    filter(SEX == "Female") %>% 
+    mutate(SUM_FEMALE = SUM)
+  
+  output <- male %>% 
+    select(HOUSEHOLD, SUM_MALE, ADM1_NAME, ADM2_NAME) %>% 
+    inner_join((female %>% select(HOUSEHOLD, SUM_FEMALE, ADM1_NAME, ADM2_NAME)), by = c("HOUSEHOLD","ADM1_NAME", "ADM2_NAME")) %>% 
+    mutate(DIFF = SUM_MALE - SUM_FEMALE)
+    
+  output
+}
+
+DIFF_CHILREN_HOUSEHOLD <- function(data, micronutrient){
   # takes in the data frame and micronutrient wanted and calculates the sum for each subject
   male <- data %>% 
     group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
@@ -142,6 +194,13 @@ vit_a_household <- DIFF_HOUSEHOLD(joined, VITA_RAE_mcg)
 folate_household <- DIFF_HOUSEHOLD(joined, FOLDFE_mcg)
 iron_household <- DIFF_HOUSEHOLD(joined, IRON_mg)
 zinc_household <- DIFF_HOUSEHOLD(joined, ZINC_mg)
+
+#take in date for the whole population for each MN
+vit_a_population <- MICRONUT_SUM(joined, VITA_RAE_mcg)
+folate_population <- MICRONUT_SUM(joined, FOLDFE_mcg)
+iron_population <- MICRONUT_SUM(joined, IRON_mg)
+zinc_population <- MICRONUT_SUM(joined, ZINC_mg)
+
 
 
 # food lists

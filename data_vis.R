@@ -26,11 +26,6 @@ My_Theme = theme(
   axis.text.x = element_text(size = 14),
   axis.title.y = element_text(size = 16)) # makes the size of labels bigger for presentations
 
-#take in date for the whole population for each MN
-vit_a_population <- MICRONUT_SUM(joined, VITA_RAE_mcg)
-folate_population <- MICRONUT_SUM(joined, FOLDFE_mcg)
-iron_population <- MICRONUT_SUM(joined, IRON_mg)
-zinc_population <- MICRONUT_SUM(joined, ZINC_mg)
 
 #histograms per sex
 sex_hist_vita <-   vit_a_population %>% 
@@ -270,7 +265,7 @@ vit_a_shape <- vit_a_population %>%
   mutate(DIFF = Male - Female) %>% 
   left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
 
-st_write(vit_a_shape, paste0(path_to_data, "shape_files/vit_a_shape.shp"))
+st_write(vit_a_shape, paste0(path_to_data, "shape_files/vit_a_shape.shp"), append = TRUE)
 
 folate_population$ADM2_NAME <- factor(folate_population$ADM2_NAME)  
 
@@ -281,7 +276,7 @@ folate_shape <- folate_population %>%
   mutate(DIFF = Male - Female) %>% 
   left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
 
-st_write(folate_shape, paste0(path_to_data, "shape_files/folate_shape.shp"))
+st_write(folate_shape, paste0(path_to_data, "shape_files/folate_shape.shp"), append = TRUE)
 
 iron_population$ADM2_NAME <- factor(iron_population$ADM2_NAME)  
 
@@ -292,7 +287,7 @@ iron_shape <- iron_population %>%
   mutate(DIFF = Male - Female) %>% 
   left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
 
-st_write(iron_shape, paste0(path_to_data, "shape_files/iron_shape.shp"))
+st_write(iron_shape, paste0(path_to_data, "shape_files/iron_shape.shp"), append = TRUE)
 
 zinc_population$ADM2_NAME <- factor(zinc_population$ADM2_NAME)  
 
@@ -303,6 +298,9 @@ zinc_shape <- zinc_population %>%
   mutate(DIFF = Male - Female) %>% 
   left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
 
-st_write(zinc_shape, paste0(path_to_data, "shape_files/zinc_shape.shp"))
+st_write(zinc_shape, paste0(path_to_data, "shape_files/zinc_shape.shp"), append = TRUE)
+
+#---------------------------------------------------------------------------------------------------
+
 
 
