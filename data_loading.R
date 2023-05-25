@@ -59,7 +59,7 @@ DIFF_HEAD_OF_HOUSE <- function(data, micronutrient){
     group_by(HOUSEHOLD) %>% 
     na.omit() %>% 
     mutate("DIFF_{{micronutrient}}" := SUM - lag(SUM, default = SUM[2])) %>% 
-    select(!c(SEX,AGE_YEAR,SUM, ROUND, ADM1_NAME, ADM2_NAME))
+    select(!c(SEX,AGE_YEAR,SUM, ROUND))
 }
 
 

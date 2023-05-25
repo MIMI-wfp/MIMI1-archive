@@ -4,13 +4,27 @@
 
 library(ggplot2)
 library(hrbrthemes)
+library(sp)
+library(sf)
+library(rmapshaper)
+library(stringi)
 
 source("data_loading.R")#sources the functions and data
+
+
+india_adm1 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm1.shp"))
+india_adm1 <- india_adm1 %>% 
+  ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
+
+india_adm2 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm2.shp"))
+india_adm2 <- india_adm2 %>% 
+  ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
+
 
 My_Theme = theme(
   axis.title.x = element_text(size = 16),
   axis.text.x = element_text(size = 14),
-  axis.title.y = element_text(size = 16))
+  axis.title.y = element_text(size = 16)) # makes the size of labels bigger for presentations
 
 #take in date for the whole population for each MN
 vit_a_population <- MICRONUT_SUM(joined, VITA_RAE_mcg)
@@ -89,6 +103,7 @@ violin_plot <- user %>%
 violin_plot + My_Theme
 
 # heads of household
+
 user %>% 
   mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
   arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
@@ -173,8 +188,6 @@ with(folate_household, t.test(SUM_MALE, SUM_FEMALE))
 with(iron_household, t.test(SUM_MALE, SUM_FEMALE))
 with(zinc_household, t.test(SUM_MALE, SUM_FEMALE))
 
-### looking at state level distribution
-
 
 ### look at distribution of BMI/ weight between adult men and women
 
@@ -191,14 +204,105 @@ user %>%
 ### stratify micronutrient intake by age AND sex
 
 vit_a_population %>% 
-  mutate(AGE_GROUP = factor(case_when(
-    AGE_YEAR<1 ~ "0-1",
-    AGE_YEAR<13 ~ "2-12",
-    AGE_YEAR<18 ~ "13-17",
-    AGE_YEAR<30 ~ "18-29",
-    AGE_YEAR<65 ~ "30-65",
-    AGE_YEAR>=65 ~ "65+"
-  )))
+  group_by(AGE_GROUP, SEX) %>% 
+  select(!c(SUBJECT, ROUND, AGE_YEAR)) %>% 
+  arrange(AGE_GROUP) %>% 
+  summarise(MEAN_VITA_RAE = mean(sum_VITA_RAE_mcg)) %>% 
+  ggplot(aes(x = AGE_GROUP, y = MEAN_VITA_RAE, fill = SEX)) +
+  geom_col(position = 'dodge') +
+  scale_fill_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Age group",
+       y = "Mean vitamin A intake (mcg)",
+       title = "Average Vitamin A intake \n by age group ",
+       fill = "Sex")
 
-### 
+folate_population %>% 
+  group_by(AGE_GROUP, SEX) %>% 
+  select(!c(SUBJECT, ROUND, AGE_YEAR)) %>% 
+  arrange(AGE_GROUP) %>% 
+  summarise(MEAN_FOLDFE = mean(sum_FOLDFE_mcg)) %>% 
+  ggplot(aes(x = AGE_GROUP, y = MEAN_FOLDFE, fill = SEX)) +
+  geom_col(position = 'dodge') +
+  scale_fill_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Age group",
+       y = "Mean folate intake (mcg)",
+       title = "Average Folate intake \n by age group ",
+       fill = "Sex")
+
+iron_population %>% 
+  group_by(AGE_GROUP, SEX) %>% 
+  select(!c(SUBJECT, ROUND, AGE_YEAR)) %>% 
+  arrange(AGE_GROUP) %>% 
+  summarise(MEAN_IRON = mean(sum_IRON_mg)) %>% 
+  ggplot(aes(x = AGE_GROUP, y = MEAN_IRON, fill = SEX)) +
+  geom_col(position = 'dodge') +
+  scale_fill_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Age group",
+       y = "Mean iron intake (mg)",
+       title = "Average Iron intake \n by age group ",
+       fill = "Sex")
+
+zinc_population %>% 
+  group_by(AGE_GROUP, SEX) %>% 
+  select(!c(SUBJECT, ROUND, AGE_YEAR)) %>% 
+  arrange(AGE_GROUP) %>% 
+  summarise(MEAN_ZINC = mean(sum_ZINC_mg)) %>% 
+  ggplot(aes(x = AGE_GROUP, y = MEAN_ZINC, fill = SEX)) +
+  geom_col(position = 'dodge')
+  scale_fill_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Age group",
+       y = "Mean zinc intake (mg)",
+       title = "Average Zinc intake \n by age group ",
+       fill = "Sex")
+
+  
+### state level/ adm2 level distribution
+vit_a_population$ADM2_NAME <- factor(vit_a_population$ADM2_NAME)  
+  
+vit_a_shape <- vit_a_population %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(MEAN = mean(sum_VITA_RAE_mcg)) %>% 
+  pivot_wider(names_from = SEX, values_from = MEAN) %>% 
+  mutate(DIFF = Male - Female) %>% 
+  left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
+
+st_write(vit_a_shape, paste0(path_to_data, "shape_files/vit_a_shape.shp"))
+
+folate_population$ADM2_NAME <- factor(folate_population$ADM2_NAME)  
+
+folate_shape <- folate_population %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(MEAN = mean(sum_FOLDFE_mcg)) %>% 
+  pivot_wider(names_from = SEX, values_from = MEAN) %>% 
+  mutate(DIFF = Male - Female) %>% 
+  left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
+
+st_write(folate_shape, paste0(path_to_data, "shape_files/folate_shape.shp"))
+
+iron_population$ADM2_NAME <- factor(iron_population$ADM2_NAME)  
+
+iron_shape <- iron_population %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(MEAN = mean(sum_IRON_mg)) %>% 
+  pivot_wider(names_from = SEX, values_from = MEAN) %>% 
+  mutate(DIFF = Male - Female) %>% 
+  left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
+
+st_write(iron_shape, paste0(path_to_data, "shape_files/iron_shape.shp"))
+
+zinc_population$ADM2_NAME <- factor(zinc_population$ADM2_NAME)  
+
+zinc_shape <- zinc_population %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(MEAN = mean(sum_ZINC_mg)) %>% 
+  pivot_wider(names_from = SEX, values_from = MEAN) %>% 
+  mutate(DIFF = Male - Female) %>% 
+  left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
+
+st_write(zinc_shape, paste0(path_to_data, "shape_files/zinc_shape.shp"))
+
 
