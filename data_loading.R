@@ -66,7 +66,7 @@ DIFF_HEAD_OF_HOUSE <- function(data, micronutrient){
 DIFF_HOUSEHOLD <- function(data, micronutrient){
   # takes in the data frame and micronutrient wanted and calculates the sum for each subject
   male <- data %>% 
-    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
     summarise(SUM = sum({{micronutrient}})) %>% 
     arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
     mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
@@ -78,7 +78,7 @@ DIFF_HOUSEHOLD <- function(data, micronutrient){
     
   
   female <- data %>% 
-    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR,ADM1_NAME, ADM2_NAME) %>% 
     summarise(SUM = sum({{micronutrient}})) %>% 
     arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
     mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
