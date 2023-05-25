@@ -37,12 +37,22 @@ MDD <- read_csv(paste0(path_to_data, "food_groups/MDD_library.csv"))
 MICRONUT_SUM <- function(data, micronutrient){
   # takes in the data frame and micronutrient wanted and calculates the sum for each subject
   data %>% 
-    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR) %>% 
+    
     mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+    mutate(AGE_GROUP = factor(case_when(
+      AGE_YEAR<1 ~ "0-1",
+      AGE_YEAR<13 ~ "2-12",
+      AGE_YEAR<18 ~ "13-17",
+      AGE_YEAR<30 ~ "18-29",
+      AGE_YEAR<65 ~ "30-65",
+      AGE_YEAR>=65 ~ "65+"
+    ))) %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR, AGE_GROUP) %>% 
     summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) %>% 
     arrange(HOUSEHOLD)
   # total
 }
+
 
 ######
 DIFF_HEAD_OF_HOUSE <- function(data, micronutrient){
