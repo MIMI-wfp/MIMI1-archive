@@ -1,9 +1,5 @@
 #### Gabriel Battcock
-#### Data extraction from NIN dataset to machine learning dataframe
-####
-#### Extracts data from the NIN dataset, calculates the difference in mean MN intake 
-#### between the head male and head female of the household. This is matched with binary data
-#### of food group intake for the DQQ, GDQD and MDD. 
+## All the functions for MIMI project
 
 #packages
 library(tidyr)
@@ -14,43 +10,16 @@ library(readxl)
 # library(sf)
 library(ggmap)
 
-setwd("~/Documents/LSHTM/WFP_project/MIMI")#set path for myself, please change if you want to use it
-path_to_data <- "../IND_00062/"
 
-# read in all the data files 
-consumption <- read_csv(paste0(path_to_data, "consumption_user.csv"))
-user <- read_csv(paste0(path_to_data, "subject_user.csv"))
-food_dict <- read_excel(paste0(path_to_data, "food_groups/FoodEx2_Exposure_dict.xlsx"))
-code_list <- read_csv(paste0(path_to_data, "code_lists.csv"))
-DQQ <- read_csv(paste0(path_to_data, "food_groups/DQQ_library.csv"))
-GDQS <- read_csv(paste0(path_to_data, "food_groups/GDQS_library.csv"))
-MDD <- read_csv(paste0(path_to_data, "food_groups/MDD_library.csv"))
+setClass("micronutrient",    slots = list(
+        name = "character",
+        EAR_men = "numeric",
+        EAR_women = "numeric",
+        UL = "numeric",
+        data = "data.frame",
+        value = "character"
 
-###### Constant variables to be used ###############
-
-# Using EAR from the NIN to calculate minimum requirements 
-
-vita_EAR_men_mcg <- 460
-vita_EAR_women_mcg <- 390
-folate_EAR_men_mcg  <-  250
-folate_EAR_women_mcg <- 180
-iron_EAR_men_mg <- 11
-iron_EAR_women_mg <- 15
-zinc_EAR_men_mg <- 14
-zinc_EAR_women_mg <- 11
-
-# upper limit taken from Chan. Public Health  <- https://www.hsph.harvard.edu/nutritionsource
-iron_UL_mg <- 45
-zinc_UL_mg <- 40
-folate_UL_mcg <-  1000
-vita_UL_mcg <- 3000
-
-######## Functions ###########
-
-###### FUNCTIONS ########
-
-# calculate the sum of vitamins for a subject
-# maybe write a function to do this 
+))
 
 MICRONUT_SUM <- function(data, micronutrient){
   # takes in the data frame and micronutrient wanted and calculates the sum for each subject
@@ -177,53 +146,58 @@ FOOD_GROUP_LIST <- function(data, food_list){
     summarise_all(sum_or_function) 
 }
 
-# create the initial datasets
 
-#create a joined user and consumption
-joined <- full_join(user, consumption, by = c("SUBJECT","ROUND")) 
-#micronutrients
-vitamin_A_calc <- DIFF_HEAD_OF_HOUSE(joined, VITA_RAE_mcg)
-folate_calc <- DIFF_HEAD_OF_HOUSE(joined, FOLDFE_mcg)
-iron_calc <- DIFF_HEAD_OF_HOUSE(joined, IRON_mg)
-zinc_calc <- DIFF_HEAD_OF_HOUSE(joined, ZINC_mg)
+inadequacy_MN <- function(micronutrient_object){
+    #calclates whether or not they are inadequate based on 
+    # MEAN intake and EAR 
+    # this is probably not correct on an individual level and 
+    # will probably need fixing but gives a good idea
+    # at a ADM2 level where there is high burden 
+    
+  Men <-  new("micronutrient",
+    EAR_men = micronutrient_object@EAR_men,
+    EAR_women = micronutrient_object@EAR_women,
+    UL = micronutrient_object@UL, 
+    data = micronutrient_object@data %>% 
+      filter(AGE_YEAR>17 & SEX == "Male"),
+    value = micronutrient_object@value
+  )
+  Women <-  new("micronutrient",
+    EAR_men = micronutrient_object@EAR_men,
+    EAR_women = micronutrient_object@EAR_women,
+    UL = micronutrient_object@UL, 
+    data = micronutrient_object@data %>% 
+      filter(AGE_YEAR>17 & SEX == "Female"),
+    value = micronutrient_object@value
+  )
+    
+  #   micronutrient_object@data %>%
+  # filter(AGE_YEAR>17 & SEX == "Male")
+  # women <- micronutrient_object@data %>%
+  # filter(AGE_YEAR>17 & SEX == "Female")
 
-#difference per household
-vit_a_household <- DIFF_HOUSEHOLD(joined, VITA_RAE_mcg)
-folate_household <- DIFF_HOUSEHOLD(joined, FOLDFE_mcg)
-iron_household <- DIFF_HOUSEHOLD(joined, IRON_mg)
-zinc_household <- DIFF_HOUSEHOLD(joined, ZINC_mg)
+  
+  temp_men <- Men@data %>%
+    ungroup()  %>%
+    rename(SUM = Men@value) %>%
+    select(SUBJECT, SUM, ADM2_NAME)  %>% 
+    mutate(INADEQUATE = factor(ifelse(SUM<= Men@EAR_men, 1, 0))) %>%
+    group_by(ADM2_NAME) %>%
+    summarise(percentage =(length( INADEQUATE[ which( INADEQUATE == 1 ) ])/n()))  
 
+  temp_women <- Women@data %>%
+    ungroup()  %>%
+    rename(SUM = Women@value) %>%
+    select(SUBJECT, SUM, ADM2_NAME)  %>% 
+    mutate(INADEQUATE = factor(ifelse(SUM<= Women@EAR_women, 1, 0))) %>%
+    group_by(ADM2_NAME) %>% 
+    summarise(percentage =(length( INADEQUATE[ which( INADEQUATE == 1 ) ])/n()))  
 
+  final  <- temp_men %>% 
+    left_join(temp_women, by = "ADM2_NAME") %>% 
+    rename(percentage_men = percentage.x,
+           percentage_women = percentage.y)
 
-
-
-# food lists
-DQQ_list <- FOOD_GROUP_LIST(joined,DQQ)
-GDQS_list <- FOOD_GROUP_LIST(joined,GDQS)
-MDD_list <- FOOD_GROUP_LIST(joined, MDD)
-
-# usable data frames
-# DQQ
-DQQ_vit_a <- inner_join(vitamin_A_calc, DQQ_list, by = "SUBJECT")
-DQQ_folate <- inner_join(folate_calc, DQQ_list, by = "SUBJECT")
-DQQ_iron <- inner_join(iron_calc, DQQ_list, by = "SUBJECT")
-DQQ_zinc <- inner_join(zinc_calc, DQQ_list, by = "SUBJECT")
-
-#GDQS
-GDQS_vit_a <- inner_join(vitamin_A_calc, GDQS_list, by = "SUBJECT")
-GDQS_folate <- inner_join(folate_calc, GDQS_list, by = "SUBJECT")
-GDQS_iron <- inner_join(iron_calc, GDQS_list, by = "SUBJECT")
-GDQS_zinc <- inner_join(zinc_calc, GDQS_list, by = "SUBJECT")
-
-#MDD
-MDD_vit_a <- inner_join(vitamin_A_calc, MDD_list, by = "SUBJECT")
-MDD_folate <- inner_join(folate_calc, MDD_list, by = "SUBJECT")
-MDD_iron <- inner_join(iron_calc, MDD_list, by = "SUBJECT")
-MDD_zinc <- inner_join(zinc_calc, MDD_list, by = "SUBJECT")
-
-
-# mean intake for all types of demographics within households
-# how mean intakes interact between population groups
-# estimating intake inadequacy for the different MNs
-# 
-
+  final <- final  %>% left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
+  final
+}

@@ -6,6 +6,7 @@ library(ggplot2)
 library(hrbrthemes)
 library(sp)
 library(sf)
+library(tmap)
 library(rmapshaper)
 library(stringi)
 
@@ -300,7 +301,129 @@ zinc_shape <- zinc_population %>%
 
 st_write(zinc_shape, paste0(path_to_data, "shape_files/zinc_shape.shp"), append = TRUE)
 
-#---------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------
+
+# using the MEAN intake for adult men and men and women,
+# calculate the percentage of people
+# at ADM2 level who are below the EAR threshold
+
+inadequacy_MN <- function(micronutrient_object){
+  Men <-  new("micronutrient",
+    EAR_men = micronutrient_object@EAR_men,
+    EAR_women = micronutrient_object@EAR_women,
+    UL = micronutrient_object@UL, 
+    data = micronutrient_object@data %>% 
+      filter(AGE_YEAR>17 & SEX == "Male"),
+    value = micronutrient_object@value
+  )
+  Women <-  new("micronutrient",
+    EAR_men = micronutrient_object@EAR_men,
+    EAR_women = micronutrient_object@EAR_women,
+    UL = micronutrient_object@UL, 
+    data = micronutrient_object@data %>% 
+      filter(AGE_YEAR>17 & SEX == "Female"),
+    value = micronutrient_object@value
+  )
+    
+  #   micronutrient_object@data %>%
+  # filter(AGE_YEAR>17 & SEX == "Male")
+  # women <- micronutrient_object@data %>%
+  # filter(AGE_YEAR>17 & SEX == "Female")
+
+  
+  temp_men <- Men@data %>%
+    ungroup()  %>%
+    rename(SUM = Men@value) %>%
+    select(SUBJECT, SUM, ADM2_NAME)  %>% 
+    mutate(INADEQUATE = factor(ifelse(SUM<= Men@EAR_men, 1, 0))) %>%
+    group_by(ADM2_NAME) %>%
+    summarise(percentage =(length( INADEQUATE[ which( INADEQUATE == 1 ) ])/n()))  
+
+  temp_women <- Women@data %>%
+    ungroup()  %>%
+    rename(SUM = Women@value) %>%
+    select(SUBJECT, SUM, ADM2_NAME)  %>% 
+    mutate(INADEQUATE = factor(ifelse(SUM<= Women@EAR_women, 1, 0))) %>%
+    group_by(ADM2_NAME) %>% 
+    summarise(percentage =(length( INADEQUATE[ which( INADEQUATE == 1 ) ])/n()))  
+
+  final  <- temp_men %>% 
+    left_join(temp_women, by = "ADM2_NAME") %>% 
+    rename(percentage_men = percentage.x,
+           percentage_women = percentage.y)
+
+  final <- final  %>% left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
+  final
+}
+
+vita_inad <- inadequacy_MN(VitA)
+folate_inad <- inadequacy_MN(Folate) 
+iron_inad <- inadequacy_MN(Iron)
+zinc_inad<- inadequacy_MN(Zinc)
 
 
+
+w1 <- tm_shape(st_as_sf(india_adm2))+
+  tm_fill()+
+tm_shape(st_as_sf(vita_inad)) +
+  tm_polygons(col = "percentage_men",
+              title = "Vitamin A inadequacy by district",
+              style = "quantile",
+              breaks = 3,
+              palette = "-RdYlGn",
+              alpha = 1,
+              lwd = 0.4,
+              n = 4,
+              border.col = 1,
+              legend.hist = TRUE) +
+  tm_layout(legend.outside = TRUE)
+
+
+w2 <- tm_shape(st_as_sf(india_adm2))+
+  tm_fill()+
+  tm_shape(st_as_sf(folate_inad)) +
+  tm_polygons(col = "percentage_men",
+              title = "Folate inadequacy by district",
+              style = "quantile",
+              breaks = 3,
+              palette = "-RdYlGn",
+              alpha = 1,
+              lwd = 0.4,
+              n = 4,
+              border.col = 1,
+              legend.hist = TRUE) +
+  tm_layout(legend.outside = TRUE)
+
+
+w3 <- tm_shape(st_as_sf(india_adm2))+
+  tm_fill()+
+  tm_shape(st_as_sf(iron_inad)) +
+  tm_polygons(col = "percentage_men",
+              title = "Iron inadequacy by district",
+              style = "quantile",
+              breaks = 3,
+              palette = "-RdYlGn",
+              alpha = 1,
+              lwd = 0.4,
+              n = 4,
+              border.col = 1,
+              legend.hist = TRUE) +
+  tm_layout(legend.outside = TRUE)
+
+  w4 <- tm_shape(st_as_sf(india_adm2))+
+    tm_fill()+
+    tm_shape(st_as_sf(zinc_inad)) +
+    tm_polygons(col = "percentage_men",
+                title = "Zinc inadequacy by district",
+                style = "quantile",
+                breaks = 3,
+                palette = "-RdYlGn",
+                alpha = 1,
+                lwd = 0.4,
+                n = 4,
+                border.col = 1,
+                legend.hist = TRUE) +
+    tm_layout(legend.outside = TRUE)
+
+  tmap_arrange(w1, w2, w3, w4, nrow = 2)
 
