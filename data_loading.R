@@ -28,16 +28,16 @@ MDD <- read_csv(paste0(path_to_data, "food_groups/MDD_library.csv"))
 
 ###### Constant variables to be used ###############
 
-# Using EAR from the NIN to calculate minimum requirements 
+# Using EAR from the NIN to calculate minimum requirements chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7231601/pdf/nmz096.pdf
 
-vita_EAR_men_mcg <- 460
-vita_EAR_women_mcg <- 390
+vita_EAR_men_mcg <- 570
+vita_EAR_women_mcg <- 490
 folate_EAR_men_mcg  <-  250
-folate_EAR_women_mcg <- 180
-iron_EAR_men_mg <- 11
-iron_EAR_women_mg <- 15
-zinc_EAR_men_mg <- 14
-zinc_EAR_women_mg <- 11
+folate_EAR_women_mcg <- 250
+iron_EAR_men_mg <- 19.2
+iron_EAR_women_mg <- 22.4
+zinc_EAR_men_mg <- 11
+zinc_EAR_women_mg <- 8.9
 
 # upper limit taken from Chan. Public Health  <- https://www.hsph.harvard.edu/nutritionsource
 iron_UL_mg <- 45
@@ -63,7 +63,7 @@ MICRONUT_SUM <- function(data, micronutrient){
       AGE_YEAR<65 ~ "30-64",
       AGE_YEAR>=65 ~ "65+"
     ),levels = c("0-1", "2-12", "13-17", "18-29", "30-64", "65+"))) %>% 
-    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR,AGE_GROUP, ADM1_NAME, ADM2_NAME) %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR,AGE_GROUP,CONSUMPTION_DAY, ADM1_NAME, ADM2_NAME) %>% 
     mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female")))  %>% 
     summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) #%>% 
     # arrange(HOUSEHOLD) 
@@ -193,33 +193,36 @@ folate_household <- DIFF_HOUSEHOLD(joined, FOLDFE_mcg)
 iron_household <- DIFF_HOUSEHOLD(joined, IRON_mg)
 zinc_household <- DIFF_HOUSEHOLD(joined, ZINC_mg)
 
-
-
+# Population variables
+vit_a_population <- MICRONUT_SUM(joined, VITA_RAE_mcg)
+folate_population <- MICRONUT_SUM(joined, FOLDFE_mcg)
+iron_population <- MICRONUT_SUM(joined, IRON_mg)
+zinc_population <- MICRONUT_SUM(joined, ZINC_mg)
 
 
 # food lists
-DQQ_list <- FOOD_GROUP_LIST(joined,DQQ)
-GDQS_list <- FOOD_GROUP_LIST(joined,GDQS)
-MDD_list <- FOOD_GROUP_LIST(joined, MDD)
-
-# usable data frames
-# DQQ
-DQQ_vit_a <- inner_join(vitamin_A_calc, DQQ_list, by = "SUBJECT")
-DQQ_folate <- inner_join(folate_calc, DQQ_list, by = "SUBJECT")
-DQQ_iron <- inner_join(iron_calc, DQQ_list, by = "SUBJECT")
-DQQ_zinc <- inner_join(zinc_calc, DQQ_list, by = "SUBJECT")
-
-#GDQS
-GDQS_vit_a <- inner_join(vitamin_A_calc, GDQS_list, by = "SUBJECT")
-GDQS_folate <- inner_join(folate_calc, GDQS_list, by = "SUBJECT")
-GDQS_iron <- inner_join(iron_calc, GDQS_list, by = "SUBJECT")
-GDQS_zinc <- inner_join(zinc_calc, GDQS_list, by = "SUBJECT")
-
-#MDD
-MDD_vit_a <- inner_join(vitamin_A_calc, MDD_list, by = "SUBJECT")
-MDD_folate <- inner_join(folate_calc, MDD_list, by = "SUBJECT")
-MDD_iron <- inner_join(iron_calc, MDD_list, by = "SUBJECT")
-MDD_zinc <- inner_join(zinc_calc, MDD_list, by = "SUBJECT")
+# DQQ_list <- FOOD_GROUP_LIST(joined,DQQ)
+# GDQS_list <- FOOD_GROUP_LIST(joined,GDQS)
+# MDD_list <- FOOD_GROUP_LIST(joined, MDD)
+# 
+# # usable data frames
+# # DQQ
+# DQQ_vit_a <- inner_join(vitamin_A_calc, DQQ_list, by = "SUBJECT")
+# DQQ_folate <- inner_join(folate_calc, DQQ_list, by = "SUBJECT")
+# DQQ_iron <- inner_join(iron_calc, DQQ_list, by = "SUBJECT")
+# DQQ_zinc <- inner_join(zinc_calc, DQQ_list, by = "SUBJECT")
+# 
+# #GDQS
+# GDQS_vit_a <- inner_join(vitamin_A_calc, GDQS_list, by = "SUBJECT")
+# GDQS_folate <- inner_join(folate_calc, GDQS_list, by = "SUBJECT")
+# GDQS_iron <- inner_join(iron_calc, GDQS_list, by = "SUBJECT")
+# GDQS_zinc <- inner_join(zinc_calc, GDQS_list, by = "SUBJECT")
+# 
+# #MDD
+# MDD_vit_a <- inner_join(vitamin_A_calc, MDD_list, by = "SUBJECT")
+# MDD_folate <- inner_join(folate_calc, MDD_list, by = "SUBJECT")
+# MDD_iron <- inner_join(iron_calc, MDD_list, by = "SUBJECT")
+# MDD_zinc <- inner_join(zinc_calc, MDD_list, by = "SUBJECT")
 
 
 # mean intake for all types of demographics within households
