@@ -48,6 +48,8 @@ iron_EAR_men_mg <- 19.2
 iron_EAR_women_mg <- 22.4
 zinc_EAR_men_mg <- 11
 zinc_EAR_women_mg <- 8.9
+vitb12_EAR_men_mcg <- 2
+vitb12_EAR_women_mcg <- 2
 
 # upper limit taken from Chan. Public Health  <- https://www.hsph.harvard.edu/nutritionsource
 iron_UL_mg <- 45

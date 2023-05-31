@@ -2,15 +2,8 @@
 # background data visualisation
 # Differences between mean intake between sexes 
 
-library(ggplot2)
-library(hrbrthemes)
-library(sp)
-library(sf)
-library(tmap)
-library(rmapshaper)
-library(stringi)
-
 source("data_loading.R")#sources the functions and data
+source("functions.R")
 
 
 india_adm1 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm1.shp"))
@@ -20,7 +13,7 @@ india_adm1 <- india_adm1 %>%
 india_adm2 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm2.shp"))
 india_adm2 <- india_adm2 %>% 
   ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
-
+plot(india_adm2$geometry)
 
 My_Theme = theme(
   axis.title.x = element_text(size = 16),
@@ -260,39 +253,111 @@ zinc_population %>%
 vit_a_population$ADM2_NAME <- factor(vit_a_population$ADM2_NAME)  
   
 vit_a_shape <- vit_a_population %>% 
+  filter(AGE_YEAR>=18) %>% 
   group_by(ADM2_NAME, SEX) %>% 
   summarise(MEAN = mean(sum_VITA_RAE_mcg)) %>% 
   pivot_wider(names_from = SEX, values_from = MEAN) %>% 
   mutate(DIFF = Male - Female) %>% 
   left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
 
+vit_a_shape_household <- vit_a_population %>% 
+  filter(AGE_YEAR>=18) %>% 
+  group_by(ADM2_NAME, HOUSEHOLD, SEX) %>% 
+  summarise(MEAN = mean(sum_VITA_RAE_mcg)) %>% 
+  pivot_wider(names_from = SEX, values_from = MEAN) %>% 
+  mutate(DIFF = Male - Female) %>% 
+  ungroup() %>% 
+  group_by(ADM2_NAME) %>% 
+  summarise(MEAN_DIFF = mean(DIFF, na.rm = T)) %>% 
+  left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
+
+vit_a_shape_head_household <- vit_a_population %>% 
+  filter(AGE_YEAR>=18) %>% 
+  group_by(HOUSEHOLD) %>% 
+  arrange(HOUSEHOLD)
+  # summarise(MEAN = mean(sum_VITA_RAE_mcg)) %>% 
+  pivot_wider(names_from = SEX, values_from = sum_VITA_RAE_mcg) %>% 
+  mutate(DIFF = Male - Female) %>% 
+  ungroup() %>% 
+  group_by(ADM2_NAME) %>% 
+  summarise(MEAN_DIFF = mean(DIFF, na.rm = T)) %>% 
+  left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
+
+tm_shape(st_as_sf(india_adm2))+
+  tm_fill() +
+  tm_shape(st_as_sf(vit_a_shape_household)) +
+  tm_polygons(col = "MEAN_DIFF",
+              title = "Vitamin A intake difference (Men - Women), mcg",
+              style = "quantile",
+              breaks = 3,
+              palette = "RdYlGn",
+              alpha = 1,
+              lwd = 0.4,
+              n = 4,
+              border.col = 1,
+              legend.hist = TRUE) +
+  tm_layout(legend.outside = TRUE)
+
 st_write(vit_a_shape, paste0(path_to_data, "shape_files/vit_a_shape.shp"), append = TRUE)
 
 folate_population$ADM2_NAME <- factor(folate_population$ADM2_NAME)  
 
 folate_shape <- folate_population %>% 
+  filter(AGE_YEAR>=18) %>% 
   group_by(ADM2_NAME, SEX) %>% 
   summarise(MEAN = mean(sum_FOLDFE_mcg)) %>% 
   pivot_wider(names_from = SEX, values_from = MEAN) %>% 
   mutate(DIFF = Male - Female) %>% 
   left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
 
+tm_shape(st_as_sf(india_adm2))+
+  tm_fill() +
+  tm_shape(st_as_sf(folate_shape)) +
+  tm_polygons(col = "DIFF",
+              title = "Vitamin A intake difference (Men - Women), mcg",
+              style = "quantile",
+              breaks = 3,
+              palette = "RdYlGn",
+              alpha = 1,
+              lwd = 0.4,
+              n = 4,
+              border.col = 1,
+              legend.hist = TRUE) +
+  tm_layout(legend.outside = TRUE)
+
 st_write(folate_shape, paste0(path_to_data, "shape_files/folate_shape.shp"), append = TRUE)
 
 iron_population$ADM2_NAME <- factor(iron_population$ADM2_NAME)  
 
 iron_shape <- iron_population %>% 
+  filter(AGE_YEAR>=18) %>% 
   group_by(ADM2_NAME, SEX) %>% 
   summarise(MEAN = mean(sum_IRON_mg)) %>% 
   pivot_wider(names_from = SEX, values_from = MEAN) %>% 
   mutate(DIFF = Male - Female) %>% 
   left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
 
+tm_shape(st_as_sf(india_adm2))+
+  tm_fill() +
+  tm_shape(st_as_sf(iron_shape)) +
+  tm_polygons(col = "DIFF",
+              title = "Iron intake difference (Men - Women), mg",
+              style = "quantile",
+              palette = "-RdYlGn",
+              breaks = c(-0.65,0,2,4.7),
+              alpha = 1,
+              lwd = 0.4,
+              n = 4,
+              border.col = 1,
+              legend.hist = TRUE) +
+  tm_layout(legend.outside = TRUE)
+
 st_write(iron_shape, paste0(path_to_data, "shape_files/iron_shape.shp"), append = TRUE)
 
 zinc_population$ADM2_NAME <- factor(zinc_population$ADM2_NAME)  
 
 zinc_shape <- zinc_population %>% 
+  filter(AGE_YEAR>=18) %>% 
   group_by(ADM2_NAME, SEX) %>% 
   summarise(MEAN = mean(sum_ZINC_mg)) %>% 
   pivot_wider(names_from = SEX, values_from = MEAN) %>% 
