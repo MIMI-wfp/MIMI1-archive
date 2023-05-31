@@ -7,8 +7,15 @@ library(dplyr)
 library(stringr)
 library(readr)
 library(readxl)
-# library(sf)
 library(ggmap)
+library(ggplot2)
+library(hrbrthemes)
+library(sp)
+library(sf)
+library(tmap)
+library(rmapshaper)
+library(stringi)
+library(haven)
 
 
 setClass("micronutrient",    slots = list(

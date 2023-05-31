@@ -25,8 +25,18 @@ code_list <- read_csv(paste0(path_to_data, "code_lists.csv"))
 DQQ <- read_csv(paste0(path_to_data, "food_groups/DQQ_library.csv"))
 GDQS <- read_csv(paste0(path_to_data, "food_groups/GDQS_library.csv"))
 MDD <- read_csv(paste0(path_to_data, "food_groups/MDD_library.csv"))
+vb12_dict <- read_csv(paste0(path_to_data, "dictionaries/vb12_dict.csv"))
+  
+###### create vb12 variable    - can change if not correct
+# consumption <- consumption %>% inner_join(vb12_dict, by = "FOODEX2_INGR_CODE") %>% 
+#   mutate(VITB12_mcg = (vitaminb12_in_mg*FOOD_AMOUNT_REPORTED)/100) 
+# write_csv(consumption, paste0(path_to_data, "consumption_user.csv")
 
 ###### Constant variables to be used ###############
+
+
+
+
 
 # Using EAR from the NIN to calculate minimum requirements chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7231601/pdf/nmz096.pdf
 
@@ -65,6 +75,7 @@ MICRONUT_SUM <- function(data, micronutrient){
     ),levels = c("0-1", "2-12", "13-17", "18-29", "30-64", "65+"))) %>% 
     group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR,AGE_GROUP,CONSUMPTION_DAY, ADM1_NAME, ADM2_NAME) %>% 
     mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female")))  %>% 
+    mutate(ADM1_NAME = str_replace(ADM1_NAME, " ", "_")) %>% 
     summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) #%>% 
     # arrange(HOUSEHOLD) 
   # total
@@ -196,6 +207,7 @@ zinc_household <- DIFF_HOUSEHOLD(joined, ZINC_mg)
 # Population variables
 vit_a_population <- MICRONUT_SUM(joined, VITA_RAE_mcg)
 folate_population <- MICRONUT_SUM(joined, FOLDFE_mcg)
+vit_b12_population <- MICRONUT_SUM(joined, VITB12_mcg)
 iron_population <- MICRONUT_SUM(joined, IRON_mg)
 zinc_population <- MICRONUT_SUM(joined, ZINC_mg)
 
