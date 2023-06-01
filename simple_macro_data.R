@@ -3,8 +3,8 @@
 source("data_loading.R")
 
 
-#vitamin A
 
+#make a data set for the intake of all MNs
 all_mn <- vit_a_population %>% 
   left_join(folate_population, by = c("SUBJECT", 
                                       "ROUND", 
@@ -43,12 +43,12 @@ all_mn <- vit_a_population %>%
                                     "ADM1_NAME",
                                     "ADM2_NAME"))
 
-
-
 create_state <- function(micronutrient, state_name) {
-  va_state <- micronutrient %>%
+  #function to create datasets of adult men and women, split at adm2 level
+  # by state, suitable for simpleMacro reading in..
+  va_state_men <- micronutrient %>%
     ungroup() %>%
-    filter(AGE_YEAR >= 18) %>%
+    filter(AGE_YEAR >= 18 & SEX == "Male") %>%
     filter(ADM1_NAME == state_name) %>%
     select(-c(ROUND, AGE_GROUP, ADM1_NAME)) %>%
     drop_na(ADM2_NAME) %>% 
@@ -66,13 +66,33 @@ create_state <- function(micronutrient, state_name) {
       values_fn = function(x) 1
     )
   
-  write_csv(va_state, paste0("outputs/SAS_data/va_", state_name, "_SAS.csv"))
+  va_state_women <- micronutrient %>%
+    ungroup() %>%
+    filter(AGE_YEAR >= 18 & SEX == "Female") %>%
+    filter(ADM1_NAME == state_name) %>%
+    select(-c(ROUND, AGE_GROUP, ADM1_NAME)) %>%
+    drop_na(ADM2_NAME) %>% 
+    mutate(SEX = factor(ifelse(SEX == "Male", 1, 2))) %>%
+    mutate(WEEKEND = ifelse(CONSUMPTION_DAY == 1 | CONSUMPTION_DAY == 7, 1, 0)) %>%
+    mutate(
+      adm2_ = as.numeric(factor(ADM2_NAME)),
+      ADM2_NAME = paste0("adm2_", as.numeric(factor(ADM2_NAME)))
+    ) %>%
+    
+    pivot_wider(
+      names_from = ADM2_NAME,
+      values_from = ADM2_NAME,
+      values_fill = 0,
+      values_fn = function(x) 1
+    )
   
+  write_csv(va_state_men, paste0("outputs/SAS_data/va_", state_name, "_men_SAS.csv"))
+  write_csv(va_state_women, paste0("outputs/SAS_data/va_", state_name, "_women_SAS.csv"))
   
 }
 
-unique(vit_a_population$ADM1_NAME)
-
+# unique(vit_a_population$ADM1_NAME)
+#create the dataframes
 va_Maharashtra <- create_state(all_mn,"Maharashtra")
 va_West_Bengal <- create_state(all_mn,"West_Bengal")
 va_Gujarat <- create_state(all_mn,"Gujarat")
@@ -84,74 +104,496 @@ va_Kerala <- create_state(all_mn,"Kerala")
 va_Karnataka<- create_state(all_mn,"Karnataka")
 va_Uttar_Pradesh<- create_state(all_mn,"Uttar_Pradesh")
 
-names(va_West_Bengal)
-sum(va_$sum_VITA_RAE_mcg == 0)
-sum(va_West_Bengal$WEEKEND)
-sum(va_Uttar_Pradesh$WEEKEND)
+# names(va_West_Bengal)
+# sum(va_$sum_VITA_RAE_mcg == 0)
+# sum(va_West_Bengal$WEEKEND)
+# sum(va_Uttar_Pradesh$WEEKEND)
+# 
+# va_Maharashtra <- vit_a_population %>% 
+#     ungroup() %>% 
+#     filter(AGE_YEAR>=18) %>% 
+#     filter(ADM1_NAME == "Maharashtra") %>% 
+#     select(!c(ROUND, AGE_GROUP, ADM1_NAME)) %>% 
+#     mutate(SEX = factor(ifelse(SEX=="Male", 1,2))) %>% 
+#     mutate(WEEKEND = ifelse((CONSUMPTION_DAY == 1|CONSUMPTION_DAY == 7),1,0)) %>% 
+#     mutate(adm2_ = as.numeric(factor(ADM2_NAME)),
+#            ADM2_NAME = paste0("adm2_",as.numeric(factor(ADM2_NAME)))) %>% 
+#     pivot_wider(names_from = ADM2_NAME, 
+#                 values_from = ADM2_NAME,
+#                 values_fill = 0,
+#                 values_fn = function(x) 1) 
+#   
+#   names(vitamin_a_SAS)
+#     
+#   write_csv(va_Maharashtra,"outputs/SAS_data/va_Maharashtra_SAS.csv")
+# 
+# va_Maharashtra <- state_sas(Maharashtra)
+# 
+# all_mn_men <- all_mn %>% 
+#   ungroup() %>% 
+#   filter(AGE_YEAR>=18 & SEX == "Male") %>% 
+#   select(!c(ROUND, AGE_GROUP, ADM1_NAME)) %>% 
+#   # mutate(SEX = factor(ifelse(SEX=="Male", 1,2))) %>% 
+#   mutate(WEEKEND = ifelse((CONSUMPTION_DAY == 1|CONSUMPTION_DAY == 7),1,0)) %>% 
+#   mutate(adm2_ = as.numeric(factor(ADM2_NAME)),
+#          ADM2_NAME = paste0("adm2_",as.numeric(factor(ADM2_NAME)))) %>% 
+#   drop_na(ADM2_NAME) %>%
+#   pivot_wider(names_from = ADM2_NAME, 
+#               values_from = ADM2_NAME,
+#               values_fill = 0,
+#               values_fn = function(x) 1) 
+# #str_replace(ADM2_NAME, " ", "_")
+# write_csv(all_mn_men,"outputs/SAS_data/men_SAS.csv")
+# 
+# iron_SAS <- iron_population %>% 
+#   ungroup() %>% 
+#   filter(AGE_YEAR>=18) %>% 
+#   select(!c(ROUND, AGE_GROUP, ADM1_NAME)) %>% 
+#   mutate(SEX = factor(ifelse(SEX=="Male", 1,2))) %>% 
+#   mutate(WEEKEND = ifelse((CONSUMPTION_DAY == 1|CONSUMPTION_DAY == 7),1,0)) %>% 
+#   mutate(adm2_ = as.numeric(factor(ADM2_NAME)),
+#          ADM2_NAME = paste0("adm2_",as.numeric(factor(ADM2_NAME)))) %>% 
+#   pivot_wider(names_from = ADM2_NAME, 
+#               values_from = ADM2_NAME,
+#               values_fill = 0,
+#               values_fn = function(x) 1) 
+# 
+# write_csv(iron_SAS,"outputs/SAS_data/iron_SAS.csv")
+# 
+# zinc_SAS <- zinc_population %>% 
+#   ungroup() %>% 
+#   filter(AGE_YEAR>=18) %>% 
+#   select(!c(ROUND, AGE_GROUP, ADM1_NAME)) %>% 
+#   mutate(SEX = factor(ifelse(SEX=="Male", 1,2))) %>% 
+#   mutate(WEEKEND = ifelse((CONSUMPTION_DAY == 1|CONSUMPTION_DAY == 7),1,0)) %>% 
+#   mutate(adm2_ = as.numeric(factor(ADM2_NAME)),
+#          ADM2_NAME = paste0("adm2_",as.numeric(factor(ADM2_NAME)))) %>% 
+#   pivot_wider(names_from = ADM2_NAME, 
+#               values_from = ADM2_NAME,
+#               values_fill = 0,
+#               values_fn = function(x) 1) 
+# 
+# write_csv(zinc_SAS,"outputs/SAS_data/zinc_SAS.csv")
 
-va_Maharashtra <- vit_a_population %>% 
-    ungroup() %>% 
-    filter(AGE_YEAR>=18) %>% 
-    filter(ADM1_NAME == Maharashtra) %>% 
-    select(!c(ROUND, AGE_GROUP, ADM1_NAME)) %>% 
-    mutate(SEX = factor(ifelse(SEX=="Male", 1,2))) %>% 
-    mutate(WEEKEND = ifelse((CONSUMPTION_DAY == 1|CONSUMPTION_DAY == 7),1,0)) %>% 
-    mutate(adm2_ = as.numeric(factor(ADM2_NAME)),
-           ADM2_NAME = paste0("adm2_",as.numeric(factor(ADM2_NAME)))) %>% 
-    pivot_wider(names_from = ADM2_NAME, 
-                values_from = ADM2_NAME,
-                values_fill = 0,
-                values_fn = function(x) 1) 
+
+#####-----------------------------------------------------------
+
+# read in the output data
+
+# vita
+path_to_data_sas <- "../usual_intake/"
+AP_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_AP_va.xlsx"))
+GU_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_GU_va.xlsx"))
+KA_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_KA_va.xlsx"))
+KE_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_KE_va.xlsx"))
+MP_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_MP_va.xlsx"))
+MA_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_MA_va.xlsx"))
+OR_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_OR_va.xlsx"))
+TN_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_TN_va.xlsx"))
+UP_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_UP_va.xlsx"))
+# WB_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_WB_va.xlsx"))
+
+#folate
+
+AP_fo_all <- read_excel(paste0(path_to_data_sas, "folate/all/_final_AP_fo.xlsx"))
+GU_fo_all <- read_excel(paste0(path_to_data_sas, "folate/all/_final_GU_fo.xlsx"))
+KA_fo_all <- read_excel(paste0(path_to_data_sas, "folate/all/_final_KA_fo.xlsx"))
+KE_fo_all <- read_excel(paste0(path_to_data_sas, "folate/all/_final_KE_fo.xlsx"))
+MP_fo_all <- read_excel(paste0(path_to_data_sas, "folate/all/_final_MP_fo.xlsx"))
+MA_fo_all <- read_excel(paste0(path_to_data_sas, "folate/all/_final_MA_fo.xlsx"))
+OR_fo_all <- read_excel(paste0(path_to_data_sas, "folate/all/_final_OR_fo.xlsx"))
+TN_fo_all <- read_excel(paste0(path_to_data_sas, "folate/all/_final_TN_fo.xlsx"))
+UP_fo_all <- read_excel(paste0(path_to_data_sas, "folate/all/_final_UP_fo.xlsx"))
+WB_fo_all <- read_excel(paste0(path_to_data_sas, "folate/all/_final_WB_fo.xlsx"))
+
+#iron
+
+AP_ir_all <- read_excel(paste0(path_to_data_sas, "iron/all/_final_AP_ir.xlsx"))
+GU_ir_all <- read_excel(paste0(path_to_data_sas, "iron/all/_final_GU_ir.xlsx"))
+KA_ir_all <- read_excel(paste0(path_to_data_sas, "iron/all/_final_KA_ir.xlsx"))
+KE_ir_all <- read_excel(paste0(path_to_data_sas, "iron/all/_final_KE_ir.xlsx"))
+MP_ir_all <- read_excel(paste0(path_to_data_sas, "iron/all/_final_MP_ir.xlsx"))
+MA_ir_all <- read_excel(paste0(path_to_data_sas, "iron/all/_final_MA_ir.xlsx"))
+OR_ir_all <- read_excel(paste0(path_to_data_sas, "iron/all/_final_OR_ir.xlsx"))
+TN_ir_all <- read_excel(paste0(path_to_data_sas, "iron/all/_final_TN_ir.xlsx"))
+UP_ir_all <- read_excel(paste0(path_to_data_sas, "iron/all/_final_UP_ir.xlsx"))
+WB_ir_all <- read_excel(paste0(path_to_data_sas, "iron/all/_final_WB_ir.xlsx"))
+
+#zinc
+
+AP_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_AP_zn.xlsx"))
+GU_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_GU_zn.xlsx"))
+KA_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_KA_zn.xlsx"))
+KE_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_KE_zn.xlsx"))
+MP_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_MP_zn.xlsx"))
+MA_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_MA_zn.xlsx"))
+OR_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_OR_zn.xlsx"))
+TN_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_TN_zn.xlsx"))
+UP_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_UP_zn.xlsx"))
+WB_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_WB_zn.xlsx"))
+
+
+# create maps from numeric to name of adm2
+adm2_name_map <- function(state_name){
+  #maps the previous numeric factor back to the adm2 name for each state
+AP_dict <-   vit_a_population %>% 
+  ungroup() %>% 
+  filter(AGE_YEAR>=18) %>% 
+  filter(ADM1_NAME == state_name) %>% 
+  select(!c(ROUND, AGE_GROUP, ADM1_NAME)) %>% 
+  mutate(SEX = factor(ifelse(SEX=="Male", 1,2))) %>% 
+  mutate(WEEKEND = ifelse((CONSUMPTION_DAY == 1|CONSUMPTION_DAY == 7),1,0)) %>% 
+  mutate(adm2_ = as.numeric(factor(ADM2_NAME)),
+         ADM2_NAME = factor(ADM2_NAME)) %>% 
+  select(adm2_, ADM2_NAME) %>% 
+  distinct(ADM2_NAME, adm2_)
+}
+
+MA_dict <- adm2_name_map("Maharashtra ")
+WB_dict <- adm2_name_map("West_Bengal")
+GU_dict <- adm2_name_map("Gujarat")
+OR_dict <- adm2_name_map("Orissa")
+TN_dict <- adm2_name_map("Tamil_Nadu")
+AP_dict <- adm2_name_map("Andhra_Pradesh")
+MP_dict <- adm2_name_map("Madhya_Pradesh" )
+KE_dict <- adm2_name_map("Kerala")
+KA_dict<- adm2_name_map("Karnataka")
+UP_dict<- adm2_name_map("Uttar_Pradesh")
+
+convert_to_name <- function(df, dict){
+  #converts the adm2 name from the SAS output and changes it back into name
+  df %>% 
+    filter(adm2_ != "Overall") %>% 
+    mutate(adm2_ = as.numeric(adm2_)) %>% 
+    left_join(dict, by = "adm2_") %>% 
+    select(!adm2_)
+}
+
+# convert adm2 number to adm2 name
+AP_va_all <- convert_to_name(AP_va_all, AP_dict)
+GU_va_all <- convert_to_name(GU_va_all, GU_dict)
+KA_va_all <- convert_to_name(KA_va_all, KA_dict)
+KE_va_all <- convert_to_name(KE_va_all, KE_dict)
+MA_va_all <- convert_to_name(MA_va_all, MA_dict)
+MP_va_all <- convert_to_name(MP_va_all, MP_dict)
+OR_va_all <- convert_to_name(OR_va_all, OR_dict)
+TN_va_all <- convert_to_name(TN_va_all, TN_dict)
+UP_va_all <- convert_to_name(UP_va_all, UP_dict)
+
+#combine all for a sinngle data frame
+va_all <- bind_rows(AP_va_all, UP_va_all, GU_va_all, KA_va_all, KE_va_all, MA_va_all, MP_va_all, OR_va_all, TN_va_all)
+# WB_va_all <- WB_va_all %>% 
+#   filter(adm2_ != "Overall") %>% 
+#   mutate(adm2_ = as.numeric(adm2_)) %>% 
+#   left_join(WB_dict, by = "adm2_") 
+
+AP_fo_all <- convert_to_name(AP_fo_all, AP_dict)
+GU_fo_all <- convert_to_name(GU_fo_all, GU_dict)
+KA_fo_all <- convert_to_name(KA_fo_all, KA_dict)
+KE_fo_all <- convert_to_name(KE_fo_all, KE_dict)
+MA_fo_all <- convert_to_name(MA_fo_all, MA_dict)
+MP_fo_all <- convert_to_name(MP_fo_all, MP_dict)
+OR_fo_all <- convert_to_name(OR_fo_all, OR_dict)
+TN_fo_all <- convert_to_name(TN_fo_all, TN_dict)
+UP_fo_all <- convert_to_name(UP_fo_all, UP_dict)
+WB_fo_all <- convert_to_name(WB_fo_all, WB_dict)
+
+fo_all <- bind_rows(AP_fo_all, UP_fo_all, GU_fo_all, KA_fo_all, KE_fo_all, MA_fo_all, MP_fo_all, OR_fo_all, TN_fo_all, WB_fo_all)
+
+
+AP_ir_all <- convert_to_name(AP_ir_all, AP_dict)
+GU_ir_all <- convert_to_name(GU_ir_all, GU_dict)
+KA_ir_all <- convert_to_name(KA_ir_all, KA_dict)
+KE_ir_all <- convert_to_name(KE_ir_all, KE_dict)
+MA_ir_all <- convert_to_name(MA_ir_all, MA_dict)
+MP_ir_all <- convert_to_name(MP_ir_all, MP_dict)
+OR_ir_all <- convert_to_name(OR_ir_all, OR_dict)
+TN_ir_all <- convert_to_name(TN_ir_all, TN_dict)
+UP_ir_all <- convert_to_name(UP_ir_all, UP_dict)
+WB_ir_all <- convert_to_name(WB_ir_all, WB_dict)
+
+ir_all <- bind_rows(AP_ir_all, UP_ir_all, GU_ir_all, KA_ir_all, KE_ir_all, MA_ir_all, MP_ir_all, OR_ir_all, TN_ir_all, WB_ir_all)
+
+
+AP_zn_all <- convert_to_name(AP_zn_all, AP_dict)
+GU_zn_all <- convert_to_name(GU_zn_all, GU_dict)
+KA_zn_all <- convert_to_name(KA_zn_all, KA_dict)
+KE_zn_all <- convert_to_name(KE_zn_all, KE_dict)
+MA_zn_all <- convert_to_name(MA_zn_all, MA_dict)
+MP_zn_all <- convert_to_name(MP_zn_all, MP_dict)
+OR_zn_all <- convert_to_name(OR_zn_all, OR_dict)
+TN_zn_all <- convert_to_name(TN_zn_all, TN_dict)
+UP_zn_all <- convert_to_name(UP_zn_all, UP_dict)
+WB_zn_all <- convert_to_name(WB_zn_all, WB_dict)
+
+zn_all<- bind_rows(AP_zn_all, UP_zn_all, GU_zn_all, KA_zn_all, KE_zn_all, MA_zn_all, MP_zn_all, OR_zn_all, TN_zn_all, WB_zn_all)
+
+####### Men ##########
+
+AP_va_men <- read_excel(paste0(path_to_data_sas, "vit_a/men/_final_AP_va_men.xlsx"))
+GU_va_men <- read_excel(paste0(path_to_data_sas, "vit_a/men/_final_GU_va_men.xlsx"))
+KA_va_men <- read_excel(paste0(path_to_data_sas, "vit_a/men/_final_KA_va_men.xlsx"))
+KE_va_men <- read_excel(paste0(path_to_data_sas, "vit_a/men/_final_KE_va_men.xlsx"))
+MP_va_men <- read_excel(paste0(path_to_data_sas, "vit_a/men/_final_MP_va_men.xlsx"))
+MA_va_men <- read_excel(paste0(path_to_data_sas, "vit_a/men/_final_MA_va_men.xlsx"))
+OR_va_men <- read_excel(paste0(path_to_data_sas, "vit_a/men/_final_OR_va_men.xlsx"))
+TN_va_men <- read_excel(paste0(path_to_data_sas, "vit_a/men/_final_TN_va_men.xlsx"))
+UP_va_men <- read_excel(paste0(path_to_data_sas, "vit_a/men/_final_UP_va_men.xlsx"))
+WB_va_men <- read_excel(paste0(path_to_data_sas, "vit_a/men/_final_WB_va_men.xlsx"))
+
+AP_fo_men <- read_excel(paste0(path_to_data_sas, "folate/men/_final_AP_fo_men.xlsx"))
+GU_fo_men <- read_excel(paste0(path_to_data_sas, "folate/men/_final_GU_fo_men.xlsx"))
+KA_fo_men <- read_excel(paste0(path_to_data_sas, "folate/men/_final_KA_fo_men.xlsx"))
+KE_fo_men <- read_excel(paste0(path_to_data_sas, "folate/men/_final_KE_fo_men.xlsx"))
+MP_fo_men <- read_excel(paste0(path_to_data_sas, "folate/men/_final_MP_fo_men.xlsx"))
+MA_fo_men <- read_excel(paste0(path_to_data_sas, "folate/men/_final_MA_fo_men.xlsx"))
+OR_fo_men <- read_excel(paste0(path_to_data_sas, "folate/men/_final_OR_fo_men.xlsx"))
+TN_fo_men <- read_excel(paste0(path_to_data_sas, "folate/men/_final_TN_fo_men.xlsx"))
+UP_fo_men <- read_excel(paste0(path_to_data_sas, "folate/men/_final_UP_fo_men.xlsx"))
+WB_fo_men <- read_excel(paste0(path_to_data_sas, "folate/men/_final_WB_fo_men.xlsx"))
+
+AP_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_AP_ir_men.xlsx"))
+GU_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_GU_ir_men.xlsx"))
+KA_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_KA_ir_men.xlsx"))
+KE_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_KE_ir_men.xlsx"))
+MP_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_MP_ir_men.xlsx"))
+MA_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_MA_ir_men.xlsx"))
+OR_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_OR_ir_men.xlsx"))
+TN_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_TN_ir_men.xlsx"))
+UP_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_UP_ir_men.xlsx"))
+WB_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_WB_ir_men.xlsx"))
+
+AP_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_AP_zn_men.xlsx"))
+GU_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_GU_zn_men.xlsx"))
+KA_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_KA_zn_men.xlsx"))
+KE_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_KE_zn_men.xlsx"))
+MP_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_MP_zn_men.xlsx"))
+MA_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_MA_zn_men.xlsx"))
+OR_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_OR_zn_men.xlsx"))
+TN_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_TN_zn_men.xlsx"))
+UP_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_UP_zn_men.xlsx"))
+WB_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_WB_zn_men.xlsx"))
+
+#convert to anem
+
+AP_va_men <- convert_to_name(AP_va_men, AP_dict)
+GU_va_men <- convert_to_name(GU_va_men, GU_dict)
+KA_va_men <- convert_to_name(KA_va_men, KA_dict)
+KE_va_men <- convert_to_name(KE_va_men, KE_dict)
+MA_va_men <- convert_to_name(MA_va_men, MA_dict)
+MP_va_men <- convert_to_name(MP_va_men, MP_dict)
+OR_va_men <- convert_to_name(OR_va_men, OR_dict)
+TN_va_men <- convert_to_name(TN_va_men, TN_dict)
+UP_va_men <- convert_to_name(UP_va_men, UP_dict)
+WB_va_men <- convert_to_name(WB_va_men, WB_dict)
+#combine all for a sinngle data frame
+va_men <- bind_rows(AP_va_men, UP_va_men, GU_va_men, KA_va_men, KE_va_men, MA_va_men, MP_va_men, OR_va_men, TN_va_men, WB_va_men)
+# WB_va_all <- WB_va_all %>% 
+#   filter(adm2_ != "Overall") %>% 
+#   mutate(adm2_ = as.numeric(adm2_)) %>% 
+#   left_join(WB_dict, by = "adm2_") 
+
+AP_fo_men <- convert_to_name(AP_fo_men, AP_dict)
+GU_fo_men <- convert_to_name(GU_fo_men, GU_dict)
+KA_fo_men <- convert_to_name(KA_fo_men, KA_dict)
+KE_fo_men <- convert_to_name(KE_fo_men, KE_dict)
+MA_fo_men <- convert_to_name(MA_fo_men, MA_dict)
+MP_fo_men <- convert_to_name(MP_fo_men, MP_dict)
+OR_fo_men <- convert_to_name(OR_fo_men, OR_dict)
+TN_fo_men <- convert_to_name(TN_fo_men, TN_dict)
+UP_fo_men <- convert_to_name(UP_fo_men, UP_dict)
+WB_fo_men <- convert_to_name(WB_fo_men, WB_dict)
+
+fo_men <- bind_rows(AP_fo_men, UP_fo_men, GU_fo_men, KA_fo_men, KE_fo_men, MA_fo_men, MP_fo_men, OR_fo_men, TN_fo_men, WB_fo_men)
+
+
+AP_ir_men <- convert_to_name(AP_ir_men, AP_dict)
+GU_ir_men <- convert_to_name(GU_ir_men, GU_dict)
+KA_ir_men <- convert_to_name(KA_ir_men, KA_dict)
+KE_ir_men <- convert_to_name(KE_ir_men, KE_dict)
+MA_ir_men <- convert_to_name(MA_ir_men, MA_dict)
+MP_ir_men <- convert_to_name(MP_ir_men, MP_dict)
+OR_ir_men <- convert_to_name(OR_ir_men, OR_dict)
+TN_ir_men <- convert_to_name(TN_ir_men, TN_dict)
+UP_ir_men <- convert_to_name(UP_ir_men, UP_dict)
+WB_ir_men <- convert_to_name(WB_ir_men, WB_dict)
+
+ir_men <- bind_rows(AP_ir_men, UP_ir_men, GU_ir_men, KA_ir_men, KE_ir_men, MA_ir_men, MP_ir_men, OR_ir_men, TN_ir_men, WB_ir_men)
+
+
+AP_zn_men <- convert_to_name(AP_zn_men, AP_dict)
+GU_zn_men <- convert_to_name(GU_zn_men, GU_dict)
+KA_zn_men <- convert_to_name(KA_zn_men, KA_dict)
+KE_zn_men <- convert_to_name(KE_zn_men, KE_dict)
+MA_zn_men <- convert_to_name(MA_zn_men, MA_dict)
+MP_zn_men <- convert_to_name(MP_zn_men, MP_dict)
+OR_zn_men <- convert_to_name(OR_zn_men, OR_dict)
+TN_zn_men <- convert_to_name(TN_zn_men, TN_dict)
+UP_zn_men <- convert_to_name(UP_zn_men, UP_dict)
+WB_zn_men <- convert_to_name(WB_zn_men, WB_dict)
+
+zn_men<- bind_rows(AP_zn_men, UP_zn_men, GU_zn_men, KA_zn_men, KE_zn_men, MA_zn_men, MP_zn_men, OR_zn_men, TN_zn_men, WB_zn_men)
+
+############ WOMEN ################
+
+AP_va_women <- read_excel(paste0(path_to_data_sas, "vit_a/women/_final_AP_va_women.xlsx"))
+GU_va_women <- read_excel(paste0(path_to_data_sas, "vit_a/women/_final_GU_va_women.xlsx"))
+KA_va_women <- read_excel(paste0(path_to_data_sas, "vit_a/women/_final_KA_va_women.xlsx"))
+KE_va_women <- read_excel(paste0(path_to_data_sas, "vit_a/women/_final_KE_va_women.xlsx"))
+MP_va_women <- read_excel(paste0(path_to_data_sas, "vit_a/women/_final_MP_va_women.xlsx"))
+MA_va_women <- read_excel(paste0(path_to_data_sas, "vit_a/women/_final_MA_va_women.xlsx"))
+OR_va_women <- read_excel(paste0(path_to_data_sas, "vit_a/women/_final_OR_va_women.xlsx"))
+TN_va_women <- read_excel(paste0(path_to_data_sas, "vit_a/women/_final_TN_va_women.xlsx"))
+UP_va_women <- read_excel(paste0(path_to_data_sas, "vit_a/women/_final_UP_va_women.xlsx"))
+# WB_va_women <- read_excel(paste0(path_to_data_sas, "vit_a/women/_final_WB_va_women.xlsx"))
+
+AP_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_AP_fo_women.xlsx"))
+GU_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_GU_fo_women.xlsx"))
+KA_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_KA_fo_women.xlsx"))
+KE_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_KE_fo_women.xlsx"))
+MP_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_MP_fo_women.xlsx"))
+MA_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_MA_fo_women.xlsx"))
+OR_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_OR_fo_women.xlsx"))
+TN_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_TN_fo_women.xlsx"))
+UP_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_UP_fo_women.xlsx"))
+WB_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_WB_fo_women.xlsx"))
+
+AP_ir_women <- read_excel(paste0(path_to_data_sas, "iron/women/_final_AP_ir_women.xlsx"))
+GU_ir_women <- read_excel(paste0(path_to_data_sas, "iron/women/_final_GU_ir_women.xlsx"))
+KA_ir_women <- read_excel(paste0(path_to_data_sas, "iron/women/_final_KA_ir_women.xlsx"))
+KE_ir_women <- read_excel(paste0(path_to_data_sas, "iron/women/_final_KE_ir_women.xlsx"))
+MP_ir_women <- read_excel(paste0(path_to_data_sas, "iron/women/_final_MP_ir_women.xlsx"))
+MA_ir_women <- read_excel(paste0(path_to_data_sas, "iron/women/_final_MA_ir_women.xlsx"))
+OR_ir_women <- read_excel(paste0(path_to_data_sas, "iron/women/_final_OR_ir_women.xlsx"))
+TN_ir_women <- read_excel(paste0(path_to_data_sas, "iron/women/_final_TN_ir_women.xlsx"))
+UP_ir_women <- read_excel(paste0(path_to_data_sas, "iron/women/_final_UP_ir_women.xlsx"))
+WB_ir_women <- read_excel(paste0(path_to_data_sas, "iron/women/_final_WB_ir_women.xlsx"))
+
+AP_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_AP_zn_women.xlsx"))
+GU_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_GU_zn_women.xlsx"))
+KA_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_KA_zn_women.xlsx"))
+KE_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_KE_zn_women.xlsx"))
+MP_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_MP_zn_women.xlsx"))
+MA_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_MA_zn_women.xlsx"))
+OR_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_OR_zn_women.xlsx"))
+TN_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_TN_zn_women.xlsx"))
+UP_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_UP_zn_women.xlsx"))
+WB_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_WB_zn_women.xlsx"))
+
+#convert to anem
+
+AP_va_women <- convert_to_name(AP_va_women, AP_dict)
+GU_va_women <- convert_to_name(GU_va_women, GU_dict)
+KA_va_women <- convert_to_name(KA_va_women, KA_dict)
+KE_va_women <- convert_to_name(KE_va_women, KE_dict)
+MA_va_women <- convert_to_name(MA_va_women, MA_dict)
+MP_va_women <- convert_to_name(MP_va_women, MP_dict)
+OR_va_women <- convert_to_name(OR_va_women, OR_dict)
+TN_va_women <- convert_to_name(TN_va_women, TN_dict)
+UP_va_women <- convert_to_name(UP_va_women, UP_dict)
+# WB_va_women <- convert_to_name(WB_va_women, WB_dict)
+#combine all for a sinngle data frame
+va_women <- bind_rows(AP_va_women, UP_va_women, GU_va_women, KA_va_women, KE_va_women, MA_va_women, MP_va_women, OR_va_women, TN_va_women)
+# WB_va_all <- WB_va_all %>% 
+#   filter(adm2_ != "Overall") %>% 
+#   mutate(adm2_ = as.numeric(adm2_)) %>% 
+#   left_join(WB_dict, by = "adm2_") 
+
+AP_fo_women <- convert_to_name(AP_fo_women, AP_dict)
+GU_fo_women <- convert_to_name(GU_fo_women, GU_dict)
+KA_fo_women <- convert_to_name(KA_fo_women, KA_dict)
+KE_fo_women <- convert_to_name(KE_fo_women, KE_dict)
+MA_fo_women <- convert_to_name(MA_fo_women, MA_dict)
+MP_fo_women <- convert_to_name(MP_fo_women, MP_dict)
+OR_fo_women <- convert_to_name(OR_fo_women, OR_dict)
+TN_fo_women <- convert_to_name(TN_fo_women, TN_dict)
+UP_fo_women <- convert_to_name(UP_fo_women, UP_dict)
+WB_fo_women <- convert_to_name(WB_fo_women, WB_dict)
+
+fo_women <- bind_rows(AP_fo_women, UP_fo_women, GU_fo_women, KA_fo_women, KE_fo_women, MA_fo_women, MP_fo_women, OR_fo_women, TN_fo_women, WB_fo_women)
+
+
+AP_ir_women <- convert_to_name(AP_ir_women, AP_dict)
+GU_ir_women <- convert_to_name(GU_ir_women, GU_dict)
+KA_ir_women <- convert_to_name(KA_ir_women, KA_dict)
+KE_ir_women <- convert_to_name(KE_ir_women, KE_dict)
+MA_ir_women <- convert_to_name(MA_ir_women, MA_dict)
+MP_ir_women <- convert_to_name(MP_ir_women, MP_dict)
+OR_ir_women <- convert_to_name(OR_ir_women, OR_dict)
+TN_ir_women <- convert_to_name(TN_ir_women, TN_dict)
+UP_ir_women <- convert_to_name(UP_ir_women, UP_dict)
+WB_ir_women <- convert_to_name(WB_ir_women, WB_dict)
+
+ir_women <- bind_rows(AP_ir_women, UP_ir_women, GU_ir_women, KA_ir_women, KE_ir_women, MA_ir_women, MP_ir_women, OR_ir_women, TN_ir_women, WB_ir_women)
+
+
+AP_zn_women <- convert_to_name(AP_zn_women, AP_dict)
+GU_zn_women <- convert_to_name(GU_zn_women, GU_dict)
+KA_zn_women <- convert_to_name(KA_zn_women, KA_dict)
+KE_zn_women <- convert_to_name(KE_zn_women, KE_dict)
+MA_zn_women <- convert_to_name(MA_zn_women, MA_dict)
+MP_zn_women <- convert_to_name(MP_zn_women, MP_dict)
+OR_zn_women <- convert_to_name(OR_zn_women, OR_dict)
+TN_zn_women <- convert_to_name(TN_zn_women, TN_dict)
+UP_zn_women <- convert_to_name(UP_zn_women, UP_dict)
+WB_zn_women <- convert_to_name(WB_zn_women, WB_dict)
+
+zn_women<- bind_rows(AP_zn_women, UP_zn_women, GU_zn_women, KA_zn_women, KE_zn_women, MA_zn_women, MP_zn_women, OR_zn_women, TN_zn_women, WB_zn_women)
+
+###### convert to spatial data
+
+india_adm2 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm2.shp"))
+india_adm2 <- india_adm2 %>% 
+  ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
+
+va_all_sp <- va_all %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
+fo_all_sp<- fo_all %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
+ir_all_sp<- ir_all %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
+zn_all_sp<- zn_all %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
+va_men_sp <- va_men %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
+fo_men_sp<- fo_men %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
+ir_men_sp<- ir_men %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
+zn_men_sp<- zn_men %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
+va_women_sp<- va_women %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
+fo_women_sp<- fo_women %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
+ir_women_sp<- ir_women %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
+zn_women_sp<- zn_women %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
   
-  names(vitamin_a_SAS)
-    
-  write_csv(va_Maharashtra,"outputs/SAS_data/va_Maharashtra_SAS.csv")
+# write the shape files
 
-va_Maharashtra <- state_sas(Maharashtra)
-
-folate_SAS <- folate_population %>% 
-  ungroup() %>% 
-  filter(AGE_YEAR>=18) %>% 
-  select(!c(ROUND, AGE_GROUP, ADM1_NAME)) %>% 
-  mutate(SEX = factor(ifelse(SEX=="Male", 1,2))) %>% 
-  mutate(WEEKEND = ifelse((CONSUMPTION_DAY == 1|CONSUMPTION_DAY == 7),1,0)) %>% 
-  mutate(adm2_ = as.numeric(factor(ADM2_NAME)),
-         ADM2_NAME = paste0("adm2_",as.numeric(factor(ADM2_NAME)))) %>% 
-  pivot_wider(names_from = ADM2_NAME, 
-              values_from = ADM2_NAME,
-              values_fill = 0,
-              values_fn = function(x) 1) 
-#str_replace(ADM2_NAME, " ", "_")
-write_csv(folate_SAS,"outputs/SAS_data/folate_SAS.csv")
-
-iron_SAS <- iron_population %>% 
-  ungroup() %>% 
-  filter(AGE_YEAR>=18) %>% 
-  select(!c(ROUND, AGE_GROUP, ADM1_NAME)) %>% 
-  mutate(SEX = factor(ifelse(SEX=="Male", 1,2))) %>% 
-  mutate(WEEKEND = ifelse((CONSUMPTION_DAY == 1|CONSUMPTION_DAY == 7),1,0)) %>% 
-  mutate(adm2_ = as.numeric(factor(ADM2_NAME)),
-         ADM2_NAME = paste0("adm2_",as.numeric(factor(ADM2_NAME)))) %>% 
-  pivot_wider(names_from = ADM2_NAME, 
-              values_from = ADM2_NAME,
-              values_fill = 0,
-              values_fn = function(x) 1) 
-
-write_csv(iron_SAS,"outputs/SAS_data/iron_SAS.csv")
-
-zinc_SAS <- zinc_population %>% 
-  ungroup() %>% 
-  filter(AGE_YEAR>=18) %>% 
-  select(!c(ROUND, AGE_GROUP, ADM1_NAME)) %>% 
-  mutate(SEX = factor(ifelse(SEX=="Male", 1,2))) %>% 
-  mutate(WEEKEND = ifelse((CONSUMPTION_DAY == 1|CONSUMPTION_DAY == 7),1,0)) %>% 
-  mutate(adm2_ = as.numeric(factor(ADM2_NAME)),
-         ADM2_NAME = paste0("adm2_",as.numeric(factor(ADM2_NAME)))) %>% 
-  pivot_wider(names_from = ADM2_NAME, 
-              values_from = ADM2_NAME,
-              values_fill = 0,
-              values_fn = function(x) 1) 
-
-write_csv(zinc_SAS,"outputs/SAS_data/zinc_SAS.csv")
-
+st_write(va_all_sp, paste0(path_to_data, "shape_files/usual_intake/va_all.shp"), append = TRUE)
+st_write(ir_all_sp, paste0(path_to_data, "shape_files/usual_intake/ir_all.shp"), append = TRUE)
+st_write(fo_all_sp, paste0(path_to_data, "shape_files/usual_intake/fo_all.shp"), append = TRUE)
+st_write(zn_all_sp, paste0(path_to_data, "shape_files/usual_intake/zn_all.shp"), append = TRUE)
+st_write(va_men_sp, paste0(path_to_data, "shape_files/usual_intake/va_men.shp"), append = TRUE)
+st_write(fo_men_sp, paste0(path_to_data, "shape_files/usual_intake/fo_men.shp"), append = TRUE)
+st_write(ir_men_sp, paste0(path_to_data, "shape_files/usual_intake/ir_men.shp"), append = TRUE)
+st_write(zn_men_sp, paste0(path_to_data, "shape_files/usual_intake/zn_men.shp"), append = TRUE)
+st_write(va_women_sp, paste0(path_to_data, "shape_files/usual_intake/va_women.shp"), append = TRUE)
+st_write(fo_women_sp, paste0(path_to_data, "shape_files/usual_intake/fo_women.shp"), append = TRUE)
+st_write(ir_women_sp, paste0(path_to_data, "shape_files/usual_intake/ir_women.shp"), append = TRUE)
+st_write(zn_women_sp, paste0(path_to_data, "shape_files/usual_intake/zn_women.shp"), append = TRUE)
 
