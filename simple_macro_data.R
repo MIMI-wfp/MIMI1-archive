@@ -2,6 +2,7 @@
 
 source("data_loading.R")
 
+library(ggpubr)
 
 
 #make a data set for the intake of all MNs
@@ -233,6 +234,7 @@ UP_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_UP_zn.xlsx"))
 WB_zn_all <- read_excel(paste0(path_to_data_sas, "zinc/all/_final_WB_zn.xlsx"))
 
 
+
 # create maps from numeric to name of adm2
 adm2_name_map <- function(state_name){
   #maps the previous numeric factor back to the adm2 name for each state
@@ -374,6 +376,8 @@ TN_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_TN_zn_men.xlsx
 UP_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_UP_zn_men.xlsx"))
 WB_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_WB_zn_men.xlsx"))
 
+#vitb12
+GU_vb_men <- read_excel(paste0(path_to_data_sas, "vit_b12/men/_final_GU_vb_men.xlsx"))
 #convert to anem
 
 AP_va_men <- convert_to_name(AP_va_men, AP_dict)
@@ -434,6 +438,7 @@ WB_zn_men <- convert_to_name(WB_zn_men, WB_dict)
 
 zn_men<- bind_rows(AP_zn_men, UP_zn_men, GU_zn_men, KA_zn_men, KE_zn_men, MA_zn_men, MP_zn_men, OR_zn_men, TN_zn_men, WB_zn_men)
 
+vb12_men <- convert_to_name(GU_vb_men, GU_dict)
 ############ WOMEN ################
 
 AP_va_women <- read_excel(paste0(path_to_data_sas, "vit_a/women/_final_AP_va_women.xlsx"))
@@ -480,6 +485,8 @@ TN_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_TN_zn_wome
 UP_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_UP_zn_women.xlsx"))
 WB_zn_women <- read_excel(paste0(path_to_data_sas, "zinc/women/_final_WB_zn_women.xlsx"))
 
+#vitb12
+GU_vb_women <- read_excel(paste0(path_to_data_sas, "vit_b12/women/_final_GU_vb_women.xlsx"))
 #convert to anem
 
 AP_va_women <- convert_to_name(AP_va_women, AP_dict)
@@ -540,6 +547,7 @@ WB_zn_women <- convert_to_name(WB_zn_women, WB_dict)
 
 zn_women<- bind_rows(AP_zn_women, UP_zn_women, GU_zn_women, KA_zn_women, KE_zn_women, MA_zn_women, MP_zn_women, OR_zn_women, TN_zn_women, WB_zn_women)
 
+vb12_women <- convert_to_name(GU_vb_women, GU_dict)
 ###### convert to spatial data
 
 india_adm2 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm2.shp"))
@@ -581,7 +589,12 @@ ir_women_sp<- ir_women %>%
 
 zn_women_sp<- zn_women %>% 
   left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
-  
+
+vb12_women_sp <- vb12_women %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+vb12_men_sp <- vb12_men %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+
 # write the shape files
 
 st_write(va_all_sp, paste0(path_to_data, "shape_files/usual_intake/va_all.shp"), append = TRUE)
@@ -596,4 +609,168 @@ st_write(va_women_sp, paste0(path_to_data, "shape_files/usual_intake/va_women.sh
 st_write(fo_women_sp, paste0(path_to_data, "shape_files/usual_intake/fo_women.shp"), append = TRUE)
 st_write(ir_women_sp, paste0(path_to_data, "shape_files/usual_intake/ir_women.shp"), append = TRUE)
 st_write(zn_women_sp, paste0(path_to_data, "shape_files/usual_intake/zn_women.shp"), append = TRUE)
+st_write(vb12_women_sp, paste0(path_to_data, "shape_files/usual_intake/vb_women.shp"), append = TRUE)
+st_write(vb12_men_sp, paste0(path_to_data, "shape_files/usual_intake/vb_men.shp"), append = TRUE)
+
+
+#calculating usual difference
+ir_usual_hist <-ir_women %>% 
+  rename(usual_women = mean) %>% 
+  select(usual_women, ADM2_NAME) %>% 
+  inner_join((ir_men %>% 
+               rename(usual_men = mean) %>% 
+               select(usual_men, ADM2_NAME)
+              ), by = "ADM2_NAME") %>% 
+  mutate(diff = usual_men - usual_women) %>% 
+  ggplot(aes(x = diff)) +
+  geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge') +
+  theme_ipsum() +
+  labs(title = "Iron",
+       x = "Usual intake difference (mg)")+ 
+  My_Theme
+
+#calculating usual difference
+fo_usual_hist <- fo_women %>% 
+  rename(usual_women = mean) %>% 
+  select(usual_women, ADM2_NAME) %>% 
+  inner_join((fo_men %>% 
+                rename(usual_men = mean) %>% 
+                select(usual_men, ADM2_NAME)
+  ), by = "ADM2_NAME") %>% 
+  mutate(diff = usual_men - usual_women) %>% 
+  ggplot(aes(x = diff)) +
+  geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge') +
+  theme_ipsum() +
+  labs(title = "Folate",
+       x = "Usual intake difference (mcg)")+ 
+  My_Theme
+
+va_usual_hist <- va_women %>% 
+  rename(usual_women = mean) %>% 
+  select(usual_women, ADM2_NAME) %>% 
+  inner_join((va_men %>% 
+                rename(usual_men = mean) %>% 
+                select(usual_men, ADM2_NAME)
+  ), by = "ADM2_NAME") %>% 
+  mutate(diff = usual_men - usual_women) %>% 
+  ggplot(aes(x = diff)) +
+  geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge') +
+  theme_ipsum() +
+  labs(title = "Vitamin A",
+       x = "Usual intake difference (RAE mcg)")+ 
+  My_Theme
+
+zn_usual_hist <- zn_women %>% 
+  rename(usual_women = mean) %>% 
+  select(usual_women, ADM2_NAME) %>% 
+  inner_join((zn_men %>% 
+                rename(usual_men = mean) %>% 
+                select(usual_men, ADM2_NAME)
+  ), by = "ADM2_NAME") %>% 
+  mutate(diff = usual_men - usual_women) %>% 
+  ggplot(aes(x = diff)) +
+  geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge') +
+  theme_ipsum() +
+  labs(title = "Zinc",
+       x = "Usual intake difference (mg)")   + 
+  My_Theme          
+  
+vb_usual_hist <- vb12_women %>% 
+  rename(usual_women = mean) %>% 
+  select(usual_women, ADM2_NAME) %>% 
+  inner_join((vb12_men %>% 
+                rename(usual_men = mean) %>% 
+                select(usual_men, ADM2_NAME)
+  ), by = "ADM2_NAME") %>% 
+  mutate(diff = usual_men - usual_women) %>% 
+  ggplot(aes(x = diff)) +
+  geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge') +
+  theme_ipsum() +
+  labs(title = "Vitamin B12",
+       x = "Usual intake difference (mcg)") + 
+  My_Theme
+
+figure1 <- ggarrange(va_usual_hist, fo_usual_hist,vb_usual_hist,  ir_usual_hist, zn_usual_hist,  
+          ncol = 3, nrow = 2)
+
+annotate_figure(figure1,
+                top = text_grob("Difference in usual intake (Men-Women) at ADM2 level", color = "#404080", face = "bold", size = 14),
+                bottom = text_grob("Population level usual intake calculated at ADM2 level ", color = "#69b3a2",
+                                   hjust = 1, x = 1, face = "italic", size = 10),
+
+                
+                
+)
+
+#### differene in usual intake map 
+
+
+ir_usual_sp <-ir_women %>% 
+  rename(usual_women = mean) %>% 
+  select(usual_women, ADM2_NAME) %>% 
+  inner_join((ir_men %>% 
+                rename(usual_men = mean) %>% 
+                select(usual_men, ADM2_NAME)
+  ), by = "ADM2_NAME") %>%
+  mutate(diff = usual_men - usual_women) %>% 
+  mutate(diff_normal = diff/sd(diff)) %>% 
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+st_write(ir_usual_sp, paste0(path_to_data, "shape_files/usual_intake/ir_usual_diff.shp"), append = TRUE)
+
+fo_usual_sp <-fo_women %>% 
+  rename(usual_women = mean) %>% 
+  select(usual_women, ADM2_NAME) %>% 
+  inner_join((fo_men %>% 
+                rename(usual_men = mean) %>% 
+                select(usual_men, ADM2_NAME)
+  ), by = "ADM2_NAME")  %>%
+  mutate(diff = usual_men - usual_women) %>% 
+  mutate(diff_normal = diff/sd(diff)) %>%
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+st_write(fo_usual_sp, paste0(path_to_data, "shape_files/usual_intake/fo_usual_diff.shp"), append = TRUE)
+
+va_usual_sp <-va_women %>% 
+  rename(usual_women = mean) %>% 
+  select(usual_women, ADM2_NAME) %>% 
+  inner_join((va_men %>% 
+                rename(usual_men = mean) %>% 
+                select(usual_men, ADM2_NAME)
+  ), by = "ADM2_NAME")  %>%
+  mutate(diff = usual_men - usual_women) %>% 
+  mutate(diff_normal = diff/sd(diff)) %>%
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+st_write(va_usual_sp, paste0(path_to_data, "shape_files/usual_intake/va_usual_diff.shp"), append = TRUE)
+
+zn_usual_sp <-zn_women %>% 
+  rename(usual_women = mean) %>% 
+  select(usual_women, ADM2_NAME) %>% 
+  inner_join((zn_men %>% 
+                rename(usual_men = mean) %>% 
+                select(usual_men, ADM2_NAME)
+  ), by = "ADM2_NAME")  %>%
+  mutate(diff = usual_men - usual_women) %>% 
+  mutate(diff_normal = diff/sd(diff)) %>%
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+st_write(zn_usual_sp, paste0(path_to_data, "shape_files/usual_intake/zn_usual_diff.shp"), append = TRUE)
+  
+vb12_usual_sp <-vb12_women %>% 
+  rename(usual_women = mean) %>% 
+  select(usual_women, ADM2_NAME) %>% 
+  inner_join((vb12_men %>% 
+                rename(usual_men = mean) %>% 
+                select(usual_men, ADM2_NAME)
+  ), by = "ADM2_NAME")  %>%
+  mutate(diff = usual_men - usual_women) %>% 
+  mutate(diff_normal = diff/sd(diff)) %>%
+  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+st_write(vb12_usual_sp, paste0(path_to_data, "shape_files/usual_intake/vb12_usual_diff.shp"), append = TRUE)
+
+
+with(vit_a_household, t.test(SUM_MALE, SUM_FEMALE)) #not a significant difference 
+with(folate_household, t.test(SUM_MALE, SUM_FEMALE)) 
+with(iron_household, t.test(SUM_MALE, SUM_FEMALE))
+with(zinc_household, t.test(SUM_MALE, SUM_FEMALE))
+
+
+
 

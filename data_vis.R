@@ -137,20 +137,30 @@ vita_hh_plot <- vit_a_household %>%
   ggplot(aes(x = DIFF)) + 
   geom_histogram( color = "#69b3a2", fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
-  labs(title = "Difference in mean intake per household:\n Vitamin A",
-       x = "Difference (male - female) in mean intake (RAE mcg)")
-vita_hh_plot+My_Theme
+  labs(title = "Vitamin A",
+       x = "Difference in mean intake (RAE mcg)")+
+  My_Theme
 
 folate_hh_plot <- folate_household %>% 
   filter(DIFF > -100 & DIFF < 100) %>% 
   ggplot(aes(x = DIFF)) + 
   geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
-  labs(title = "Difference in mean intake per household:\n Folate",
-       x = "Difference (male - female) in mean intake (mcg)")
-folate_hh_plot+My_Theme
+  labs(title = "Folate",
+       x = "Difference in mean intake (mcg)")+
+  My_Theme
 
-iron_hh_mean <- mean(iron_household$DIFF)
+
+vitb12_hh_plot <- vit_b12_household %>% 
+  filter(DIFF > -100 & DIFF < 100) %>% 
+  ggplot(aes(x = DIFF)) + 
+  geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, position = 'dodge') +
+  theme_ipsum() +
+  labs(title = "Vitamin B12",
+       x = "Difference in mean intake (mcg)")+
+  My_Theme
+
+
 
 iron_hh_plot <- iron_household %>% 
   filter(DIFF > -25 & DIFF < 25) %>% 
@@ -158,18 +168,37 @@ iron_hh_plot <- iron_household %>%
   ggplot(aes(x = DIFF)) + 
   geom_histogram(  color = "#69b3a2",fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
-  labs(title = "Difference in mean intake per household:\n Iron",
-       x = "Difference (male - female) in mean intake (mg)")
-iron_hh_plot + My_Theme
+  labs(title = "Iron",
+       x = "Difference in mean intake (mg)")+
+  My_Theme
+
+
 
 zinc_hh_plot <- zinc_household %>% 
   filter(DIFF > -25 & DIFF < 25) %>% 
   ggplot(aes(x = DIFF)) + 
   geom_histogram(color = "#69b3a2",  fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
-  labs(title = "Difference in mean intake per household:\n Zinc",
-       x = "Difference (male - female) in mean intake (mg)")
-zinc_hh_plot + My_Theme
+  labs(title = "Zinc",
+       x = "Difference in mean intake (mg)")+
+  My_Theme
+
+
+
+figure2 <- ggarrange(vita_hh_plot, folate_hh_plot, vitb12_hh_plot,iron_hh_plot, zinc_hh_plot,  
+                     ncol = 3, nrow = 2)
+
+annotate_figure(figure2,
+                top = text_grob("Difference in observed intake between head of household", color = "#404080", face = "bold", size = 14),
+                bottom = text_grob("The observed intake of the oldest man in a household minus the observed intake of the older woman.", color = "#69b3a2",
+                                   hjust = 1, x = 1, face = "italic", size = 10),
+                
+                
+                
+)
+
+
+
 ## two sided T-test
 
 with(vit_a_household, t.test(SUM_MALE, SUM_FEMALE)) #not a significant difference 
@@ -259,6 +288,8 @@ vit_a_shape <- vit_a_population %>%
   pivot_wider(names_from = SEX, values_from = MEAN) %>% 
   mutate(DIFF = Male - Female) %>% 
   left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
+
+
 
 vit_a_shape_household <- vit_a_population %>% 
   filter(AGE_YEAR>=18) %>% 
