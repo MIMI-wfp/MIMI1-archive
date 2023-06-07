@@ -18,15 +18,13 @@ library(stringi)
 library(haven)
 
 
-setClass("micronutrient",    slots = list(
-        name = "character",
-        EAR_men = "numeric",
-        EAR_women = "numeric",
-        UL = "numeric",
-        data = "data.frame",
-        value = "character"
 
-))
+######## Functions ###########
+
+###### FUNCTIONS ########
+
+# calculate the sum of vitamins for a subject
+# maybe write a function to do this 
 
 MICRONUT_SUM <- function(data, micronutrient){
   # takes in the data frame and micronutrient wanted and calculates the sum for each subject
@@ -39,10 +37,11 @@ MICRONUT_SUM <- function(data, micronutrient){
       AGE_YEAR<65 ~ "30-64",
       AGE_YEAR>=65 ~ "65+"
     ),levels = c("0-1", "2-12", "13-17", "18-29", "30-64", "65+"))) %>% 
-    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR,AGE_GROUP, ADM1_NAME, ADM2_NAME) %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR,AGE_GROUP,CONSUMPTION_DAY, ADM1_NAME, ADM2_NAME) %>% 
     mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female")))  %>% 
+    mutate(ADM1_NAME = str_replace(ADM1_NAME, " ", "_")) %>% 
     summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) #%>% 
-    # arrange(HOUSEHOLD) 
+  # arrange(HOUSEHOLD) 
   # total
 }
 
@@ -68,8 +67,12 @@ DIFF_HEAD_OF_HOUSE <- function(data, micronutrient){
 
 DIFF_HOUSEHOLD <- function(data, micronutrient){
   # takes in the data frame and micronutrient wanted and calculates the sum for each subject
+  # sorts into oldest members of household, takes both the oldest male and oldest female and calculates
+  # the difference in observed intake
+  
   male <- data %>% 
     group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
+    filter(AGE_YEAR>=18) %>% 
     summarise(SUM = sum({{micronutrient}})) %>% 
     arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
     mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
@@ -78,10 +81,11 @@ DIFF_HOUSEHOLD <- function(data, micronutrient){
     filter(AGE_YEAR == max(AGE_YEAR)) %>% 
     filter(SEX == "Male") %>% 
     mutate(SUM_MALE = SUM)
-    
+  
   
   female <- data %>% 
     group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR,ADM1_NAME, ADM2_NAME) %>% 
+    filter(AGE_YEAR>=18) %>% 
     summarise(SUM = sum({{micronutrient}})) %>% 
     arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
     mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
@@ -95,7 +99,7 @@ DIFF_HOUSEHOLD <- function(data, micronutrient){
     select(HOUSEHOLD, SUM_MALE, ADM1_NAME, ADM2_NAME) %>% 
     inner_join((female %>% select(HOUSEHOLD, SUM_FEMALE, ADM1_NAME, ADM2_NAME)), by = c("HOUSEHOLD","ADM1_NAME", "ADM2_NAME")) %>% 
     mutate(DIFF = SUM_MALE - SUM_FEMALE)
-    
+  
   output
 }
 
@@ -108,10 +112,10 @@ DIFF_CHILREN_HOUSEHOLD <- function(data, micronutrient){
     mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
     ungroup() %>%
     group_by(HOUSEHOLD, SEX) %>%
-    filter(AGE_YEAR == max(AGE_YEAR)) %>% 
     filter(SEX == "Male") %>% 
+    filter(AGE_YEAR == max(AGE_YEAR)) %>% 
     mutate(SUM_MALE = SUM)
-    
+  
   
   female <- data %>% 
     group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR,ADM1_NAME, ADM2_NAME) %>% 
@@ -120,17 +124,49 @@ DIFF_CHILREN_HOUSEHOLD <- function(data, micronutrient){
     mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
     ungroup() %>%
     group_by(HOUSEHOLD, SEX) %>%
-    filter(AGE_YEAR == max(AGE_YEAR)) %>%
     filter(SEX == "Female") %>% 
+    filter(AGE_YEAR == max(AGE_YEAR)) %>%
     mutate(SUM_FEMALE = SUM)
   
   output <- male %>% 
     select(HOUSEHOLD, SUM_MALE, ADM1_NAME, ADM2_NAME) %>% 
     inner_join((female %>% select(HOUSEHOLD, SUM_FEMALE, ADM1_NAME, ADM2_NAME)), by = c("HOUSEHOLD","ADM1_NAME", "ADM2_NAME")) %>% 
     mutate(DIFF = SUM_MALE - SUM_FEMALE)
-    
+  
   output
 }
+
+
+
+FOOD_GROUP_LIST <- function(data, food_list){
+  # takes take in the consumption data and transforms it into a single row with a 1 or 0 for whether
+  # or not a food group was consumed
+  
+  sum_or_function <- function(x){
+    #creates OR logic gate
+    y = sum(x)
+    y = ifelse(y != 0, 1, 0)
+    y
+  }
+  
+  data  %>% 
+    select(SUBJECT, FOODEX2_INGR_CODE) %>% 
+    full_join(food_list, by = "FOODEX2_INGR_CODE") %>% 
+    select(!c(FOODEX2_INGR_CODE, INGREDIENT_ENG)) %>% 
+    group_by(SUBJECT) %>% 
+    summarise_all(sum_or_function) 
+}
+
+
+setClass("micronutrient",    slots = list(
+        name = "character",
+        EAR_men = "numeric",
+        EAR_women = "numeric",
+        UL = "numeric",
+        data = "data.frame",
+        value = "character"
+
+))
 
 
 

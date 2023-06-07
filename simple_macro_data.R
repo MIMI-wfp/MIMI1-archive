@@ -706,62 +706,58 @@ annotate_figure(figure1,
 
 
 ir_usual_sp <-ir_women %>% 
-  rename(usual_women = mean) %>% 
-  select(usual_women, ADM2_NAME) %>% 
+  rename(inad_women = inadequate_percent) %>% 
+  select(inad_women, ADM2_NAME) %>% 
   inner_join((ir_men %>% 
-                rename(usual_men = mean) %>% 
-                select(usual_men, ADM2_NAME)
-  ), by = "ADM2_NAME") %>%
-  mutate(diff = usual_men - usual_women) %>% 
-  mutate(diff_normal = diff/sd(diff)) %>% 
+                rename(inad_men = inadequate_percent) %>% 
+                select(inad_men, ADM2_NAME)
+  ), by = "ADM2_NAME")  %>%
+  mutate(diff = inad_women - inad_men) %>% 
   left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
 st_write(ir_usual_sp, paste0(path_to_data, "shape_files/usual_intake/ir_usual_diff.shp"), append = TRUE)
 
 fo_usual_sp <-fo_women %>% 
-  rename(usual_women = mean) %>% 
-  select(usual_women, ADM2_NAME) %>% 
+  rename(inad_women = inadequate_percent) %>% 
+  select(inad_women, ADM2_NAME) %>% 
   inner_join((fo_men %>% 
-                rename(usual_men = mean) %>% 
-                select(usual_men, ADM2_NAME)
+                rename(inad_men = inadequate_percent) %>% 
+                select(inad_men, ADM2_NAME)
   ), by = "ADM2_NAME")  %>%
-  mutate(diff = usual_men - usual_women) %>% 
-  mutate(diff_normal = diff/sd(diff)) %>%
+  mutate(diff = inad_women - inad_men) %>% 
   left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  
 st_write(fo_usual_sp, paste0(path_to_data, "shape_files/usual_intake/fo_usual_diff.shp"), append = TRUE)
 
 va_usual_sp <-va_women %>% 
-  rename(usual_women = mean) %>% 
-  select(usual_women, ADM2_NAME) %>% 
+  rename(inad_women = inadequate_percent) %>% 
+  select(inad_women, ADM2_NAME) %>% 
   inner_join((va_men %>% 
-                rename(usual_men = mean) %>% 
-                select(usual_men, ADM2_NAME)
+                rename(inad_men = inadequate_percent) %>% 
+                select(inad_men, ADM2_NAME)
   ), by = "ADM2_NAME")  %>%
-  mutate(diff = usual_men - usual_women) %>% 
-  mutate(diff_normal = diff/sd(diff)) %>%
+  mutate(diff = inad_women - inad_men) %>% 
   left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
 st_write(va_usual_sp, paste0(path_to_data, "shape_files/usual_intake/va_usual_diff.shp"), append = TRUE)
 
 zn_usual_sp <-zn_women %>% 
-  rename(usual_women = mean) %>% 
-  select(usual_women, ADM2_NAME) %>% 
+  rename(inad_women = inadequate_percent) %>% 
+  select(inad_women, ADM2_NAME) %>% 
   inner_join((zn_men %>% 
-                rename(usual_men = mean) %>% 
-                select(usual_men, ADM2_NAME)
+                rename(inad_men = inadequate_percent) %>% 
+                select(inad_men, ADM2_NAME)
   ), by = "ADM2_NAME")  %>%
-  mutate(diff = usual_men - usual_women) %>% 
-  mutate(diff_normal = diff/sd(diff)) %>%
+  mutate(diff = inad_women - inad_men) %>% 
   left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
 st_write(zn_usual_sp, paste0(path_to_data, "shape_files/usual_intake/zn_usual_diff.shp"), append = TRUE)
   
 vb12_usual_sp <-vb12_women %>% 
-  rename(usual_women = mean) %>% 
-  select(usual_women, ADM2_NAME) %>% 
+  rename(inad_women = inadequate_percent) %>% 
+  select(inad_women, ADM2_NAME) %>% 
   inner_join((vb12_men %>% 
-                rename(usual_men = mean) %>% 
-                select(usual_men, ADM2_NAME)
+                rename(inad_men = inadequate_percent) %>% 
+                select(inad_men, ADM2_NAME)
   ), by = "ADM2_NAME")  %>%
-  mutate(diff = usual_men - usual_women) %>% 
-  mutate(diff_normal = diff/sd(diff)) %>%
+  mutate(diff = inad_women - inad_men) %>% 
   left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
 st_write(vb12_usual_sp, paste0(path_to_data, "shape_files/usual_intake/vb12_usual_diff.shp"), append = TRUE)
 

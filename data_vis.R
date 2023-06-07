@@ -2,13 +2,13 @@
 # background data visualisation
 # Differences between mean intake between sexes 
 
-source("data_loading.R")#sources the functions and data
 source("functions.R")
+source("data_loading.R")#sources the functions and data
 
-
-india_adm1 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm1.shp"))
-india_adm1 <- india_adm1 %>% 
-  ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
+### shape file read in 
+# india_adm1 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm1.shp"))
+# india_adm1 <- india_adm1 %>% 
+#   ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
 
 india_adm2 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm2.shp"))
 india_adm2 <- india_adm2 %>% 
@@ -60,8 +60,6 @@ sex_hist_iron <- iron_population %>%
        fill = "Sex")
 
 sex_hist_iron + My_Theme
-
-
 
 sex_hist_zinc <- zinc_population %>% 
   filter(sum_ZINC_mg<50) %>% 
@@ -279,6 +277,7 @@ zinc_population %>%
 
   
 ### state level/ adm2 level distribution
+
 vit_a_population$ADM2_NAME <- factor(vit_a_population$ADM2_NAME)  
   
 vit_a_shape <- vit_a_population %>% 
@@ -523,3 +522,22 @@ w3 <- tm_shape(st_as_sf(india_adm2))+
 
   tmap_arrange(w1, w2, w3, w4, nrow = 2)
 
+
+
+  
+# fortification vehicles plots
+  
+  
+# difference in rice per household 
+  
+RICE_HOUSEHOLD %>% 
+  ggplot(aes(x = diff_rice_g)) +
+  geom_histogram(color = "#69b3a2",  fill="#404080", alpha = 1, position = 'dodge') +
+  theme_ipsum() +
+  labs(title = "Rice consumption difference per household",
+       x = "Difference in rice consumption (g)")+
+  My_Theme
+  
+  with(RICE_HOUSEHOLD, t.test(RICE_men_g, RICE_women_g))
+  
+  st_write(RICE_HOUSEHOLD, paste0(path_to_data, "shape_files/rice/rice_household_sp.shp"), append = TRUE)
