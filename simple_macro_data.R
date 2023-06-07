@@ -1,7 +1,7 @@
 # Script for creating SAS files for simpleMacro running
 
+source("functions.R")
 source("data_loading.R")
-
 library(ggpubr)
 
 
