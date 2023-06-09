@@ -4,18 +4,11 @@
 #### Extracts data from the NIN dataset, calculates the difference in mean MN intake 
 #### between the head male and head female of the household. This is matched with binary data
 #### of food group intake for the DQQ, GDQD and MDD. 
+setwd("~/Documents/LSHTM/WFP_project/MIMI")
 
-#packages
-library(tidyr)
-library(dplyr)
-library(stringr)
-library(readr)
-library(readxl)
-# library(sf)
-library(ggmap)
-
-setwd("~/Documents/LSHTM/WFP_project/MIMI")#set path for myself, please change if you want to use it
+path_to_script <- "scripts/data_extraction/"
 path_to_data <- "../IND_00062/"
+source(paste0(path_to_script,"functions.R"))
 
 # read in all the data files 
 consumption <- read_csv(paste0(path_to_data, "consumption_user.csv"))
@@ -26,6 +19,13 @@ DQQ <- read_csv(paste0(path_to_data, "food_groups/DQQ_library.csv"))
 GDQS <- read_csv(paste0(path_to_data, "food_groups/GDQS_library.csv"))
 MDD <- read_csv(paste0(path_to_data, "food_groups/MDD_library.csv"))
 vb12_dict <- read_csv(paste0(path_to_data, "dictionaries/vb12_dict.csv"))
+
+#shape files
+india_adm2 <- st_read(paste0(path_to_data, "shape_files/original_country/clean_india_adm2.shp"))
+india_adm2 <- india_adm2 %>% 
+  ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
+plot(india_adm2$geometry)
+
   
 ###### create vb12 variable    - can change if not correct
 # consumption <- consumption %>% inner_join(vb12_dict, by = "FOODEX2_INGR_CODE") %>%
@@ -81,6 +81,10 @@ zinc_population <- MICRONUT_SUM(joined, ZINC_mg)
 
 ################### fortification vehicles ###########################
 
+##### overall calories
+
+energy_population <- MICRONUT_SUM(joined,ENERGY_kcal)
+
 
 #### rice difference
 
@@ -93,8 +97,9 @@ RICE_men <- joined %>%
   mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
   ungroup() %>%
   group_by(HOUSEHOLD, SEX) %>%
-  filter(AGE_YEAR == max(AGE_YEAR)) %>% 
-  filter(SEX == "Male") 
+  filter(SEX == "Male") %>%
+  arrange(HOUSEHOLD,desc(AGE_YEAR)) %>% 
+  slice(1)
 
 RICE_women <- joined %>% 
   filter(AGE_YEAR>=18) %>% 
@@ -105,9 +110,10 @@ RICE_women <- joined %>%
   mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
   ungroup() %>%
   group_by(HOUSEHOLD, SEX) %>%
-  filter(AGE_YEAR == max(AGE_YEAR)) %>% 
-  filter(SEX == "Female") 
-
+  filter(SEX == "Female") %>%
+  arrange(HOUSEHOLD,desc(AGE_YEAR)) %>% 
+  slice(1)
+  
 ## difference rice per household
 RICE_HOUSEHOLD <- RICE_men %>% 
   ungroup() %>% 
@@ -128,23 +134,38 @@ RICE_HOUSEHOLD <- RICE_men %>%
 ## oil data sets
 
 OIL_men <- joined %>% 
-  filter(AGE_YEAR>=18 & SEX == 1) %>% 
+  filter(AGE_YEAR>=18) %>% 
   filter(grepl("OIL",INGREDIENT_ENG.y)) %>% 
   group_by(SUBJECT, HOUSEHOLD,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
-  summarise(sum_OIL_g = sum(FOOD_AMOUNT_REPORTED))
+  summarise(sum_OIL_g = sum(FOOD_AMOUNT_REPORTED))%>% 
+  arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
+  mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+  ungroup() %>%
+  group_by(HOUSEHOLD, SEX) %>%
+  filter(SEX == "Male") %>%
+  arrange(HOUSEHOLD,desc(AGE_YEAR)) %>% 
+  slice(1)
+
+
 
 OIL_women <- joined %>% 
-  filter(AGE_YEAR>=18 & SEX == 2) %>% 
+  filter(AGE_YEAR>=18) %>% 
   filter(grepl("OIL",INGREDIENT_ENG.y)) %>% 
   group_by(SUBJECT, HOUSEHOLD,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
-  summarise(sum_OIL_g = sum(FOOD_AMOUNT_REPORTED))
-
+  summarise(sum_OIL_g = sum(FOOD_AMOUNT_REPORTED))%>% 
+  arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
+  mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+  ungroup() %>%
+  group_by(HOUSEHOLD, SEX) %>%
+  filter(SEX == "Female") %>%
+  arrange(HOUSEHOLD,desc(AGE_YEAR)) %>% 
+  slice(1)
 
 OIL_HOUSEHOLD <- OIL_men %>% 
   ungroup() %>% 
   rename(OIL_men_g = sum_OIL_g) %>% 
-  select(HOUSEHOLD, ADM2_NAME, RICE_men_g) %>% 
-  full_join((OIL_women %>% ungroup() %>% 
+  select(HOUSEHOLD, ADM2_NAME, OIL_men_g) %>% 
+  left_join((OIL_women %>% ungroup() %>% 
                rename(OIL_women_g = sum_OIL_g
                ) %>% 
                select(HOUSEHOLD, ADM2_NAME, OIL_women_g)),
@@ -160,9 +181,56 @@ OIL_HOUSEHOLD <- OIL_men %>%
 
 # food lists
 DQQ_list <- FOOD_GROUP_LIST(joined,DQQ)
+DQQ_list <- DQQ_list %>%
+  select(SUBJECT,where(~ n_distinct(.) > 1))
 GDQS_list <- FOOD_GROUP_LIST(joined,GDQS)
-MDD_list <- FOOD_GROUP_LIST(joined, MDD)
+GDQS_list <- GDQS_list %>% 
+  select(SUBJECT,where(~ n_distinct(.) > 1))
+
+MDD_list <- FOOD_GROUP_LIST(joined, MDD) 
+MDD_list <- MDD_list %>% 
+  select(SUBJECT,where(~ n_distinct(.) > 1))
 # 
+
+
+
+all_mn <- vit_a_population %>% 
+  left_join(folate_population, by = c("SUBJECT", 
+                                      "ROUND", 
+                                      "HOUSEHOLD",
+                                      "SEX",
+                                      "AGE_YEAR",
+                                      "AGE_GROUP",
+                                      "CONSUMPTION_DAY",
+                                      "ADM1_NAME",
+                                      "ADM2_NAME")) %>% 
+  left_join(iron_population, by = c("SUBJECT", 
+                                    "ROUND", 
+                                    "HOUSEHOLD",
+                                    "SEX",
+                                    "AGE_YEAR",
+                                    "AGE_GROUP",
+                                    "CONSUMPTION_DAY",
+                                    "ADM1_NAME",
+                                    "ADM2_NAME")) %>% 
+  left_join(zinc_population, by = c("SUBJECT", 
+                                    "ROUND", 
+                                    "HOUSEHOLD",
+                                    "SEX",
+                                    "AGE_YEAR",
+                                    "AGE_GROUP",
+                                    "CONSUMPTION_DAY",
+                                    "ADM1_NAME",
+                                    "ADM2_NAME")) %>% 
+  left_join(vit_b12_population, by = c("SUBJECT", 
+                                       "ROUND", 
+                                       "HOUSEHOLD",
+                                       "SEX",
+                                       "AGE_YEAR",
+                                       "AGE_GROUP",
+                                       "CONSUMPTION_DAY",
+                                       "ADM1_NAME",
+                                       "ADM2_NAME"))
 # # usable data frames
 # # DQQ
 # DQQ_vit_a <- inner_join(vitamin_A_calc, DQQ_list, by = "SUBJECT")
@@ -188,3 +256,4 @@ MDD_list <- FOOD_GROUP_LIST(joined, MDD)
 # estimating intake inadequacy for the different MNs
 # 
 
+rm(joined)

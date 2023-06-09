@@ -1,9 +1,16 @@
 # Script for creating SAS files for simpleMacro running
+setwd("~/Documents/LSHTM/WFP_project/MIMI")
+path_to_script <- "scripts/data_extraction/"
+path_to_data <- "../IND_00062/"
+source(paste0(path_to_script,"functions.R"))
+source(paste0(path_to_script,"data_loading.R"))
 
-source("functions.R")
-source("data_loading.R")
-library(ggpubr)
 
+## creates bigger titles for plots
+My_Theme = theme(
+  axis.title.x = element_text(size = 16),
+  axis.text.x = element_text(size = 14),
+  axis.title.y = element_text(size = 16)) 
 
 #make a data set for the intake of all MNs
 all_mn <- vit_a_population %>% 
@@ -87,8 +94,8 @@ create_state <- function(micronutrient, state_name) {
       values_fn = function(x) 1
     )
   
-  write_csv(va_state_men, paste0("outputs/SAS_data/va_", state_name, "_men_SAS.csv"))
-  write_csv(va_state_women, paste0("outputs/SAS_data/va_", state_name, "_women_SAS.csv"))
+  write_csv(va_state_men, paste0("outputs/SAS_data/en_", state_name, "_men_SAS.csv"),append = TRUE)
+  write_csv(va_state_women, paste0("outputs/SAS_data/en_", state_name, "_women_SAS.csv"),append = TRUE)
   
 }
 
@@ -104,6 +111,18 @@ va_Madhya_Pradesh <- create_state(all_mn,"Madhya_Pradesh" )
 va_Kerala <- create_state(all_mn,"Kerala")
 va_Karnataka<- create_state(all_mn,"Karnataka")
 va_Uttar_Pradesh<- create_state(all_mn,"Uttar_Pradesh")
+
+#energy
+en_Maharashtra <- create_state(energy_population,"Maharashtra")
+en_West_Bengal <- create_state(energy_population,"West_Bengal")
+en_Gujarat <- create_state(energy_population,"Gujarat")
+en_Orissa <- create_state(energy_population,"Orissa")
+en_Tamil_Nadu <- create_state(energy_population,"Tamil_Nadu")
+en_Andhra_Pradesh <- create_state(energy_population,"Andhra_Pradesh")
+en_Madhya_Pradesh <- create_state(energy_population,"Madhya_Pradesh" )
+en_Kerala <- create_state(energy_population,"Kerala")
+en_Karnataka<- create_state(energy_population,"Karnataka")
+en_Uttar_Pradesh<- create_state(energy_population,"Uttar_Pradesh")
 
 # names(va_West_Bengal)
 # sum(va_$sum_VITA_RAE_mcg == 0)
@@ -251,7 +270,7 @@ AP_dict <-   vit_a_population %>%
   distinct(ADM2_NAME, adm2_)
 }
 
-MA_dict <- adm2_name_map("Maharashtra ")
+MA_dict <- adm2_name_map("Maharashtra")
 WB_dict <- adm2_name_map("West_Bengal")
 GU_dict <- adm2_name_map("Gujarat")
 OR_dict <- adm2_name_map("Orissa")
@@ -550,7 +569,7 @@ zn_women<- bind_rows(AP_zn_women, UP_zn_women, GU_zn_women, KA_zn_women, KE_zn_w
 vb12_women <- convert_to_name(GU_vb_women, GU_dict)
 ###### convert to spatial data
 
-india_adm2 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm2.shp"))
+india_adm2 <- st_read(paste0(path_to_data, "shape_files/original_country/clean_india_adm2.shp"))
 india_adm2 <- india_adm2 %>% 
   ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
 
@@ -762,10 +781,32 @@ vb12_usual_sp <-vb12_women %>%
 st_write(vb12_usual_sp, paste0(path_to_data, "shape_files/usual_intake/vb12_usual_diff.shp"), append = TRUE)
 
 
+
 with(vit_a_household, t.test(SUM_MALE, SUM_FEMALE)) #not a significant difference 
 with(folate_household, t.test(SUM_MALE, SUM_FEMALE)) 
 with(iron_household, t.test(SUM_MALE, SUM_FEMALE))
 with(zinc_household, t.test(SUM_MALE, SUM_FEMALE))
+
+
+path_to_datasets <- "datasets/"
+
+#save datasets
+
+save(vb12_women,  file = paste0(path_to_datasets, "vb12_women.RData"))
+save(va_women,file = paste0(path_to_datasets, "va_women.RData"))
+save(fo_women,file = paste0(path_to_datasets, "fo_women.RData"))
+save(ir_women,file = paste0(path_to_datasets, "ir_women.RData"))
+save(zn_women, file = paste0(path_to_datasets, "zn_women.RData"))
+
+
+
+save(vb12_men,  file = paste0(path_to_datasets, "vb12_men.RData"))
+save(va_men,file = paste0(path_to_datasets, "va_men.RData"))
+save(fo_men,file = paste0(path_to_datasets, "fo_men.RData"))
+save(ir_men,file = paste0(path_to_datasets, "ir_men.RData"))
+save(zn_men, file = paste0(path_to_datasets, "zn_men.RData"))
+
+
 
 
 

@@ -1,19 +1,17 @@
 # Gabriel Battcock
 # background data visualisation
 # Differences between mean intake between sexes 
-
-source("functions.R")
-source("data_loading.R")#sources the functions and data
+setwd("~/Documents/LSHTM/WFP_project/MIMI")
+path_to_script <- "scripts/data_extraction/"
+path_to_data <- "../IND_00062/"
+source(paste0(path_to_script,"functions.R"))
+source(paste0(path_to_script,"data_loading.R"))#sources the functions and data
 
 ### shape file read in 
 # india_adm1 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm1.shp"))
 # india_adm1 <- india_adm1 %>% 
 #   ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
 
-india_adm2 <- st_read(paste0(path_to_data, "shape_files/clean_india_adm2.shp"))
-india_adm2 <- india_adm2 %>% 
-  ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
-plot(india_adm2$geometry)
 
 My_Theme = theme(
   axis.title.x = element_text(size = 16),

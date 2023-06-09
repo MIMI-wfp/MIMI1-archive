@@ -16,7 +16,7 @@ library(tmap)
 library(rmapshaper)
 library(stringi)
 library(haven)
-
+library(ggpubr)
 
 
 ######## Functions ###########
@@ -37,7 +37,8 @@ MICRONUT_SUM <- function(data, micronutrient){
       AGE_YEAR<65 ~ "30-64",
       AGE_YEAR>=65 ~ "65+"
     ),levels = c("0-1", "2-12", "13-17", "18-29", "30-64", "65+"))) %>% 
-    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR,AGE_GROUP,CONSUMPTION_DAY, ADM1_NAME, ADM2_NAME) %>% 
+    group_by(SUBJECT, ROUND, HOUSEHOLD, SEX, AGE_YEAR,AGE_GROUP,CONSUMPTION_DAY, 
+             ADM1_NAME, ADM2_NAME, PREG_LACT, BREASTFEEDING ) %>% 
     mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female")))  %>% 
     mutate(ADM1_NAME = str_replace(ADM1_NAME, " ", "_")) %>% 
     summarise("sum_{{micronutrient}}" := sum({{micronutrient}})) #%>% 
@@ -174,10 +175,10 @@ FOOD_GROUP_LIST <- function(data, food_list){
   # takes take in the consumption data and transforms it into a single row with a 1 or 0 for whether
   # or not a food group was consumed
   
-  sum_or_function <- function(x){
+  sum_OR_function <- function(x){
     #creates OR logic gate
     y = sum(x)
-    y = ifelse(y != 0, 1, 0)
+    y = factor(ifelse(y != 0, 1, 0))
     y
   }
   
@@ -186,7 +187,7 @@ FOOD_GROUP_LIST <- function(data, food_list){
     full_join(food_list, by = "FOODEX2_INGR_CODE") %>% 
     select(!c(FOODEX2_INGR_CODE, INGREDIENT_ENG)) %>% 
     group_by(SUBJECT) %>% 
-    summarise_all(sum_or_function) 
+    summarise_all(sum_OR_function)
 }
 
 
