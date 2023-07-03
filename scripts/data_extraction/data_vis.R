@@ -38,7 +38,7 @@ sex_hist_folate <- folate_population %>%
   # mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
   ggplot(aes(x = sum_FOLDFE_mcg, fill = SEX)) +
   geom_histogram( color="#e9ecef", alpha = 1, position = 'dodge') +
-  scale_fill_manual(values=c("#69b3a2", "#404080")) +
+  scale_fill_manual(values=two_colours) +
   theme_ipsum() +
   labs(title = "Distribution of mean intake: \n Folate",
        x = "Mean intake (mcg)", 
@@ -286,8 +286,6 @@ vit_a_shape <- vit_a_population %>%
   mutate(DIFF = Male - Female) %>% 
   left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
 
-
-
 vit_a_shape_household <- vit_a_population %>% 
   filter(AGE_YEAR>=18) %>% 
   group_by(ADM2_NAME, HOUSEHOLD, SEX) %>% 
@@ -302,9 +300,9 @@ vit_a_shape_household <- vit_a_population %>%
 vit_a_shape_head_household <- vit_a_population %>% 
   filter(AGE_YEAR>=18) %>% 
   group_by(HOUSEHOLD) %>% 
-  arrange(HOUSEHOLD)
-  # summarise(MEAN = mean(sum_VITA_RAE_mcg)) %>% 
-  pivot_wider(names_from = SEX, values_from = sum_VITA_RAE_mcg) %>% 
+  arrange(HOUSEHOLD) %>% 
+  mutate(MEAN = mean(sum_VITA_RAE_mcg)) %>% 
+  pivot_wider(names_from = "SEX", values_from = sum_VITA_RAE_mcg) %>% 
   mutate(DIFF = Male - Female) %>% 
   ungroup() %>% 
   group_by(ADM2_NAME) %>% 
@@ -400,127 +398,127 @@ st_write(zinc_shape, paste0(path_to_data, "shape_files/zinc_shape.shp"), append 
 # calculate the percentage of people
 # at ADM2 level who are below the EAR threshold
 
-inadequacy_MN <- function(micronutrient_object){
-  Men <-  new("micronutrient",
-    EAR_men = micronutrient_object@EAR_men,
-    EAR_women = micronutrient_object@EAR_women,
-    UL = micronutrient_object@UL, 
-    data = micronutrient_object@data %>% 
-      filter(AGE_YEAR>17 & SEX == "Male"),
-    value = micronutrient_object@value
-  )
-  Women <-  new("micronutrient",
-    EAR_men = micronutrient_object@EAR_men,
-    EAR_women = micronutrient_object@EAR_women,
-    UL = micronutrient_object@UL, 
-    data = micronutrient_object@data %>% 
-      filter(AGE_YEAR>17 & SEX == "Female"),
-    value = micronutrient_object@value
-  )
-    
-  #   micronutrient_object@data %>%
-  # filter(AGE_YEAR>17 & SEX == "Male")
-  # women <- micronutrient_object@data %>%
-  # filter(AGE_YEAR>17 & SEX == "Female")
+# inadequacy_MN <- function(micronutrient_object){
+#   Men <-  new("micronutrient",
+#     EAR_men = micronutrient_object@EAR_men,
+#     EAR_women = micronutrient_object@EAR_women,
+#     UL = micronutrient_object@UL, 
+#     data = micronutrient_object@data %>% 
+#       filter(AGE_YEAR>17 & SEX == "Male"),
+#     value = micronutrient_object@value
+#   )
+#   Women <-  new("micronutrient",
+#     EAR_men = micronutrient_object@EAR_men,
+#     EAR_women = micronutrient_object@EAR_women,
+#     UL = micronutrient_object@UL, 
+#     data = micronutrient_object@data %>% 
+#       filter(AGE_YEAR>17 & SEX == "Female"),
+#     value = micronutrient_object@value
+#   )
+#     
+#   #   micronutrient_object@data %>%
+#   # filter(AGE_YEAR>17 & SEX == "Male")
+#   # women <- micronutrient_object@data %>%
+#   # filter(AGE_YEAR>17 & SEX == "Female")
+# 
+#   
+#   temp_men <- Men@data %>%
+#     ungroup()  %>%
+#     rename(SUM = Men@value) %>%
+#     select(SUBJECT, SUM, ADM2_NAME)  %>% 
+#     mutate(INADEQUATE = factor(ifelse(SUM<= Men@EAR_men, 1, 0))) %>%
+#     group_by(ADM2_NAME) %>%
+#     summarise(percentage =(length( INADEQUATE[ which( INADEQUATE == 1 ) ])/n()))  
+# 
+#   temp_women <- Women@data %>%
+#     ungroup()  %>%
+#     rename(SUM = Women@value) %>%
+#     select(SUBJECT, SUM, ADM2_NAME)  %>% 
+#     mutate(INADEQUATE = factor(ifelse(SUM<= Women@EAR_women, 1, 0))) %>%
+#     group_by(ADM2_NAME) %>% 
+#     summarise(percentage =(length( INADEQUATE[ which( INADEQUATE == 1 ) ])/n()))  
+# 
+#   final  <- temp_men %>% 
+#     left_join(temp_women, by = "ADM2_NAME") %>% 
+#     rename(percentage_men = percentage.x,
+#            percentage_women = percentage.y)
+# 
+#   final <- final  %>% left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
+#   final
+# }
+# 
+# vita_inad <- inadequacy_MN(VitA)
+# folate_inad <- inadequacy_MN(Folate) 
+# iron_inad <- inadequacy_MN(Iron)
+# zinc_inad<- inadequacy_MN(Zinc)
 
-  
-  temp_men <- Men@data %>%
-    ungroup()  %>%
-    rename(SUM = Men@value) %>%
-    select(SUBJECT, SUM, ADM2_NAME)  %>% 
-    mutate(INADEQUATE = factor(ifelse(SUM<= Men@EAR_men, 1, 0))) %>%
-    group_by(ADM2_NAME) %>%
-    summarise(percentage =(length( INADEQUATE[ which( INADEQUATE == 1 ) ])/n()))  
-
-  temp_women <- Women@data %>%
-    ungroup()  %>%
-    rename(SUM = Women@value) %>%
-    select(SUBJECT, SUM, ADM2_NAME)  %>% 
-    mutate(INADEQUATE = factor(ifelse(SUM<= Women@EAR_women, 1, 0))) %>%
-    group_by(ADM2_NAME) %>% 
-    summarise(percentage =(length( INADEQUATE[ which( INADEQUATE == 1 ) ])/n()))  
-
-  final  <- temp_men %>% 
-    left_join(temp_women, by = "ADM2_NAME") %>% 
-    rename(percentage_men = percentage.x,
-           percentage_women = percentage.y)
-
-  final <- final  %>% left_join(india_adm2 %>% rename(ADM2_NAME = shapeName), by = "ADM2_NAME")
-  final
-}
-
-vita_inad <- inadequacy_MN(VitA)
-folate_inad <- inadequacy_MN(Folate) 
-iron_inad <- inadequacy_MN(Iron)
-zinc_inad<- inadequacy_MN(Zinc)
-
-
-
-w1 <- tm_shape(st_as_sf(india_adm2))+
-  tm_fill()+
-tm_shape(st_as_sf(vita_inad)) +
-  tm_polygons(col = "percentage_men",
-              title = "Vitamin A inadequacy by district",
-              style = "quantile",
-              breaks = 3,
-              palette = "-RdYlGn",
-              alpha = 1,
-              lwd = 0.4,
-              n = 4,
-              border.col = 1,
-              legend.hist = TRUE) +
-  tm_layout(legend.outside = TRUE)
-
-
-w2 <- tm_shape(st_as_sf(india_adm2))+
-  tm_fill()+
-  tm_shape(st_as_sf(folate_inad)) +
-  tm_polygons(col = "percentage_men",
-              title = "Folate inadequacy by district",
-              style = "quantile",
-              breaks = 3,
-              palette = "-RdYlGn",
-              alpha = 1,
-              lwd = 0.4,
-              n = 4,
-              border.col = 1,
-              legend.hist = TRUE) +
-  tm_layout(legend.outside = TRUE)
-
-
-w3 <- tm_shape(st_as_sf(india_adm2))+
-  tm_fill()+
-  tm_shape(st_as_sf(iron_inad)) +
-  tm_polygons(col = "percentage_men",
-              title = "Iron inadequacy by district",
-              style = "quantile",
-              breaks = 3,
-              palette = "-RdYlGn",
-              alpha = 1,
-              lwd = 0.4,
-              n = 4,
-              border.col = 1,
-              legend.hist = TRUE) +
-  tm_layout(legend.outside = TRUE)
-
-  w4 <- tm_shape(st_as_sf(india_adm2))+
-    tm_fill()+
-    tm_shape(st_as_sf(zinc_inad)) +
-    tm_polygons(col = "percentage_men",
-                title = "Zinc inadequacy by district",
-                style = "quantile",
-                breaks = 3,
-                palette = "-RdYlGn",
-                alpha = 1,
-                lwd = 0.4,
-                n = 4,
-                border.col = 1,
-                legend.hist = TRUE) +
-    tm_layout(legend.outside = TRUE)
-
-  tmap_arrange(w1, w2, w3, w4, nrow = 2)
-
-
+# 
+# 
+# w1 <- tm_shape(st_as_sf(india_adm2))+
+#   tm_fill()+
+# tm_shape(st_as_sf(vita_inad)) +
+#   tm_polygons(col = "percentage_men",
+#               title = "Vitamin A inadequacy by district",
+#               style = "quantile",
+#               breaks = 3,
+#               palette = "-RdYlGn",
+#               alpha = 1,
+#               lwd = 0.4,
+#               n = 4,
+#               border.col = 1,
+#               legend.hist = TRUE) +
+#   tm_layout(legend.outside = TRUE)
+# 
+# 
+# w2 <- tm_shape(st_as_sf(india_adm2))+
+#   tm_fill()+
+#   tm_shape(st_as_sf(folate_inad)) +
+#   tm_polygons(col = "percentage_men",
+#               title = "Folate inadequacy by district",
+#               style = "quantile",
+#               breaks = 3,
+#               palette = "-RdYlGn",
+#               alpha = 1,
+#               lwd = 0.4,
+#               n = 4,
+#               border.col = 1,
+#               legend.hist = TRUE) +
+#   tm_layout(legend.outside = TRUE)
+# 
+# 
+# w3 <- tm_shape(st_as_sf(india_adm2))+
+#   tm_fill()+
+#   tm_shape(st_as_sf(iron_inad)) +
+#   tm_polygons(col = "percentage_men",
+#               title = "Iron inadequacy by district",
+#               style = "quantile",
+#               breaks = 3,
+#               palette = "-RdYlGn",
+#               alpha = 1,
+#               lwd = 0.4,
+#               n = 4,
+#               border.col = 1,
+#               legend.hist = TRUE) +
+#   tm_layout(legend.outside = TRUE)
+# 
+#   w4 <- tm_shape(st_as_sf(india_adm2))+
+#     tm_fill()+
+#     tm_shape(st_as_sf(zinc_inad)) +
+#     tm_polygons(col = "percentage_men",
+#                 title = "Zinc inadequacy by district",
+#                 style = "quantile",
+#                 breaks = 3,
+#                 palette = "-RdYlGn",
+#                 alpha = 1,
+#                 lwd = 0.4,
+#                 n = 4,
+#                 border.col = 1,
+#                 legend.hist = TRUE) +
+#     tm_layout(legend.outside = TRUE)
+# 
+#   tmap_arrange(w1, w2, w3, w4, nrow = 2)
+# 
+# 
 
   
 # fortification vehicles plots
@@ -539,3 +537,213 @@ RICE_HOUSEHOLD %>%
   with(RICE_HOUSEHOLD, t.test(RICE_men_g, RICE_women_g))
   
   st_write(RICE_HOUSEHOLD, paste0(path_to_data, "shape_files/rice/rice_household_sp.shp"), append = TRUE)
+  
+  
+  
+# scatter plot of difference in inadequacy per admin 2
+  
+  
+  #######
+  
+  mn_target_scatter <- (vita_target %>% select(ADM2_NAME, women_inad_perc,men_inad_perc,inad_diff, ADM1) %>% 
+                          rename(va_w_inad = women_inad_perc, va_inad_diff = inad_diff, va_m_inad =men_inad_perc )) %>% 
+    full_join((folate_target %>% select(ADM2_NAME, women_inad_perc,men_inad_perc,inad_diff, ADM1) %>% 
+                 rename(fo_w_inad = women_inad_perc, fo_inad_diff = inad_diff, fo_m_inad =men_inad_perc)), by  = c("ADM2_NAME","ADM1")) %>% 
+    full_join((iron_target %>% select(ADM2_NAME, women_inad_perc,men_inad_perc,inad_diff, ADM1) %>% 
+                 rename(if_w_inad = women_inad_perc, if_inad_diff = inad_diff, ir_m_inad =men_inad_perc)), by  = c("ADM2_NAME","ADM1"))%>% 
+    full_join((zinc_target %>% select(ADM2_NAME, women_inad_perc,men_inad_perc,inad_diff, ADM1) %>% 
+                 rename(zn_w_inad = women_inad_perc, zn_inad_diff = inad_diff, zn_m_inad =men_inad_perc)), by  = c("ADM2_NAME","ADM1")) %>% 
+    full_join(gdqs_adm2, by = "ADM2_NAME")
+  
+  
+  
+  
+  
+  
+  #------------------- scatter plots -------------------------------------
+  
+  x_labels <- c("0%", "25%", "50%", "75%", "100%")
+  
+  
+  background <- data.frame(lower = c(-50,0), 
+                           upper = c(0, 50),
+                           col = c("Women dominate", "Men dominate"))
+  
+  
+  # diff vs women 
+  vita_scat <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = va_w_inad, y = va_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours) + 
+    
+    # geom_ribbon(aes(ymin=-50,ymax=0), alpha=0.25, show.legend = FALSE)+
+    xlim(0,100) +
+    ylim(-50, 50) +
+    guides(color=guide_legend(title="State"),
+           fill=guide_legend(title="Inadequacy sex difference"))
+  
+  
+  
+  fol_scat <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = fo_w_inad, y = fo_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours)+ 
+    ylim(-50, 50)+
+    guides(color=guide_legend(title="State"),
+           fill=guide_legend(title="Inadequacy sex difference"))
+  
+  
+  
+  iron_scat <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = if_w_inad, y = if_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours) + 
+    ylim(-50, 50)+
+    guides(color=guide_legend(title="State"),
+           fill=guide_legend(title="Inadequacy sex difference"))
+  
+  zin_scat <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = zn_w_inad, y = zn_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours) + 
+    ylim(-50, 50)+
+    guides(color=guide_legend(title="State"),
+           fill=guide_legend(title="Inadequacy sex difference"))
+  
+  # make a 
+  diff_w_scatter <- ggarrange(vita_scat + rremove("ylab") + rremove("xlab"),fol_scat+ rremove("ylab") + rremove("xlab"),
+                              iron_scat+ rremove("ylab") + rremove("xlab"),zin_scat+ rremove("ylab") + rremove("xlab"),
+                              common.legend = TRUE,
+                              labels = c("Vitamin A","Folate", "Iron", "Zinc"))
+  
+  diff_w_scatter <-  annotate_figure(diff_w_scatter, left = text_grob("Inadequacy sex difference (percentage)", rot = 90),
+                                     bottom = text_grob("Women inadequacy percentage"),
+                                     top = "Areas with high Micronutrient inadequacy in women \n 
+                have a large inadequacy difference")
+  
+  # diff vs women 
+  vita_scat_m <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = va_m_inad, y = va_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours) + 
+    # geom_ribbon(aes(ymin=-50,ymax=0), alpha=0.25, show.legend = FALSE)+
+    xlim(0,100) +
+    ylim(-50, 50) 
+  
+  
+  fol_scat_m <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = fo_m_inad, y = fo_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours)+ 
+    ylim(-50, 50)
+  
+  
+  
+  iron_scat_m <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = ir_m_inad, y = if_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours) + 
+    ylim(-50, 50)
+  
+  zin_scat_m <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = zn_m_inad, y = zn_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours) + 
+    ylim(-50, 50)
+  
+  # make a 
+  diff_m_scatter <- ggarrange(vita_scat_m + rremove("ylab") + rremove("xlab"),fol_scat_m+ rremove("ylab") + rremove("xlab"),
+                              iron_scat_m+ rremove("ylab") + rremove("xlab"),zin_scat_m+ rremove("ylab") + rremove("xlab"),
+                              common.legend = TRUE,
+                              labels = c("Vitamin A","Folate", "Iron", "Zinc"))
+  
+  diff_m_scatter <-  annotate_figure(diff_m_scatter, left = text_grob("Inadequacy sex difference (percentage)", rot = 90),
+                                     bottom = text_grob("Men inadequacy percentage"))
+  
+  
+  
+  
+  # spearman's rank correlation - women vs 
+  with(mn_target_scatter, cor.test(rank(va_inad_diff),rank(va_w_inad), method = "spearman"))
+  with(mn_target_scatter, cor.test(rank(fo_w_inad),rank(fo_inad_diff), method = "spearman"))
+  with(mn_target_scatter, cor.test(rank(if_w_inad),rank(if_inad_diff), method = "spearman"))
+  with(mn_target_scatter, cor.test(rank(zn_w_inad),rank(zn_inad_diff), method = "spearman"))
+  
+  
+  ### looking at gdqs against the mn differece
+  
+  vita_gdqs <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = -.5, xmax = 0.5, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = mean, y = va_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours) + 
+    
+    # geom_ribbon(aes(ymin=-50,ymax=0), alpha=0.25, show.legend = FALSE)+
+    ylim(-50, 50) +
+    guides(color=guide_legend(title="State"),
+           fill=guide_legend(title="Inadequacy sex difference"))
+  
+  folate_gdqs <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = -.5, xmax = 0.5, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = mean, y = fo_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours) + 
+    
+    # geom_ribbon(aes(ymin=-50,ymax=0), alpha=0.25, show.legend = FALSE)+
+    ylim(-50, 50) +
+    guides(color=guide_legend(title="State"),
+           fill=guide_legend(title="Inadequacy sex difference"))
+  
+  iron_gdqs <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = -.5, xmax = 0.5, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = mean, y = if_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours) + 
+    
+    # geom_ribbon(aes(ymin=-50,ymax=0), alpha=0.25, show.legend = FALSE)+
+    ylim(-50, 50) +
+    guides(color=guide_legend(title="State"),
+           fill=guide_legend(title="Inadequacy sex difference"))
+  
+  zinc_gdqs <- mn_target_scatter %>% 
+    ggplot() + 
+    geom_rect(data = background, aes(xmin = -.5, xmax = 0.5, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
+    geom_point(aes(x = mean, y = zn_inad_diff, color = ADM1)) + 
+    theme_ipsum() +
+    scale_color_manual(values = my_colours) + 
+    
+    # geom_ribbon(aes(ymin=-50,ymax=0), alpha=0.25, show.legend = FALSE)+
+    ylim(-50, 50) +
+    guides(color=guide_legend(title="State"),
+           fill=guide_legend(title="Inadequacy sex difference"))
+  
+  diff_gdqs_scatter <- ggarrange(vita_gdqs + rremove("ylab") + rremove("xlab"),folate_gdqs+ rremove("ylab") + rremove("xlab"),
+                                 iron_gdqs + rremove("ylab") + rremove("xlab"),zinc_gdqs+ rremove("ylab") + rremove("xlab"),
+                                 common.legend = TRUE,
+                                 labels = c("Vitamin A","Folate", "Iron", "Zinc"))
+  
+  diff_gdqs_scatter <-  annotate_figure(diff_gdqs_scatter, left = text_grob("Inadequacy sex difference (percentage)", rot = 90),
+                                        bottom = text_grob("Mean difference in GDQS"))
+  
+
+  
+  

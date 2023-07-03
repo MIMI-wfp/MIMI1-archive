@@ -2,13 +2,15 @@
 
 # Map adequacy of MN's at ADM1 level
 
-breaks <- c(0, 0.2, 0.4, 0.6, 0.8, 1)
+breaks <- c(0, 0.2, 0.4, 0.9,0.8, 1)
 
+
+shrug_shape
 # Vitamin A:
-vitamina_map <- tm_shape(st_as_sf(india_adm2))+
+vitamina_map <- tm_shape(st_as_sf(shrug_shape))+
   tm_fill()+
-  tm_shape(st_as_sf(va_usual_sp)) + 
-  tm_fill(col = "inad_women", breaks = breaks, palette = "PuBu") +
+  tm_shape(st_as_sf(vita_shp)) + 
+  tm_fill(col = "men_inad_perc", breaks = breaks, palette = "PuBu") +
   tm_layout(main.title = "Vitamin A inadequacy: Women", frame = F,
             main.title.size = 0.8) +
   tm_borders(col = "black", lwd = 0.7) +

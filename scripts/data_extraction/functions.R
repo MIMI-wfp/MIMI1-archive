@@ -146,7 +146,7 @@ FOOD_GROUP_LIST <- function(data, food_list){
   sum_or_function <- function(x){
     #creates OR logic gate
     y = sum(x)
-    y = ifelse(y != 0, 1, 0)
+    y = as.numeric(ifelse(y != 0, 1, 0))
     y
   }
   
@@ -178,7 +178,7 @@ FOOD_GROUP_LIST <- function(data, food_list){
   sum_OR_function <- function(x){
     #creates OR logic gate
     y = sum(x)
-    y = factor(ifelse(y != 0, 1, 0))
+    y = as.numeric(factor(ifelse(y != 0, 1, 0)))
     y
   }
   

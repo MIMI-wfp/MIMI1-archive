@@ -385,11 +385,13 @@ UP_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_UP_ir_men.xlsx
 WB_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_WB_ir_men.xlsx"))
 
 AP_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_AP_zn_men.xlsx"))
+AP_zn_men <- AP_zn_men%>% rename(note = SS)
 GU_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_GU_zn_men.xlsx"))
 KA_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_KA_zn_men.xlsx"))
 KE_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_KE_zn_men.xlsx"))
 MP_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_MP_zn_men.xlsx"))
 MA_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_MA_zn_men.xlsx"))
+MA_zn_men <- MA_zn_men %>% rename(note = S)
 OR_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_OR_zn_men.xlsx"))
 TN_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_TN_zn_men.xlsx"))
 UP_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_UP_zn_men.xlsx"))
@@ -509,6 +511,7 @@ GU_vb_women <- read_excel(paste0(path_to_data_sas, "vit_b12/women/_final_GU_vb_w
 #convert to anem
 
 AP_va_women <- convert_to_name(AP_va_women, AP_dict)
+AP_va_women <- AP_va_women%>% rename(note = s)
 GU_va_women <- convert_to_name(GU_va_women, GU_dict)
 KA_va_women <- convert_to_name(KA_va_women, KA_dict)
 KE_va_women <- convert_to_name(KE_va_women, KE_dict)
@@ -574,45 +577,46 @@ india_adm2 <- india_adm2 %>%
   ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
 
 va_all_sp <- va_all %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join(india_adm2,by = "ADM2_NAME")
 
 fo_all_sp<- fo_all %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join(india_adm2 ,by = "ADM2_NAME")
 
 ir_all_sp<- ir_all %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join(india_adm2 ,by = "ADM2_NAME")
 
 zn_all_sp<- zn_all %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join(india_adm2 ,by = "ADM2_NAME")
 
 va_men_sp <- va_men %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2),by = "ADM2_NAME")
 
 fo_men_sp<- fo_men %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
 
 ir_men_sp<- ir_men %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
 
 zn_men_sp<- zn_men %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
 
 va_women_sp<- va_women %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
 
 fo_women_sp<- fo_women %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
 
 ir_women_sp<- ir_women %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
 
 zn_women_sp<- zn_women %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
 
 vb12_women_sp <- vb12_women %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
+
 vb12_men_sp <- vb12_men %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
 
 # write the shape files
 
@@ -732,7 +736,7 @@ ir_usual_sp <-ir_women %>%
                 select(inad_men, ADM2_NAME)
   ), by = "ADM2_NAME")  %>%
   mutate(diff = inad_women - inad_men) %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
 st_write(ir_usual_sp, paste0(path_to_data, "shape_files/usual_intake/ir_usual_diff.shp"), append = TRUE)
 
 fo_usual_sp <-fo_women %>% 
@@ -788,7 +792,7 @@ with(iron_household, t.test(SUM_MALE, SUM_FEMALE))
 with(zinc_household, t.test(SUM_MALE, SUM_FEMALE))
 
 
-path_to_datasets <- "datasets/"
+path_to_datasets <- "datasets/simple_macro_output/"
 
 #save datasets
 
