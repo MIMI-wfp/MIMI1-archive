@@ -1,9 +1,9 @@
 ##### ML pipeline
 
-
 library(dplyr)
 library(tidyverse)
-library(doParallel)#used 
+library(doMC)
+registerDoMC(cores = 4)
 library(tidyr)
 library(ggplot2)
 library(ranger)
@@ -15,22 +15,143 @@ library(plotmo)
 library(tidymodels)
 library(usemodels)
 library(pROC)
+library(vip)
+library(coefplot)
+library(xgboost)
+library(DiagrammeR) 
+library(parsnip)
+library(shapr)
 
 #read in the data file with targets and covariates
 path_to_data <- "./datasets/ml_input_datasets/"
 # setwd(working_dir)
+load("datasets/ml_input_datasets/vita_men_ml.RData")
+load("datasets/ml_input_datasets/fo_men_ml.RData")
+load("datasets/ml_input_datasets/ir_men_ml.RData")
+load("datasets/ml_input_datasets/zn_men_ml.RData")
+load("datasets/ml_input_datasets/vita_women_ml.RData")
+load("datasets/ml_input_datasets/fo_women_m.RData")
+load("datasets/ml_input_datasets/ir_women_ml.RData")
+load("datasets/ml_input_datasets/zn_women_ml.RData")
+load("datasets/ml_input_datasets/vita_target_bin.RData")
 
 
 
 #split the data into training and test
-data_split <- initial_split(df, prop = 0.9)
-train <- training(data_split)
-test <- testing(data_split)
+folate_target <- folate_target %>% select(!c(ADM2_NAME, inad_diff_bin)) %>% mutate(inad_diff = inad_diff/100) %>% drop_na()
+complete.cases(folate_target)
+hist(folate_target$inad_diff)
 
-## Random forest
+
+#split the data
+set.seed(123)
+data_split <- initial_split(folate_target, prop = 0.9)
+data_train <- training(data_split)
+data_test <- testing(data_split)
+
+#fit the tidy models
+folds <- vfold_cv(folate_target, v =nrow(folate_target))#LOOCV 
+
+# Define the recipe for preprocessing
+data_recipe <- recipe(inad_diff ~ ., data = folate_target) %>%
+  step_normalize(all_predictors())
+
+
+
+
+
+# Linear regression ############################################################
+
+
+# Define the workflow with linear regression model
+lm_model <- linear_reg(
+  penalty = tune(),     # Regularization parameter (tuning parameter)
+  mixture =  tune()          # Elastic Net mixing parameter
+) %>%
+  set_engine("glmnet") %>%
+  set_mode("regression")
+
+# Define the performance metric
+mape_metric <- metric_set(yardstick::mape,rmse)
+
+# Define the workflow
+lm_workflow <- workflow() %>%
+  add_recipe(data_recipe) %>%
+  add_model(lm_model)
+
+# Define the parameter grid for hyperparameter tuning
+param_grid <- grid_regular(
+  penalty(range = c(0, 1))  # Range of values to search for penalty parameter
+)
+
+# Perform hyperparameter tuning
+lm_tune <- lm_workflow %>%
+  tune_grid(
+    resamples = folds,
+    grid = 20,
+    metrics = mape_metric,
+    control = control_grid(save_pred = TRUE)
+  )
+
+
+# Get the best model based on MAPE
+best_model <- select_best(lm_tune, metric = "mape")
+
+
+
+#plot the metric
+lm_tune %>%
+  collect_metrics() %>%
+  filter(.metric == "mape") %>%
+  select(mean, penalty) %>%
+  pivot_longer(penalty,
+               values_to = "value",
+               names_to = "parameter"
+  ) %>%
+  ggplot(aes(value, mean, color = parameter)) +
+  geom_point(show.legend = FALSE) +
+  theme_ipsum() +
+  scale_color_manual(values = my_colours) +
+  facet_wrap(~parameter, scales = "free_x") +
+  labs(x = NULL, y = "MAPE")
+
+#show the best model and save it 
+show_best(lm_tune, metric = "mape")
+final_lm <- lm_workflow %>% 
+  finalize_workflow(select_best(lm_tune, metric = "mape"))
+
+
+#fits to the training data then tests on test data
+best_fit_lm <- last_fit(final_lm, data_split, metrics = mape_metric)
+#error rate for the training data
+collect_metrics(best_fit_lm)
+collect_predictions(best_fit_lm)
+
+
+#make predictions on the test case
+# Predict on test set
+predictions <- predict(best_fit_lm$.workflow, data_test) %>%
+  bind_cols(data_test)
+
+# Evaluate model performance on the test set
+mape_lm <- mape_metric(data = predictions, truth = inad_diff, estimate = .pred)
+mape_lm
+
+trained_model_lm <- lm_workflow %>%
+  fit(data_train)
+
+importance_lm <- trained_model %>% 
+  extract_fit_parsnip() %>% 
+  vip(geom = "point")
+
+# Plot variable importance
+print(importance_lm)
+
+
+# Random Forest ################################################################
 fit_1 <- randomForest(
-  formula = micronutrient ~.,
-  data = df,
+  formula = inad_diff~.,
+  data = folate_target,
   importance = TRUE,
   proximity = TRUE
 )
@@ -39,24 +160,190 @@ fit_1 <- randomForest(
 plot(fit_1,
      main = "Error against number of trees")
 
-#### tidy models
-folds <- vfold_cv(df, v =5)
 
-ranger_recipe <- #set the formula
-  recipe(formula = diseaseStatus ~ ., data = df) 
 
-ranger_spec <- #define which variables you want to tune
-  rand_forest(mtry = tune(), min_n = tune(), trees = 250) %>% 
-  set_mode("classification") %>% 
-  set_engine("ranger") 
 
-ranger_workflow <- 
-  workflow() %>% #use a workflow to aggregate the info
-  add_recipe(ranger_recipe) %>% 
-  add_model(ranger_spec) 
+# Define the workflow with random forest model
+rf_model <- rand_forest(
+  mtry = tune(),         # Number of predictor variables to sample at each split (tuning parameter)
+  trees = 200,           # Number of trees to grow
+  min_n = tune() # Minimum number of samples in each terminal node
+  # Maximum number of iterations allowed
+) %>%
+  set_engine("ranger", importance = "impurity") %>%
+  set_mode("regression")
 
-set.seed(29063)
-doParallel::registerDoParallel()#runs faster
-ranger_tune <-
-  tune_grid(ranger_workflow, resamples = folds, grid = 10)
+# Define the performance metric
+mape_metric <- metric_set(yardstick::mape,rmse)
+
+# Define the workflow
+ranger_workflow <- workflow() %>%
+  add_recipe(data_recipe) %>%
+  add_model(rf_model)
+
+
+# Perform hyperparameter tuning
+ranger_tune <- ranger_workflow %>%
+  tune_grid(
+    resamples = folds,
+    grid = 20,
+    metrics = mape_metric,
+    control = control_grid(save_pred = TRUE)
+  )
+
+# Get the best model based on MAPE
+best_model <- select_best(ranger_tune, metric = "mape")
+
+# Fit the best model on the full training set
+final_rf <- ranger_workflow %>% 
+  fit(best_model)
+
+
+#plot the metric
+ranger_tune %>%
+  collect_metrics() %>%
+  filter(.metric == "mape") %>%
+  select(mean, min_n, mtry) %>%
+  pivot_longer(min_n:mtry,
+               values_to = "value",
+               names_to = "parameter"
+  ) %>%
+  ggplot(aes(value, mean, color = parameter)) +
+  geom_point(show.legend = FALSE) +
+  theme_ipsum() +
+  scale_color_manual(values = my_colours) +
+  facet_wrap(~parameter, scales = "free_x") +
+  labs(x = NULL, y = "MAPE")
+
+#show the best model and save it 
+show_best(ranger_tune, metric = "mape")
+final_workflow_rf <- ranger_workflow %>% 
+  finalize_workflow(select_best(ranger_tune, metric = "mape"))
+
+
+#fits to the training data then tests on test data
+best_fit_rf <- last_fit(final_workflow_rf, data_split, metrics = mape_metric)
+#error rate for the training data
+collect_metrics(best_fit_rf)
+collect_predictions(best_fit_rf)
+
+
+#make predictions on the test case
+# Predict on test set
+predictions <- predict(best_fit_rf$.workflow, data_test) %>%
+  bind_cols(data_test)
+
+# Evaluate model performance on the test set
+mape_rf <- mape_metric(data = predictions, truth = inad_diff, estimate = .pred)
+mape_rf
+
+
+importance_rf <- best_fit_rf$.workflow[[1]] %>% 
+  extract_fit_parsnip() %>% 
+  vip(geom = "point")
+
+# Plot variable importance
+print(importance_rf)
+
+
+
+# xgBoost -----------------------------------
+
+# Split the data into training and testing sets
+
+
+# Define the recipe for preprocessing
+data_recipe <- recipe(inad_diff ~ ., data = folate_target) %>%
+  step_normalize(all_predictors())
+
+# Define the workflow with xgboost model
+xgb_model <- boost_tree(
+  trees = tune(),         # Number of trees to grow
+  tree_depth = tune(),      # Maximum tree depth
+
+  mtry = tune()             # Number of predictor variables to sample at each split
+) %>%
+  set_engine("xgboost") %>%
+  set_mode("regression")
+
+# Define the performance metric
+mape_metric <- metric_set(yardstick::mape,rmse)
+
+# Define the workflow
+xg_workflow <- workflow() %>%
+  add_recipe(data_recipe) %>%
+  add_model(xgb_model)
+
+# Define the parameter grid for hyperparameter tuning
+param_grid <- grid_max_entropy(
+  trees(),
+  tree_depth(),
+  mtry()
+)
+
+# Perform hyperparameter tuning
+xg_tune <- workflow %>%
+  tune_grid(
+    resamples = folds,
+    grid = 20,
+    metrics = mape_metric,
+    control = control_grid(save_pred = TRUE)
+  )
+
+# Get the best model based on MAPE
+best_model <- select_best(xg_tune, metric = "mape")
+
+# Fit the best model on the full training set
+final_xg <- xg_workflow %>% 
+  fit(best_model)
+
+
+#plot the metric
+xg_tune %>%
+  collect_metrics() %>%
+  filter(.metric == "mape") %>%
+  select(mean, tree_depth, mtry, trees) %>%
+  pivot_longer(c(tree_depth,mtry,trees),
+               values_to = "value",
+               names_to = "parameter"
+  ) %>%
+  ggplot(aes(value, mean, color = parameter)) +
+  geom_point(show.legend = FALSE) +
+  theme_ipsum() +
+  scale_color_manual(values = my_colours) +
+  facet_wrap(~parameter, scales = "free_x") +
+  labs(x = NULL, y = "MAPE")
+
+#show the best model and save it 
+show_best(xg_tune, metric = "mape")
+final_xg <- xg_workflow %>% 
+  finalize_workflow(select_best(xg_tune, metric = "mape"))
+
+
+#fits to the training data then tests on test data
+best_fit_xg <- last_fit(final_xg, data_split,metrics = mape_metric)
+#error rate for the training data
+collect_metrics(best_fit_xg)
+collect_predictions(best_fit_xg)
+
+
+#make predictions on the test case
+# Predict on test set
+predictions <- predict(best_fit_xg$.workflow, data_test) %>%
+  bind_cols(data_test)
+
+# Evaluate model performance on the test set
+mape_xg <- mape_metric(data = predictions, truth = inad_diff, estimate = .pred)
+mape_xg
+
+
+importance_xg <- best_fit_xg$.workflow[[1]] %>% 
+  extract_fit_parsnip() %>% 
+  vip(geom = "point")
+
+# Plot variable importance
+print(importance_xg)
+
+
+shapr(data_train,extract_fit_parsnip( best_fit_xg$.workflow[[1]]))
 

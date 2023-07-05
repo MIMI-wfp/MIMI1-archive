@@ -31,11 +31,13 @@ vb12_dict <- read_csv(paste0(path_to_data, "dictionaries/vb12_dict.csv"))
 
 #shrug data
 india_adm2 <- st_read("../shrug-pc11dist-poly-shp/district.shp")#shape files from shru
-india_adm2 <- india_adm2 %>% rename(ADM2_NAME = d_name) %>% 
+other_shape <- st_read(paste0(path_to_data, "shape_files/original_country/clean_india_adm2.shp")) 
+sf_use_s2(FALSE)
+india_adm2 <- st_join(other_shape, st_centroid(india_adm2),join = st_intersects ) 
+india_adm2 <- india_adm2 %>% select(!c('d_name', "shapeType"))
+india_adm2 <- india_adm2 %>% rename(ADM2_NAME = shapeName) %>% 
   ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
 
-india_adm2 <- india_adm2 %>% 
- filter()
 
 shrug_secc_urban <- read_csv("../shrug-secc-parsed-urban-csv/secc_urban_pc11dist.csv")
 shrug_secc_rural <- read_csv("../shrug-secc-mord-rural-csv/secc_rural_pc11dist.csv")
