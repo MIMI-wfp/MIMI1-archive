@@ -357,35 +357,40 @@ zn_women_ml <- zn_women %>% left_join(shrug_all, by = "ADM2_NAME")%>% filter(s_n
   select(!c("note","N", "mean", P_25, median, P_75,                   
             No_replicates,pc11_district_id,pc11_state_id,               
             shapeGroup,shapeISO,shapeID,s_name)) 
-
+#inadequacy difference targets
 vita_target <- vita_target  %>% left_join(shrug_all, by = "ADM2_NAME") %>% filter(s_name != "KERALA") %>% 
 select(!c(                   
           pc11_district_id,pc11_state_id,               
           shapeGroup,shapeISO,shapeID,s_name)) %>% 
   select(
-  !c(men_inad_perc,men_N,men_intake_mcg,ADM1,women_inad_perc,women_intake_mcg,women_N)
-)
+  !c(men_inad_perc,men_N,men_intake_mcg,ADM1,women_inad_perc,women_intake_mcg,women_N)) %>% 
+  select(!c(ADM2_NAME, inad_diff_bin)) %>% mutate(inad_diff = inad_diff/100) %>% drop_na()
+
+
 zinc_target<- zinc_target  %>% left_join(shrug_all, by = "ADM2_NAME")  %>% 
   select(!c(                   
     pc11_district_id,pc11_state_id,               
     shapeGroup,shapeISO,shapeID,s_name)) %>% 
   select(
-    !c(men_inad_perc,men_N,men_intake_mg,ADM1,women_inad_perc,women_intake_mg,women_N)
-  )
+    !c(men_inad_perc,men_N,men_intake_mg,ADM1,women_inad_perc,women_intake_mg,women_N)) %>% 
+  select(!c(ADM2_NAME, inad_diff_bin)) %>% mutate(inad_diff = inad_diff/100) %>% drop_na()
+
 folate_target<- folate_target  %>% left_join(shrug_all, by = "ADM2_NAME")  %>% 
   select(!c(                   
     pc11_district_id,pc11_state_id,               
     shapeGroup,shapeISO,shapeID,s_name)) %>% 
   select(
-    !c(men_inad_perc,men_N,men_intake_mcg,ADM1,women_inad_perc,women_intake_mcg,women_N)
-  )
+    !c(men_inad_perc,men_N,men_intake_mcg,ADM1,women_inad_perc,women_intake_mcg,women_N)) %>% 
+  select(!c(ADM2_NAME, inad_diff_bin)) %>% mutate(inad_diff = inad_diff/100) %>% drop_na()
+
 iron_target<- iron_target  %>% left_join(shrug_all, by = "ADM2_NAME") %>% 
   select(!c(                   
     pc11_district_id,pc11_state_id,               
     shapeGroup,shapeISO,shapeID,s_name)) %>% 
   select(
-    !c(men_inad_perc,men_N,men_intake_mg,ADM1,women_inad_perc,women_intake_mg,women_N)
-  )
+    !c(men_inad_perc,men_N,men_intake_mg,ADM1,women_inad_perc,women_intake_mg,women_N)) %>% 
+  select(!c(ADM2_NAME, inad_diff_bin)) %>% mutate(inad_diff = inad_diff/100) %>% drop_na()
+
 # save the datasets
 save(vita_men_ml, file = "datasets/ml_input_datasets/vita_men_ml.RData")
 save(fo_men_ml, file = "datasets/ml_input_datasets/fo_men_ml.RData")
@@ -402,3 +407,8 @@ save(folate_target, file = "datasets/ml_input_datasets/folate_target_bin.RData")
 save(iron_target, file =  "datasets/ml_input_datasets/iron_target.RData")
 save(zinc_target, file = "datasets/ml_input_datasets/zinc_target.RData")
 
+
+write.csv(vita_target,"datasets/ml_input_datasets/vita_target.csv", append = FALSE)
+write.csv(folate_target,"datasets/ml_input_datasets/folate_target.csv", append = FALSE )
+write.csv(iron_target,"datasets/ml_input_datasets/iron_target.csv", append = FALSE )
+write.csv(zinc_target,"datasets/ml_input_datasets/zinc_target.csv" , append = FALSE)
