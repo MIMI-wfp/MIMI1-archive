@@ -815,6 +815,70 @@ save(zn_men, file = paste0(path_to_datasets, "zn_men.RData"))
 
 
 
+#--------------------------------
+
+# Energy
 
 
+AP_en_women <- read_excel(paste0(path_to_data_sas, "energy/_final_AP_en_women.xlsx"))
+GU_en_women <- read_excel(paste0(path_to_data_sas, "energy/_final_GU_en_women.xlsx"))
+GU_en_women <- GU_en_women %>% rename(note = S)
+KA_en_women <- read_excel(paste0(path_to_data_sas, "energy/_final_KA_en_women.xlsx"))
+KE_en_women <- read_excel(paste0(path_to_data_sas, "energy/_final_KE_en_women.xlsx"))
+MP_en_women <- read_excel(paste0(path_to_data_sas, "energy/_final_MP_en_women.xlsx"))
+MA_en_women <- read_excel(paste0(path_to_data_sas, "energy/_final_MA_en_women.xlsx"))
+OR_en_women <- read_excel(paste0(path_to_data_sas, "energy/_final_OR_en_women.xlsx"))
+TN_en_women <- read_excel(paste0(path_to_data_sas, "energy/_final_TN_en_women.xlsx"))
+UP_en_women <- read_excel(paste0(path_to_data_sas, "energy/_final_UP_en_women.xlsx"))
+WB_en_women <- read_excel(paste0(path_to_data_sas, "energy/_final_WB_en_women.xlsx"))
 
+
+#convert to anem
+
+AP_en_women <- convert_to_name(AP_en_women, AP_dict)
+# AP_va_women <- AP_va_women%>% rename(note = s)
+GU_en_women <- convert_to_name(GU_en_women, GU_dict)
+KA_en_women <- convert_to_name(KA_en_women, KA_dict)
+KE_en_women <- convert_to_name(KE_en_women, KE_dict)
+MA_en_women <- convert_to_name(MA_en_women, MA_dict)
+MP_en_women <- convert_to_name(MP_en_women, MP_dict)
+OR_en_women <- convert_to_name(OR_en_women, OR_dict)
+TN_en_women <- convert_to_name(TN_en_women, TN_dict)
+UP_en_women <- convert_to_name(UP_en_women, UP_dict)
+WB_en_women <- convert_to_name(WB_en_women, WB_dict)
+#combine all for a sinngle data frame
+en_women <- bind_rows(AP_en_women, UP_en_women, GU_en_women, KA_en_women, KE_en_women, MA_en_women, MP_en_women, OR_en_women, TN_en_women, WB_en_women)
+
+
+AP_en_men <- read_excel(paste0(path_to_data_sas, "energy/_final_AP_en_men.xlsx"))
+GU_en_men <- read_excel(paste0(path_to_data_sas, "energy/_final_GU_en_men.xlsx"))
+# GU_en_men <- GU_en_women %>% rename(note = S)
+KA_en_men <- read_excel(paste0(path_to_data_sas, "energy/_final_KA_en_men.xlsx"))
+KE_en_men <- read_excel(paste0(path_to_data_sas, "energy/_final_KE_en_men.xlsx"))
+MP_en_men <- read_excel(paste0(path_to_data_sas, "energy/_final_MP_en_men.xlsx"))
+MA_en_men <- read_excel(paste0(path_to_data_sas, "energy/_final_MA_en_men.xlsx"))
+OR_en_men <- read_excel(paste0(path_to_data_sas, "energy/_final_OR_en_men.xlsx"))
+TN_en_men <- read_excel(paste0(path_to_data_sas, "energy/_final_TN_en_men.xlsx"))
+UP_en_men <- read_excel(paste0(path_to_data_sas, "energy/_final_UP_en_men.xlsx"))
+UP_en_men <- UP_en_men %>% rename(note =  S)
+WB_en_men <- read_excel(paste0(path_to_data_sas, "energy/_final_WB_en_men.xlsx"))
+
+
+#convert to anem
+
+AP_en_men <- convert_to_name(AP_en_men, AP_dict)
+# AP_vwomen <- AP_va_women%>% rename(note = s)
+GU_en_men <- convert_to_name(GU_en_men, GU_dict)
+KA_en_men <- convert_to_name(KA_en_men, KA_dict)
+KE_en_men <- convert_to_name(KE_en_men, KE_dict)
+MA_en_men <- convert_to_name(MA_en_men, MA_dict)
+MP_en_men <- convert_to_name(MP_en_men, MP_dict)
+OR_en_men <- convert_to_name(OR_en_men, OR_dict)
+TN_en_men <- convert_to_name(TN_en_men, TN_dict)
+UP_en_men <- convert_to_name(UP_en_men, UP_dict)
+WB_en_men <- convert_to_name(WB_en_men, WB_dict)
+#combine all for a sinngle data frame
+en_men <- bind_rows(AP_en_men, UP_en_men, GU_en_men, KA_en_men, KE_en_men, MA_en_men, MP_en_men, OR_en_men, TN_en_men, WB_en_men)
+
+save(en_men, file = paste0(path_to_datasets, "en_men.RData"))
+save(en_women, file = paste0(path_to_datasets, "en_women.RData"))

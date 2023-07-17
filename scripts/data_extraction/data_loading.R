@@ -346,4 +346,4 @@ all_mn <- vit_a_population %>%
 # estimating intake inadequacy for the different MNs
 # 
 
-rm(joined)
+# rm(joined)

@@ -43,20 +43,25 @@ adm2_energy %>%
        fill = "Sex")
 
 
-energy_sp <- inner_join(
-  adm2_energy, 
+energy_men_sp <- inner_join(
+  en_men, 
   india_adm2, 
   by = "ADM2_NAME"
 )
 
+energy_women_sp <- inner_join(
+  en_women, 
+  india_adm2, 
+  by = "ADM2_NAME"
+)
 
 breaks_men <- c(0, 1000, 2000,  2600, 3000, 3500, 4000)
 
-energy_map__men <- tm_shape(st_as_sf(india_adm2))+
+energy_map_men <- tm_shape(st_as_sf(india_adm2))+
   tm_fill()+
-  tm_shape(st_as_sf(energy_sp %>% filter(SEX == "Male"))) + 
+  tm_shape(st_as_sf(energy_men_sp)) + 
   tm_fill(col = "mean", breaks = breaks_men, palette = "RdBu",
-          title = "Mean energy intake \n(kcal)") +
+          title = "Usual energy intake \n(kcal)") +
   tm_layout(main.title = "Calorie intake: Men", frame = F,
             main.title.size = 0.8,legend.title.size = 0.75) +
   tm_borders(col = "black", lwd = 0.7) +
@@ -67,9 +72,9 @@ breaks_women <- c(0, 1000, 1500,  2100, 3000, 3500, 4000)
 
 energy_map__women <- tm_shape(st_as_sf(india_adm2))+
   tm_fill()+
-  tm_shape(st_as_sf(energy_sp %>% filter(SEX == "Female"))) + 
+  tm_shape(st_as_sf(energy_women_sp)) + 
   tm_fill(col = "mean", breaks = breaks_women, palette = "RdBu",
-          title = "Mean energy intake \n(kcal)") +
+          title = "Usual energy intake \n(kcal)") +
   tm_layout(main.title = "Calorie intake: Women", frame = F,
             main.title.size = 0.8,
             legend.title.size = 0.75
@@ -78,4 +83,133 @@ energy_map__women <- tm_shape(st_as_sf(india_adm2))+
   tm_legend(show = T)
 
 # hello this is me testing my keyboard§
+energy_corr <- en_men %>% 
+  left_join(va_men %>% select(ADM2_NAME, note, inadequate_percent) %>% 
+              rename(inad_va = inadequate_percent), by = c("ADM2_NAME", "note")) %>% 
+  left_join(fo_men %>% select(ADM2_NAME, note, inadequate_percent) %>% 
+              rename(inad_fo = inadequate_percent), by = c("ADM2_NAME", "note")) %>% 
+  left_join(ir_men %>% select(ADM2_NAME, note, inadequate_percent) %>% 
+              rename(inad_ir = inadequate_percent), by = c("ADM2_NAME", "note")) %>% 
+  left_join(zn_men %>% select(ADM2_NAME, note, inadequate_percent) %>% 
+              rename(inad_zn = inadequate_percent), by = c("ADM2_NAME", "note")) 
+
+
+
+
+zinc_men_corr <- energy_corr %>% 
+  ggplot(aes(x = inadequate_percent)) +
+  geom_point(aes(y = inad_zn, color = "")) +
+  scale_color_manual(values = c(my_colours[1])) +
+  theme_ipsum()  +
+  theme(legend.position = "none")+
+  labs(title = "Zinc",
+       x = "", 
+       y = "")
+
+va_men_corr <- energy_corr %>% 
+  ggplot(aes(x = inadequate_percent)) +
+  geom_point(aes(y = inad_va, color = "")) +
+  scale_color_manual(values = c(my_colours[2])) +
+  theme_ipsum()  +
+  theme(legend.position = "none")+
+  labs(title = "Vitamin A",
+       x = "", 
+       y = "")
+
+ir_men_corr <- energy_corr %>% 
+  ggplot(aes(x = inadequate_percent)) +
+  geom_point(aes(y = inad_ir, color = "")) +
+  scale_color_manual(values = c(my_colours[5])) +
+  theme_ipsum()  +
+  theme(legend.position = "none")+
+  labs(title = "Iron",
+       x = "", 
+       y = "")
+
+
+fo_men_corr <- energy_corr %>% 
+  ggplot(aes(x = inadequate_percent)) +
+  geom_point(aes(y = inad_fo, color = "")) +
+  scale_color_manual(values = c(my_colours[4])) +
+  theme_ipsum() +
+  theme(legend.position = "none") +
+  labs(title = "Folate",
+       x = "", 
+       y = "")
+
+
+men_energy <- ggarrange(va_men_corr, fo_men_corr, ir_men_corr,zinc_men_corr,  
+                     ncol = 2, nrow = 2)
+
+annotate_figure(men_energy,
+                top = text_grob("Micronutrient inadequacy vs energy inadequacy at ADM2 \n Men", color = "#404080", face = "bold", size = 14),
+                left = text_grob("Percentage inadequacy of micronutrient", rot = 90),
+                bottom = text_grob("Percentage inadequacy of energy")
+                
+)
+
+energy_corr_women <- en_women %>% 
+  left_join(va_women %>% select(ADM2_NAME, note, inadequate_percent) %>% 
+              rename(inad_va = inadequate_percent), by = c("ADM2_NAME", "note")) %>% 
+  left_join(fo_women %>% select(ADM2_NAME, note, inadequate_percent) %>% 
+              rename(inad_fo = inadequate_percent), by = c("ADM2_NAME", "note")) %>% 
+  left_join(ir_women %>% select(ADM2_NAME, note, inadequate_percent) %>% 
+              rename(inad_ir = inadequate_percent), by = c("ADM2_NAME", "note")) %>% 
+  left_join(zn_women %>% select(ADM2_NAME, note, inadequate_percent) %>% 
+              rename(inad_zn = inadequate_percent), by = c("ADM2_NAME", "note")) 
+
+
+
+
+zinc_women_corr <- energy_corr_women %>% 
+  ggplot(aes(x = inadequate_percent)) +
+  geom_point(aes(y = inad_zn, color = "")) +
+  scale_color_manual(values = c(my_colours[1])) +
+  theme_ipsum()  +
+  theme(legend.position = "none")+
+  labs(title = "Zinc",
+       x = "", 
+       y = "")
+
+va_women_corr <- energy_corr_women %>% 
+  ggplot(aes(x = inadequate_percent)) +
+  geom_point(aes(y = inad_va, color = "")) +
+  scale_color_manual(values = c(my_colours[2])) +
+  theme_ipsum()  +
+  theme(legend.position = "none")+
+  labs(title = "Vitamin A",
+       x = "", 
+       y = "")
+
+ir_women_corr <- energy_corr_women %>% 
+  ggplot(aes(x = inadequate_percent)) +
+  geom_point(aes(y = inad_ir, color = "")) +
+  scale_color_manual(values = c(my_colours[5])) +
+  theme_ipsum()  +
+  theme(legend.position = "none")+
+  labs(title = "Iron",
+       x = "", 
+       y = "")
+
+
+fo_women_corr <- energy_corr_women %>% 
+  ggplot(aes(x = inadequate_percent)) +
+  geom_point(aes(y = inad_fo, color = "")) +
+  scale_color_manual(values = c(my_colours[4])) +
+  theme_ipsum() +
+  theme(legend.position = "none") +
+  labs(title = "Folate",
+       x = "", 
+       y = "")
+
+
+women_energy <- ggarrange(va_women_corr, fo_women_corr, ir_women_corr,zinc_women_corr,  
+                        ncol = 2, nrow = 2)
+
+annotate_figure(women_energy,
+                top = text_grob("Micronutrient inadequacy vs energy inadequacy at ADM2 \n Women", color = "#404080", face = "bold", size = 14),
+                left = text_grob("Percentage inadequacy of micronutrient", rot = 90),
+                bottom = text_grob("Percentage inadequacy of energy")
+                
+)
 

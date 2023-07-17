@@ -13,6 +13,10 @@ source(paste0(path_to_script,"data_loading.R"))#sources the functions and data
 #   ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
 
 
+summary(joined)
+n(unique(joined$ADM2_NAME))
+
+
 My_Theme = theme(
   axis.title.x = element_text(size = 16),
   axis.text.x = element_text(size = 14),
@@ -188,9 +192,7 @@ annotate_figure(figure2,
                 top = text_grob("Difference in observed intake between head of household", color = "#404080", face = "bold", size = 14),
                 bottom = text_grob("The observed intake of the oldest man in a household minus the observed intake of the older woman.", color = "#69b3a2",
                                    hjust = 1, x = 1, face = "italic", size = 10),
-                
-                
-                
+  
 )
 
 
