@@ -41,3 +41,41 @@ adm2_energy %>%
        x = "Energy intake", 
        y = "count",
        fill = "Sex")
+
+
+energy_sp <- inner_join(
+  adm2_energy, 
+  india_adm2, 
+  by = "ADM2_NAME"
+)
+
+
+breaks_men <- c(0, 1000, 2000,  2600, 3000, 3500, 4000)
+
+energy_map__men <- tm_shape(st_as_sf(india_adm2))+
+  tm_fill()+
+  tm_shape(st_as_sf(energy_sp %>% filter(SEX == "Male"))) + 
+  tm_fill(col = "mean", breaks = breaks_men, palette = "RdBu",
+          title = "Mean energy intake \n(kcal)") +
+  tm_layout(main.title = "Calorie intake: Men", frame = F,
+            main.title.size = 0.8,legend.title.size = 0.75) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = T)
+
+
+breaks_women <- c(0, 1000, 1500,  2100, 3000, 3500, 4000)
+
+energy_map__women <- tm_shape(st_as_sf(india_adm2))+
+  tm_fill()+
+  tm_shape(st_as_sf(energy_sp %>% filter(SEX == "Female"))) + 
+  tm_fill(col = "mean", breaks = breaks_women, palette = "RdBu",
+          title = "Mean energy intake \n(kcal)") +
+  tm_layout(main.title = "Calorie intake: Women", frame = F,
+            main.title.size = 0.8,
+            legend.title.size = 0.75
+            ) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = T)
+
+# hello this is me testing my keyboard§
+

@@ -385,13 +385,13 @@ UP_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_UP_ir_men.xlsx
 WB_ir_men <- read_excel(paste0(path_to_data_sas, "iron/men/_final_WB_ir_men.xlsx"))
 
 AP_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_AP_zn_men.xlsx"))
-AP_zn_men <- AP_zn_men%>% rename(note = SS)
+# AP_zn_men <- AP_zn_men%>% rename(note = SS)
 GU_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_GU_zn_men.xlsx"))
 KA_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_KA_zn_men.xlsx"))
 KE_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_KE_zn_men.xlsx"))
 MP_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_MP_zn_men.xlsx"))
 MA_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_MA_zn_men.xlsx"))
-MA_zn_men <- MA_zn_men %>% rename(note = S)
+
 OR_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_OR_zn_men.xlsx"))
 TN_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_TN_zn_men.xlsx"))
 UP_zn_men <- read_excel(paste0(path_to_data_sas, "zinc/men/_final_UP_zn_men.xlsx"))
@@ -482,6 +482,7 @@ MA_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_MA_fo_wo
 OR_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_OR_fo_women.xlsx"))
 TN_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_TN_fo_women.xlsx"))
 UP_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_UP_fo_women.xlsx"))
+UP_fo_women <- UP_fo_women %>% rename(note = s)
 WB_fo_women <- read_excel(paste0(path_to_data_sas, "folate/women/_final_WB_fo_women.xlsx"))
 
 AP_ir_women <- read_excel(paste0(path_to_data_sas, "iron/women/_final_AP_ir_women.xlsx"))
@@ -511,7 +512,7 @@ GU_vb_women <- read_excel(paste0(path_to_data_sas, "vit_b12/women/_final_GU_vb_w
 #convert to anem
 
 AP_va_women <- convert_to_name(AP_va_women, AP_dict)
-AP_va_women <- AP_va_women%>% rename(note = s)
+# AP_va_women <- AP_va_women%>% rename(note = s)
 GU_va_women <- convert_to_name(GU_va_women, GU_dict)
 KA_va_women <- convert_to_name(KA_va_women, KA_dict)
 KE_va_women <- convert_to_name(KE_va_women, KE_dict)
@@ -574,7 +575,8 @@ vb12_women <- convert_to_name(GU_vb_women, GU_dict)
 
 india_adm2 <- st_read(paste0(path_to_data, "shape_files/original_country/clean_india_adm2.shp"))
 india_adm2 <- india_adm2 %>% 
-  ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
+  ms_simplify(keep  =0.1, keep_shapes = T, snap = T) %>% 
+  rename("ADM2_NAME" = shapeName)
 
 va_all_sp <- va_all %>% 
   left_join(india_adm2,by = "ADM2_NAME")
@@ -747,7 +749,8 @@ fo_usual_sp <-fo_women %>%
                 select(inad_men, ADM2_NAME)
   ), by = "ADM2_NAME")  %>%
   mutate(diff = inad_women - inad_men) %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 
+             ),by = "ADM2_NAME")
   
 st_write(fo_usual_sp, paste0(path_to_data, "shape_files/usual_intake/fo_usual_diff.shp"), append = TRUE)
 
@@ -759,7 +762,7 @@ va_usual_sp <-va_women %>%
                 select(inad_men, ADM2_NAME)
   ), by = "ADM2_NAME")  %>%
   mutate(diff = inad_women - inad_men) %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2),by = "ADM2_NAME")
 st_write(va_usual_sp, paste0(path_to_data, "shape_files/usual_intake/va_usual_diff.shp"), append = TRUE)
 
 zn_usual_sp <-zn_women %>% 
@@ -770,7 +773,7 @@ zn_usual_sp <-zn_women %>%
                 select(inad_men, ADM2_NAME)
   ), by = "ADM2_NAME")  %>%
   mutate(diff = inad_women - inad_men) %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
 st_write(zn_usual_sp, paste0(path_to_data, "shape_files/usual_intake/zn_usual_diff.shp"), append = TRUE)
   
 vb12_usual_sp <-vb12_women %>% 
@@ -781,7 +784,7 @@ vb12_usual_sp <-vb12_women %>%
                 select(inad_men, ADM2_NAME)
   ), by = "ADM2_NAME")  %>%
   mutate(diff = inad_women - inad_men) %>% 
-  left_join((india_adm2 %>% rename(ADM2_NAME= shapeName)),by = "ADM2_NAME")
+  left_join((india_adm2 ),by = "ADM2_NAME")
 st_write(vb12_usual_sp, paste0(path_to_data, "shape_files/usual_intake/vb12_usual_diff.shp"), append = TRUE)
 
 
