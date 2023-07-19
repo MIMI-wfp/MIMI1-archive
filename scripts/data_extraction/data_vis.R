@@ -1,6 +1,8 @@
 # Gabriel Battcock
 # background data visualisation
 # Differences between mean intake between sexes 
+
+library(table1)
 setwd("~/Documents/LSHTM/WFP_project/MIMI")
 path_to_script <- "scripts/data_extraction/"
 path_to_data <- "../IND_00062/"
@@ -12,9 +14,22 @@ source(paste0(path_to_script,"data_loading.R"))#sources the functions and data
 # india_adm1 <- india_adm1 %>% 
 #   ms_simplify(keep  =0.1, keep_shapes = T, snap = T)
 
-
+#looking at the dataset
 summary(joined)
 n(unique(joined$ADM2_NAME))
+
+#how many childer
+adults <- user %>% filter(AGE_YEAR>=18) %>% 
+  mutate(SEX = ifelse(SEX == 1, "Male", "Female"))
+  
+
+label(adults$SEX) <- "Sex"
+label(adults$ADM1_NAME) <- "State"
+label(adults$WEIGHT) <- "Weight"
+label(adults$AGE_YEAR) <- "Age"
+label(adults$HEIGHT) <- "Height"
+
+table1(~ ADM1_NAME + AGE_YEAR +WEIGHT + HEIGHT | SEX, data = adults)
 
 
 My_Theme = theme(
@@ -78,14 +93,14 @@ sex_hist_zinc + My_Theme
 
 #violin plots
 #whole population
-violin_plot <- user %>% 
+violin_plot <- adults %>% 
   # filter(sum_VITA_RAE_mcg<1000) %>%
-  mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+  # mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
   ggplot(aes(x = SEX, y = AGE_YEAR, fill = SEX)) +
   geom_violin(alpha = 1, position = 'dodge', show.legend = FALSE) +
   scale_fill_manual(values=c("#69b3a2", "#404080")) +
   theme_ipsum() +
-  labs(title = "Age distribution of population",
+  labs(title = "Age distribution of analysis population",
        x = "Sex",
        y = "Age (years)")
 
@@ -546,6 +561,29 @@ RICE_HOUSEHOLD %>%
   
   
   #######
+  va_scat <- vita_women_ml %>% 
+    select(inadequate_percent, d_name,s_name) %>% 
+    inner_join(vita_target %>% select(d_name, inad_diff), by = "d_name") %>% 
+    add_row(inadequate_percent = NA, 
+            d_name = NA, 
+            s_name = "WEST BENGAL",
+            inad_diff = NA)
+  
+  #######
+  fo_scat <- fo_women_ml %>% 
+    select(inadequate_percent, d_name,s_name) %>% 
+    inner_join(folate_target %>% select(d_name, inad_diff), by = "d_name")
+  
+  #######
+  ir_scat <- ir_women_ml %>% 
+    select(inadequate_percent, d_name,s_name) %>% 
+    inner_join(iron_target %>% select(d_name, inad_diff), by = "d_name")
+  
+  #######
+  zn_scat <- zn_women_ml %>% 
+    select(inadequate_percent, d_name,s_name) %>% 
+    inner_join(zinc_target %>% select(d_name, inad_diff), by = "d_name")
+  
   
   mn_target_scatter <- (vita_target %>% select(ADM2_NAME, women_inad_perc,men_inad_perc,inad_diff, ADM1) %>% 
                           rename(va_w_inad = women_inad_perc, va_inad_diff = inad_diff, va_m_inad =men_inad_perc )) %>% 
@@ -573,12 +611,14 @@ RICE_HOUSEHOLD %>%
   
   
   # diff vs women 
-  vita_scat <- mn_target_scatter %>% 
+  vita_scat_plot <- va_scat %>% 
     ggplot() + 
     geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
-    geom_point(aes(x = va_w_inad, y = va_inad_diff, color = ADM1)) + 
+    geom_point(aes(x = inadequate_percent, y = inad_diff*100, color = s_name)) + 
     theme_ipsum() +
-    scale_color_manual(values = my_colours) + 
+    scale_color_manual(values = my_colours, 
+                       
+                       drop = FALSE) + 
     
     # geom_ribbon(aes(ymin=-50,ymax=0), alpha=0.25, show.legend = FALSE)+
     xlim(0,100) +
@@ -588,48 +628,56 @@ RICE_HOUSEHOLD %>%
   
   
   
-  fol_scat <- mn_target_scatter %>% 
+  fol_scat <-fo_scat %>% 
     ggplot() + 
     geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
-    geom_point(aes(x = fo_w_inad, y = fo_inad_diff, color = ADM1)) + 
+    geom_point(aes(x = inadequate_percent, y = inad_diff*100, color = s_name)) + 
     theme_ipsum() +
-    scale_color_manual(values = my_colours)+ 
-    ylim(-50, 50)+
+    scale_color_manual(values = my_colours, drop = FALSE) + 
+    
+    # geom_ribbon(aes(ymin=-50,ymax=0), alpha=0.25, show.legend = FALSE)+
+    xlim(0,100) +
+    ylim(-50, 50) +
     guides(color=guide_legend(title="State"),
            fill=guide_legend(title="Inadequacy sex difference"))
   
   
   
-  iron_scat <- mn_target_scatter %>% 
+  iron_scat <- ir_scat %>% 
     ggplot() + 
     geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
-    geom_point(aes(x = if_w_inad, y = if_inad_diff, color = ADM1)) + 
+    geom_point(aes(x = inadequate_percent, y = inad_diff*100, color = s_name)) + 
     theme_ipsum() +
-    scale_color_manual(values = my_colours) + 
-    ylim(-50, 50)+
+    scale_color_manual(values = my_colours, drop = FALSE) + 
+    
+    # geom_ribbon(aes(ymin=-50,ymax=0), alpha=0.25, show.legend = FALSE)+
+    xlim(0,100) +
+    ylim(-50, 50) +
     guides(color=guide_legend(title="State"),
            fill=guide_legend(title="Inadequacy sex difference"))
   
-  zin_scat <- mn_target_scatter %>% 
+  zin_scat <- zn_scat %>% 
     ggplot() + 
     geom_rect(data = background, aes(xmin = 0, xmax = 100, ymin = lower, ymax = upper, fill = col), alpha = 0.2, show.legend = TRUE) +
-    geom_point(aes(x = zn_w_inad, y = zn_inad_diff, color = ADM1)) + 
+    geom_point(aes(x = inadequate_percent, y = inad_diff*100, color = s_name)) + 
     theme_ipsum() +
-    scale_color_manual(values = my_colours) + 
-    ylim(-50, 50)+
+    scale_color_manual(values = my_colours, drop = FALSE) + 
+    
+    # geom_ribbon(aes(ymin=-50,ymax=0), alpha=0.25, show.legend = FALSE)+
+    xlim(0,100) +
+    ylim(-50, 50) +
     guides(color=guide_legend(title="State"),
            fill=guide_legend(title="Inadequacy sex difference"))
   
   # make a 
-  diff_w_scatter <- ggarrange(vita_scat + rremove("ylab") + rremove("xlab"),fol_scat+ rremove("ylab") + rremove("xlab"),
+  diff_w_scatter <- ggarrange(vita_scat_plot + rremove("ylab") + rremove("xlab"),fol_scat+ rremove("ylab") + rremove("xlab"),
                               iron_scat+ rremove("ylab") + rremove("xlab"),zin_scat+ rremove("ylab") + rremove("xlab"),
                               common.legend = TRUE,
                               labels = c("Vitamin A","Folate", "Iron", "Zinc"))
   
   diff_w_scatter <-  annotate_figure(diff_w_scatter, left = text_grob("Inadequacy sex difference (percentage)", rot = 90),
                                      bottom = text_grob("Women inadequacy percentage"),
-                                     top = "Areas with high Micronutrient inadequacy in women \n 
-                have a large inadequacy difference")
+                                     top = "Folate and Iron have high inadequacy imbalance for women")
   
   # diff vs women 
   vita_scat_m <- mn_target_scatter %>% 

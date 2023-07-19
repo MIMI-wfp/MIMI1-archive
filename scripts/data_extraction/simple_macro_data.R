@@ -1,4 +1,8 @@
 # Script for creating SAS files for simpleMacro running
+# takes in the output from simplemacro algorithm and puts 
+# all the states and mns back together into a usable dataset
+
+
 setwd("~/Documents/LSHTM/WFP_project/MIMI")
 path_to_script <- "scripts/data_extraction/"
 path_to_data <- "../IND_00062/"

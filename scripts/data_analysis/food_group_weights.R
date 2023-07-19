@@ -81,3 +81,558 @@ lf_dairy <- weight_food_group(g15_lf_dairy)
 
 #eggs
 eggs <- weight_food_group(g16_eggs)
+
+
+### plots for food groups and vitmain inadequacy
+
+#men
+
+
+
+# vitamin a men 
+
+dark_green %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(va_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of leafy greens consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Vitamin A compared \n to leafy greens consumed",
+       fill = "Sex")
+
+deep_orange_fruit %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(va_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of orange fruit consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Vitamin A compared \n to Orange Fruit consumed",
+       fill = "Sex")
+
+
+deep_orange_veg%>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(va_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of orange vegetables consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Vitamin A compared \n to Orange Vegeatables consumed",
+       fill = "Sex")
+
+fish %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(va_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of fish consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Vitamin A compared \n to Fish consumed",
+       fill = "Sex")
+
+fish %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(va_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of fish consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Vitamin A compared \n to Fish consumed",
+       fill = "Sex")
+
+poultry %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(va_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of poultry consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Vitamin A compared \n to Poultry consumed",
+       fill = "Sex")
+
+red_meat %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(va_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of red_meat consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Vitamin A compared \n to red_meat consumed",
+       fill = "Sex")
+
+legumes%>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(va_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of legumes consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Vitamin A compared \n to Legumes consumed",
+       fill = "Sex")
+
+whole_grain %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(va_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of whole grains consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Vitamin A compared \n to whole grain consumed",
+       fill = "Sex")
+
+
+# folate
+
+dark_green %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(fo_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of leafy greens consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Folate compared \n to leafy greens consumed",
+       fill = "Sex")
+
+deep_orange_fruit %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(fo_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of orange fruit consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Folate compared \n to Orange Fruit consumed",
+       fill = "Sex")
+
+
+deep_orange_veg%>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(fo_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of orange vegetables consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Folate compared \n to Orange Vegeatables consumed",
+       fill = "Sex")
+
+fish %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(fo_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of fish consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Folate compared \n to Fish consumed",
+       fill = "Sex")
+
+
+
+poultry %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(fo_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of poultry consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Folate compared \n to Poultry consumed",
+       fill = "Sex")
+
+red_meat %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(fo_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of red meat consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Folate compared \n to red meat consumed",
+       fill = "Sex")
+
+legumes%>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(fo_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of legumes consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Folate compared \n to Legumes consumed",
+       fill = "Sex")
+
+whole_grain %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(va_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of whole grains consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Folate compared \n to whole grain consumed",
+       fill = "Sex")
+
+# iron 
+dark_green %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(ir_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of leafy greens consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Iron compared \n to leafy greens consumed",
+       fill = "Sex")
+
+deep_orange_fruit %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(ir_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of orange fruit consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Iron compared \n to Orange Fruit consumed",
+       fill = "Sex")
+
+
+deep_orange_veg%>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(ir_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of orange vegetables consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Iron compared \n to Orange Vegeatables consumed",
+       fill = "Sex")
+
+fish %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(ir_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of fish consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Iron compared \n to Fish consumed",
+       fill = "Sex")
+
+
+
+poultry %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(ir_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of poultry consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Iron compared \n to Poultry consumed",
+       fill = "Sex")
+
+red_meat %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(ir_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of red meat consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Iron compared \n to red meat consumed",
+       fill = "Sex")
+
+legumes%>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(ir_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of legumes consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Iron compared \n to Legumes consumed",
+       fill = "Sex")
+
+whole_grain %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(ir_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of whole grains consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Iron compared \n to whole grain consumed",
+       fill = "Sex")
+
+# Zinc men 
+
+
+dark_green %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(zn_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of leafy greens consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Zinc compared \n to leafy greens consumed",
+       fill = "Sex")
+
+deep_orange_fruit %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(zn_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of orange fruit consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Zinc compared \n to Orange Fruit consumed",
+       fill = "Sex")
+
+
+deep_orange_veg%>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(zn_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of orange vegetables consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Zinc compared \n to Orange Vegeatables consumed",
+       fill = "Sex")
+
+fish %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(zn_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of fish consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Zinc compared \n to Fish consumed",
+       fill = "Sex")
+
+
+
+poultry %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(zn_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of poultry consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Zinc compared \n to Poultry consumed",
+       fill = "Sex")
+
+red_meat %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(zn_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of red meat consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Iron compared \n to red meat consumed",
+       fill = "Sex")
+
+
+legumes%>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(zn_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of legumes consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Zinc compared \n to Legumes consumed",
+       fill = "Sex")
+
+whole_grain %>% 
+  group_by(ADM2_NAME, SEX) %>% 
+  summarise(mean_g = mean(sum_g)) %>% 
+  filter(SEX == 1) %>%
+  left_join(zn_men, by = "ADM2_NAME") %>% 
+  ungroup() %>% 
+  ggplot( aes(x = mean_g, y = inadequate_percent)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(x = "Weight of whole grains consumed (g)",
+       y = "Perentage inadequacy ",
+       title = "Inadequacy of Zinc compared \n to whole grain consumed",
+       fill = "Sex")
