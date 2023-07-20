@@ -10,6 +10,8 @@ adm2_energy <- energy_population %>%
   group_by(ADM2_NAME, SEX, ADM1_NAME) %>% 
   summarise(mean = mean(sum_ENERGY_kcal), 
             sd = sd(sum_ENERGY_kcal))
+load("datasets/simple_macro_output/en_men.RData")
+load("datasets/simple_macro_output/en_women.RData")
 
 energy_population %>% 
   filter(AGE_YEAR>=18) %>% 
@@ -213,3 +215,17 @@ annotate_figure(women_energy,
                 
 )
 
+
+# energy correlation with vitamin
+
+cor(en_men$inadequate_percent, va_men$inadequate_percent, method = "spearman")
+cor(en_men$inadequate_percent, fo_men$inadequate_percent, method = "spearman")
+cor(en_men$inadequate_percent, ir_men$inadequate_percent, method = "spearman")
+cor(en_men$inadequate_percent, zn_men$inadequate_percent, method = "spearman")
+
+
+
+cor((en_women %>% filter(note!= "WB"))$inadequate_percent, va_women$inadequate_percent, method = "spearman")
+cor(en_women$inadequate_percent, fo_women$inadequate_percent, method = "spearman")
+cor(en_women$inadequate_percent, ir_women$inadequate_percent, method = "spearman")
+cor(en_women$inadequate_percent, zn_women$inadequate_percent, method = "spearman")

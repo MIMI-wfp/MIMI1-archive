@@ -328,41 +328,41 @@ vitb12_taget <- vb12_men %>%
 vita_men_ml <- va_men %>% left_join(predictive_data, by = "ADM2_NAME") %>% 
   select(!c("note","N", "mean", P_25, median, P_75,                   
             No_replicates,pc11_district_id,pc11_state_id,               
-            shapeGroup,shapeISO,shapeID,s_name)) 
+            shapeGroup,shapeISO,shapeID)) 
   
 
 fo_men_ml <- fo_men %>% left_join(predictive_data, by = "ADM2_NAME")%>%  
   select(!c("note","N", "mean", P_25, median, P_75,                   
             No_replicates,pc11_district_id,pc11_state_id,               
-            shapeGroup,shapeISO,shapeID,s_name)) 
+            shapeGroup,shapeISO,shapeID)) 
 
 ir_men_ml <- ir_men %>% left_join(predictive_data, by = "ADM2_NAME")%>% 
   select(!c("note","N", "mean", P_25, median, P_75,                   
             No_replicates,pc11_district_id,pc11_state_id,               
-            shapeGroup,shapeISO,shapeID,s_name)) 
+            shapeGroup,shapeISO,shapeID)) 
 zn_men_ml <- zn_men %>% left_join( predictive_data, by = "ADM2_NAME")%>% 
   select(!c("note","N", "mean", P_25, median, P_75,                   
             No_replicates,pc11_district_id,pc11_state_id,               
-            shapeGroup,shapeISO,shapeID,s_name)) 
+            shapeGroup,shapeISO,shapeID)) 
 
 vita_women_ml <- va_women %>% left_join(predictive_data, by = "ADM2_NAME") %>%  
   select(!c("note","N", "mean", P_25, median, P_75,                   
             No_replicates,pc11_district_id,pc11_state_id,               
-            shapeGroup,shapeISO,shapeID,s_name)) 
+            shapeGroup,shapeISO,shapeID)) 
 fo_women_ml <- fo_women %>% left_join(predictive_data, by = "ADM2_NAME")%>%  
   select(!c("note","N", "mean", P_25, median, P_75,                   
             No_replicates,pc11_district_id,pc11_state_id,               
-            shapeGroup,shapeISO,shapeID,s_name)) 
+            shapeGroup,shapeISO,shapeID)) 
 
 ir_women_ml <- ir_women %>% left_join(predictive_data, by = "ADM2_NAME")%>%  
   select(!c("note","N", "mean", P_25, median, P_75,                   
             No_replicates,pc11_district_id,pc11_state_id,               
-            shapeGroup,shapeISO,shapeID,s_name)) 
+            shapeGroup,shapeISO,shapeID)) 
 
 zn_women_ml <- zn_women %>% left_join( predictive_data, by = "ADM2_NAME")%>%  
   select(!c("note","N", "mean", P_25, median, P_75,                   
             No_replicates,pc11_district_id,pc11_state_id,               
-            shapeGroup,shapeISO,shapeID,s_name)) 
+            shapeGroup,shapeISO,shapeID)) 
 
 #inadequacy difference targets
 vita_target <- vita_target  %>% left_join(shrug_all, by = "ADM2_NAME") %>% 
