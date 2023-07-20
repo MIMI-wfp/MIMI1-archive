@@ -7,7 +7,7 @@
 setwd("~/Documents/LSHTM/WFP_project/MIMI")
 
 path_to_script <- "scripts/data_extraction/"
-path_to_data <- "../IND_00062/"
+path_to_data <- "../data/IND_00062/"
 source(paste0(path_to_script,"functions.R"))
 
 
