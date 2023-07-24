@@ -16,7 +16,7 @@ source(paste0(path_to_script,"data_loading.R"))#sources the functions and data
 
 #looking at the dataset
 summary(joined)
-n(unique(joined$ADM2_NAME))
+# n(unique(joined$ADM2_NAME))
 
 #how many childer
 adults <- user %>% filter(AGE_YEAR>=18) %>% 
@@ -152,8 +152,13 @@ vita_hh_plot <- vit_a_household %>%
   ggplot(aes(x = DIFF)) + 
   geom_histogram( color = "#69b3a2", fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
+  annotate("segment", x = 0, y = 3350, xend = 25, yend = 3350,
+           arrow = arrow(type = "closed", length = unit(0.02, "npc")))+
+  annotate("text",x = 0, y = 
+             3550, label = "Men have higher intake" )+
   labs(title = "Vitamin A",
-       x = "Difference in mean intake (RAE mcg)")+
+       x = "Difference in mean intake (RAE mcg)",
+       y = "count")+
   My_Theme
 
 folate_hh_plot <- folate_household %>% 
@@ -161,8 +166,12 @@ folate_hh_plot <- folate_household %>%
   ggplot(aes(x = DIFF)) + 
   geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
+  annotate("segment", x = 0, y = 1250, xend = 25, yend = 1250,
+           arrow = arrow(type = "closed", length = unit(0.02, "npc")))+
+  annotate("text",x = 0, y = 1350, label = "Men have higher intake" )+
   labs(title = "Folate",
-       x = "Difference in mean intake (mcg)")+
+       x = "Difference in mean intake (mcg)",
+       y = "count")+
   My_Theme
 
 
@@ -171,8 +180,10 @@ vitb12_hh_plot <- vit_b12_household %>%
   ggplot(aes(x = DIFF)) + 
   geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
+  
   labs(title = "Vitamin B12",
-       x = "Difference in mean intake (mcg)")+
+       x = "Difference in mean intake (mcg)",
+       y = "count")+
   My_Theme
 
 
@@ -183,8 +194,12 @@ iron_hh_plot <- iron_household %>%
   ggplot(aes(x = DIFF)) + 
   geom_histogram(  color = "#69b3a2",fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
+  annotate("segment", x = 0, y = 2500, xend = 5, yend = 2500,
+           arrow = arrow(type = "closed", length = unit(0.02, "npc")))+
+  annotate("text",x = 0, y = 2650, label = "Men have higher intake" )+
   labs(title = "Iron",
-       x = "Difference in mean intake (mg)")+
+       x = "Difference in mean intake (mg)",
+       y = "count")+
   My_Theme
 
 
@@ -194,14 +209,19 @@ zinc_hh_plot <- zinc_household %>%
   ggplot(aes(x = DIFF)) + 
   geom_histogram(color = "#69b3a2",  fill="#404080", alpha = 1, position = 'dodge') +
   theme_ipsum() +
+
+  annotate("segment", x = 0, y = 2500, xend = 5, yend = 2500,
+           arrow = arrow(type = "closed", length = unit(0.02, "npc")))+
+  annotate("text",x = 0, y = 2650, label = "Men have higher intake" )+
   labs(title = "Zinc",
-       x = "Difference in mean intake (mg)")+
+       x = "Difference in mean intake (mg)",
+       y = "count")+
   My_Theme
 
 
 
-figure2 <- ggarrange(vita_hh_plot, folate_hh_plot, vitb12_hh_plot,iron_hh_plot, zinc_hh_plot,  
-                     ncol = 3, nrow = 2)
+figure2 <- ggarrange(vita_hh_plot, folate_hh_plot,iron_hh_plot, zinc_hh_plot,  
+                     ncol = 2, nrow = 2)
 
 annotate_figure(figure2,
                 top = text_grob("Difference in observed intake between head of household", color = "#404080", face = "bold", size = 14),
@@ -228,9 +248,14 @@ user %>%
   mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
   ggplot(aes(x = BMI, fill = SEX)) +
   geom_histogram(color="#e9ecef", alpha = 1, position = 'dodge') +
-  scale_fill_manual(values=c("#69b3a2", "#404080")) +
+  geom_vline(xintercept = 18.5, color = my_colours[4])+
+  annotate("segment", x = 18.5, y = 3000, xend = 13.5, yend = 3000,
+           arrow = arrow(type = "closed", length = unit(0.02, "npc")))+
+  annotate("text",x = 15, y = 3150, label = "Underweight" )+
+  scale_fill_manual(values=c( "#404080","#69b3a2")) +
   theme_ipsum() +
-  labs(fill="")
+  labs(fill="",
+       title = "Distribution of BMI")
 
 ### stratify micronutrient intake by age AND sex
 
@@ -243,6 +268,7 @@ vit_a_population %>%
   geom_col(position = 'dodge') +
   scale_fill_manual(values=c("#69b3a2", "#404080")) +
   theme_ipsum() +
+
   labs(x = "Age group",
        y = "Mean vitamin A intake (mcg)",
        title = "Average Vitamin A intake \n by age group ",

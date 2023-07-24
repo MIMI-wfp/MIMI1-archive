@@ -205,7 +205,7 @@ en_Uttar_Pradesh<- create_state(energy_population,"Uttar_Pradesh")
 # read in the output data
 
 # vita
-path_to_data_sas <- "../usual_intake/"
+path_to_data_sas <- "../data/usual_intake/"
 AP_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_AP_va.xlsx"))
 GU_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_GU_va.xlsx"))
 KA_va_all <- read_excel(paste0(path_to_data_sas, "vit_a/all/final_KA_va.xlsx"))
@@ -652,10 +652,16 @@ ir_usual_hist <-ir_women %>%
               ), by = "ADM2_NAME") %>% 
   mutate(diff = usual_men - usual_women) %>% 
   ggplot(aes(x = diff)) +
-  geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge') +
+  geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge',
+                  bins= 45) +
   theme_ipsum() +
+  annotate("segment", x = 0, y = 40, xend = 5, yend = 40,
+           arrow = arrow(type = "closed", length = unit(0.02, "npc")))+
+  annotate("text",x = 0, y = 45, label = "Men have higher intake" )+
   labs(title = "Iron",
-       x = "Usual intake difference (mg)")+ 
+       x = "Usual intake difference (mg)", 
+       y = "count")+ 
+  xlim(-20,20)+
   My_Theme
 
 #calculating usual difference
@@ -668,10 +674,16 @@ fo_usual_hist <- fo_women %>%
   ), by = "ADM2_NAME") %>% 
   mutate(diff = usual_men - usual_women) %>% 
   ggplot(aes(x = diff)) +
-  geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge') +
+  geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge',
+                  bins = 30) +
   theme_ipsum() +
   labs(title = "Folate",
-       x = "Usual intake difference (mcg)")+ 
+       x = "Usual intake difference (mcg)", 
+       y = "count")+ 
+  annotate("segment", x = 0, y = 45, xend = 50, yend = 45,
+  arrow = arrow(type = "closed", length = unit(0.02, "npc")))+
+  annotate("text",x = 0, y = 49, label = "Men have higher intake" )+
+  xlim(-250,250)+
   My_Theme
 
 va_usual_hist <- va_women %>% 
@@ -685,8 +697,13 @@ va_usual_hist <- va_women %>%
   ggplot(aes(x = diff)) +
   geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge') +
   theme_ipsum() +
+  annotate("segment", x = 0, y = 27, xend = 40, yend = 27,
+           arrow = arrow(type = "closed", length = unit(0.02, "npc")))+
+  annotate("text",x = 0, y = 30, label = "Men have higher intake" )+
   labs(title = "Vitamin A",
-       x = "Usual intake difference (RAE mcg)")+ 
+       x = "Usual intake difference (RAE mcg)", 
+       y = "count")+ 
+  xlim(-200,200)+
   My_Theme
 
 zn_usual_hist <- zn_women %>% 
@@ -700,8 +717,14 @@ zn_usual_hist <- zn_women %>%
   ggplot(aes(x = diff)) +
   geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge') +
   theme_ipsum() +
+  annotate("segment", x = 0, y = 40, xend = 2.5, yend = 40,
+           arrow = arrow(type = "closed", length = unit(0.02, "npc")))+
+  annotate("text",x = 0, y = 45, label = "Men have higher intake" )+
   labs(title = "Zinc",
-       x = "Usual intake difference (mg)")   + 
+       x = "Usual intake difference (mg)", 
+       y = "count")   + 
+  
+  xlim(-10,10)+
   My_Theme          
   
 vb_usual_hist <- vb12_women %>% 
@@ -716,11 +739,12 @@ vb_usual_hist <- vb12_women %>%
   geom_histogram( color = "#69b3a2",fill="#404080", alpha = 1, alpha = 1, position = 'dodge') +
   theme_ipsum() +
   labs(title = "Vitamin B12",
-       x = "Usual intake difference (mcg)") + 
+       x = "Usual intake difference (mcg)", 
+       y = "count") + 
   My_Theme
 
-figure1 <- ggarrange(va_usual_hist, fo_usual_hist,vb_usual_hist,  ir_usual_hist, zn_usual_hist,  
-          ncol = 3, nrow = 2)
+figure1 <- ggarrange(va_usual_hist, fo_usual_hist,  ir_usual_hist, zn_usual_hist,  
+          ncol = 2, nrow = 2)
 
 annotate_figure(figure1,
                 top = text_grob("Difference in usual intake (Men-Women) at ADM2 level", color = "#404080", face = "bold", size = 14),

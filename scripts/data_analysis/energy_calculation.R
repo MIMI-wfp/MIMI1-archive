@@ -218,14 +218,14 @@ annotate_figure(women_energy,
 
 # energy correlation with vitamin
 
-cor(en_men$inadequate_percent, va_men$inadequate_percent, method = "spearman")
-cor(en_men$inadequate_percent, fo_men$inadequate_percent, method = "spearman")
-cor(en_men$inadequate_percent, ir_men$inadequate_percent, method = "spearman")
-cor(en_men$inadequate_percent, zn_men$inadequate_percent, method = "spearman")
+cor(en_men$inadequate_percent, va_men$inadequate_percent, method = "pearson")
+cor(en_men$inadequate_percent, fo_men$inadequate_percent, method = "pearson")
+cor(en_men$inadequate_percent, ir_men$inadequate_percent, method = "pearson")
+cor(en_men$inadequate_percent, zn_men$inadequate_percent, method = "pearson")
 
 
 
-cor((en_women %>% filter(note!= "WB"))$inadequate_percent, va_women$inadequate_percent, method = "spearman")
-cor(en_women$inadequate_percent, fo_women$inadequate_percent, method = "spearman")
-cor(en_women$inadequate_percent, ir_women$inadequate_percent, method = "spearman")
-cor(en_women$inadequate_percent, zn_women$inadequate_percent, method = "spearman")
+cor((en_women %>% filter(note!= "WB"))$inadequate_percent, va_women$inadequate_percent, method = "pearson")
+cor(en_women$inadequate_percent, fo_women$inadequate_percent, method = "pearson")
+cor(en_women$inadequate_percent, ir_women$inadequate_percent, method = "pearson")
+cor(en_women$inadequate_percent, zn_women$inadequate_percent, method = "pearson")
