@@ -40,25 +40,35 @@ load("datasets/ml_input_datasets/zinc_target.RData")
 
 
 #split the data into training and test
-# folate_target <- folate_target %>% select(!c(ADM2_NAME, inad_diff_bin)) %>% mutate(inad_diff = inad_diff/100) %>% drop_na()
-complete.cases(folate_target)
+folate_target <- folate_target %>% select(!c(d_name, geometry))  %>% drop_na()
+pre_process <- preProcess(folate_target, 
+                            method=c("range")
+                            )
+
+folate_target <- predict(pre_process, folate_target)
+folate_target <- folate_target %>% filter(inad_diff!=0)
+write.csv(folate_target, "datasets/ml_input_datasets/folate_target_bin.csv")
+
+summary(folate_target)
 hist(folate_target$inad_diff)
 dim(folate_target)
 
-iron_target
+sum(folate_target$inad_diff == 0)
+
+
 
 #split the data
 set.seed(123)
-data_split <- initial_split(vita_target, prop = 0.9)
+data_split <- initial_split(folate_target, prop = 0.9)
 data_train <- training(data_split)
 data_test <- testing(data_split)
 
 #fit the tidy models
-folds <- vfold_cv(vita_target, v =nrow(vita_target))#LOOCV 
+folds <- vfold_cv(folate_target, v =nrow(data_train))#LOOCV 
 
 # Define the recipe for preprocessing
-data_recipe <- recipe(inad_diff ~ ., data = vita_target) %>%
-  step_normalize(all_predictors())
+data_recipe <- recipe(inad_diff ~ ., data = data_train)# %>%
+  # step_normalize(all_predictors())
 
 
 
@@ -76,7 +86,7 @@ lm_model <- linear_reg(
   set_mode("regression")
 
 # Define the performance metric
-mae_metric <- metric_set(yardstick::mae,rmse)
+mae_metric <- metric_set(yardstick::mae,rmse, yardstick::mape)
 
 # Define the workflow
 lm_workflow <- workflow() %>%
@@ -121,7 +131,7 @@ lm_tune %>%
   labs(x = NULL, y = "MAE")
 
 #show the best model and save it 
-show_best(lm_tune, metric = "mae")
+show_best(lm_tune, metric = "mape")
 final_lm <- lm_workflow %>% 
   finalize_workflow(select_best(lm_tune, metric = "mae"))
 
@@ -156,7 +166,7 @@ print(importance_lm)
 # Random Forest ################################################################
 fit_1 <- randomForest(
   formula = inad_diff~.,
-  data = iron_target,
+  data = folate_target,
   importance = TRUE,
   proximity = TRUE
 )
@@ -179,7 +189,7 @@ rf_model <- rand_forest(
   set_mode("regression")
 
 # Define the performance metric
-mae_metric <- metric_set(yardstick::mae,rmse)
+mae_metric <- metric_set(yardstick::mae,rmse,yardstick::mape)
 
 # Define the workflow
 ranger_workflow <- workflow() %>%
@@ -244,7 +254,7 @@ predictions <- predict(best_fit_rf$.workflow, data_test) %>%
 # Evaluate model performance on the test set
 mape_rf <- mae_metric(data = predictions, truth = inad_diff, estimate = .pred)
 mape_rf
-two_colours
+4two_colours
 
 importance_rf <- best_fit_rf$.workflow[[1]] %>% 
   extract_fit_parsnip() %>% 
@@ -262,8 +272,8 @@ print(importance_rf)
 
 
 # Define the recipe for preprocessing
-data_recipe <- recipe(inad_diff ~ ., data = iron_target) %>%
-  step_normalize(all_predictors())
+# data_recipe <- recipe(inad_diff ~ ., data = folate_target) %>%
+#   step_normalize(all_predictors())
 
 # Define the workflow with xgboost model
 xgb_model <- boost_tree(
@@ -275,7 +285,7 @@ xgb_model <- boost_tree(
   set_mode("regression")
 
 # Define the performance metric
-mae_metric <- metric_set(yardstick::mae,rmse)
+mae_metric <- metric_set(yardstick::mae,rmse, yardstick::mape)
 
 # Define the workflow
 xg_workflow <- workflow() %>%

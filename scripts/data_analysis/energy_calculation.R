@@ -15,6 +15,7 @@ load("datasets/simple_macro_output/en_women.RData")
 
 energy_population %>% 
   filter(AGE_YEAR>=18) %>% 
+  filter(PREG_LACT!= 1 | PREG_LACT!= 2) %>% 
   ggplot(aes(x = sum_ENERGY_kcal, fill = SEX))+
   geom_histogram( color="#e9ecef", alpha = 1, position = 'dodge') +
   geom_vline(xintercept = 2100, color = my_colours[5])+
@@ -218,14 +219,17 @@ annotate_figure(women_energy,
 
 # energy correlation with vitamin
 
-cor(en_men$inadequate_percent, va_men$inadequate_percent, method = "pearson")
-cor(en_men$inadequate_percent, fo_men$inadequate_percent, method = "pearson")
-cor(en_men$inadequate_percent, ir_men$inadequate_percent, method = "pearson")
-cor(en_men$inadequate_percent, zn_men$inadequate_percent, method = "pearson")
+cor(en_men$inadequate_percent, va_men$inadequate_percent, method = "spearman")
+cor(en_men$inadequate_percent, fo_men$inadequate_percent, method = "spearman")
+cor(en_men$inadequate_percent, ir_men$inadequate_percent, method = "spearman")
+cor(en_men$inadequate_percent, zn_men$inadequate_percent, method = "spearman")
 
 
 
-cor((en_women %>% filter(note!= "WB"))$inadequate_percent, va_women$inadequate_percent, method = "pearson")
-cor(en_women$inadequate_percent, fo_women$inadequate_percent, method = "pearson")
-cor(en_women$inadequate_percent, ir_women$inadequate_percent, method = "pearson")
-cor(en_women$inadequate_percent, zn_women$inadequate_percent, method = "pearson")
+cor((en_women %>% filter(note!= "WB"))$inadequate_percent, va_women$inadequate_percent, method = "spearman")
+cor(en_women$inadequate_percent, fo_women$inadequate_percent, method = "spearman")
+cor(en_women$inadequate_percent, ir_women$inadequate_percent, method = "spearman")
+cor(en_women$inadequate_percent, zn_women$inadequate_percent, method = "spearman")
+
+
+#---------------- de

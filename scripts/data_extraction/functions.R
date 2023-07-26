@@ -171,24 +171,7 @@ setClass("micronutrient",    slots = list(
 
 
 
-FOOD_GROUP_LIST <- function(data, food_list){
-  # takes take in the consumption data and transforms it into a single row with a 1 or 0 for whether
-  # or not a food group was consumed
-  
-  sum_OR_function <- function(x){
-    #creates OR logic gate
-    y = sum(x)
-    y = ifelse(y != 0, 1, 0)
-    y
-  }
-  
-  data  %>% 
-    select(SUBJECT, FOODEX2_INGR_CODE) %>% 
-    full_join(food_list, by = "FOODEX2_INGR_CODE") %>% 
-    select(!c(FOODEX2_INGR_CODE, INGREDIENT_ENG)) %>% 
-    group_by(SUBJECT) %>% 
-    summarise_all(sum_OR_function)
-}
+
 
 
 inadequacy_MN <- function(micronutrient_object){

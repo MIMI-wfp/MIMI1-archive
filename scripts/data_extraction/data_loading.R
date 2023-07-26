@@ -62,9 +62,9 @@ india11_census <- read_csv("../data/india_census/india-districts-census-2011.csv
 
 # Using EAR from the NIN to calculate minimum requirements chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7231601/pdf/nmz096.pdf
 # Allen, L. H., et al. (2020). "Perspective: Proposed Harmonized Nutrient Reference Values for Populations." Advances in Nutrition 11(3): 469-483.
-# Two core nutrient intake reference values (NRVs) are required for assessing the adequacy and safety of nutrient intakes for population groups: the average requirement (AR) and the tolerable upper level of intake (UL). Applications of such assessments include providing advice to improve intakes, formulating complementary foods, estimating the amounts of nutrients to be added to fortified foods and monitoring changes in intake, and product labeling at the global, national, or regional level. However, there is a lack of unity across country-level organizations in the methodological approach used to derive NRVs, and ARs and ULs are lacking in many compilations, thus limiting the ability to assess nutrient intakes for their population groups. Because physiological requirements vary little across populations globally, and setting reference values requires determining an acceptable level of uncertainty, it is feasible to adapt current recommendations from different sources to harmonize these core reference values. The objective of this review is to demonstrate an approach for harmonizing the NRVs for ARs (here termed “H-ARs”) and ULs (“H-ULs”) that can be applied on a global scale to assessing intakes across populations. The approach incorporates the framework and terminology recommended by reports from the United Nations University, the National Academies of Sciences, Engineering, and Medicine (NASEM), the Institute of Medicine (IOM), and the European Food Safety Authority (EFSA). After reviewing available alternatives, the proposed harmonized values were selected from standards set by EFSA (for Europe) and the IOM (for the United States and Canada), giving priority to those published most recently. Justifications for the proposed values are presented, along with discussion of their limitations. Ideally, these methods should be further reviewed by an international group of experts. Meanwhile, the H-ARs and H-ULs suggested in this review can be used to assess intakes of populations for many applications in global and regional contexts.
+# Two core nutrient intake reference values (NRVs) are required for assessing the adequacy and safety of nutrient intakes for population groups: the average requ
 
-
+###### note, these are different (larger) values than the 2020 NIN values. Inital plotting simple macro shows little change in indaequacy 
 vita_EAR_men_mcg <- 570
 vita_EAR_women_mcg <- 490
 folate_EAR_men_mcg  <-  250
@@ -108,6 +108,11 @@ vit_b12_population <- MICRONUT_SUM(joined, VITB12_mcg)
 iron_population <- MICRONUT_SUM(joined, IRON_mg)
 zinc_population <- MICRONUT_SUM(joined, ZINC_mg)
 
+
+sum(vit_a_population$sum_VITA_RAE_mcg>=vita_UL_mcg)
+sum(folate_population$sum_FOLDFE_mcg>=folate_UL_mcg)
+sum(iron_population$sum_IRON_mg>=iron_UL_mg)
+sum(zinc_population$sum_ZINC_mg>=zinc_UL_mg)
 ################### fortification vehicles ###########################
 
 ##### overall calories
@@ -142,6 +147,7 @@ RICE_women <- joined %>%
   filter(SEX == "Female") %>%
   arrange(HOUSEHOLD,desc(AGE_YEAR)) %>% 
   slice(1)
+
   
 ## difference rice per household
 RICE_HOUSEHOLD <- RICE_men %>% 

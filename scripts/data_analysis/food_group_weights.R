@@ -13,7 +13,7 @@ names(GDQS)
 
 
 
-#dark greens
+# function
 
 weight_food_group <- function(food_group){
   joined %>% 
@@ -636,3 +636,162 @@ whole_grain %>%
        y = "Perentage inadequacy ",
        title = "Inadequacy of Zinc compared \n to whole grain consumed",
        fill = "Sex")
+
+
+################################################################################
+#                                                                              #
+#                            states and food groups                            #
+#                                                                              # 
+#                                                                              #
+################################################################################
+
+
+# joined %>% 
+#   group_by(SUBJECT, ADM1_NAME, ADM2_NAME, SEX) %>% 
+#   mutate(amount_g = ifelse(FOODEX2_INGR_CODE %in%
+#                              (GDQS %>%  %>% 
+#                                 select(FOODEX2_INGR_CODE))$FOODEX2_INGR_CODE,
+#                            FOOD_AMOUNT_REPORTED,0
+#                            
+#   )) %>% 
+#   select(SUBJECT, ADM2_NAME,SEX, amount_g, AGE_YEAR) %>% 
+#   summarise(sum_g = sum(amount_g)) %>% 
+#   ungroup()
+
+
+## looking at weight of each food groups for adm1
+
+#animal source foods
+joined  %>% 
+  select(SUBJECT,ADM1_NAME, ADM2_NAME, SEX,FOOD_AMOUNT_REPORTED, FOODEX2_INGR_CODE) %>% 
+  full_join(GDQS, by = "FOODEX2_INGR_CODE") %>% 
+  mutate(across(.cols = -c("SUBJECT",ADM1_NAME, ADM2_NAME, SEX,FOOD_AMOUNT_REPORTED,FOODEX2_INGR_CODE,INGREDIENT_ENG), 
+                .fns = ~ if_else(. == 0, 0, FOOD_AMOUNT_REPORTED),
+                .names = "{.col}")) %>% 
+  select(-c(FOODEX2_INGR_CODE,INGREDIENT_ENG)) %>% 
+  group_by(SUBJECT,ADM1_NAME, ADM2_NAME, SEX) %>% 
+  summarize(across(.cols = everything(), .fns = sum)) %>% 
+  ungroup() %>% 
+  select(-c(SEX,ADM2_NAME, FOOD_AMOUNT_REPORTED)) %>% 
+  # group_by(ADM1_NAME) %>% 
+  # summarise(across(.cols = everything(), .fns = mean)) %>% 
+  mutate(ADM1_NAME = factor(ADM1_NAME)) %>% 
+  select(ADM1_NAME,SUBJECT, g15_lf_dairy, g18_red_meat, g14_poultry_game,
+          g13_fish, g16_eggs, g17_hf_dairy) %>%
+  pivot_longer(cols = -c(ADM1_NAME, SUBJECT)) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = value, y = ADM1_NAME, fill = ADM1_NAME)) +
+    geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01)+
+    # geom_bar(stat = "identity", position = "dodge") +
+    theme_ipsum() +
+    # theme(axis.text.x=element_blank())+
+    xlim(0,400)+
+    labs(x = "Weight of food consumed pp (g)",
+         y = "",
+         title = "Animal sourced food group intake \n by State ",
+         fill = "State") + 
+    scale_fill_manual(values = my_colours) + 
+    facet_wrap(vars(name) )
+
+
+# vegetables
+joined  %>% 
+  select(SUBJECT,ADM1_NAME, ADM2_NAME, SEX,FOOD_AMOUNT_REPORTED, FOODEX2_INGR_CODE) %>% 
+  full_join(GDQS, by = "FOODEX2_INGR_CODE") %>% 
+  mutate(across(.cols = -c("SUBJECT",ADM1_NAME, ADM2_NAME, SEX,FOOD_AMOUNT_REPORTED,FOODEX2_INGR_CODE,INGREDIENT_ENG), 
+                .fns = ~ if_else(. == 0, 0, FOOD_AMOUNT_REPORTED),
+                .names = "{.col}")) %>% 
+  select(-c(FOODEX2_INGR_CODE,INGREDIENT_ENG)) %>% 
+  group_by(SUBJECT,ADM1_NAME, ADM2_NAME, SEX) %>% 
+  summarize(across(.cols = everything(), .fns = sum)) %>% 
+  ungroup() %>% 
+  select(-c(SEX,ADM2_NAME, FOOD_AMOUNT_REPORTED)) %>% 
+  # group_by(ADM1_NAME) %>% 
+  # summarise(across(.cols = everything(), .fns = mean)) %>% 
+  mutate(ADM1_NAME = factor(ADM1_NAME)) %>% 
+  select(ADM1_NAME, SUBJECT, g7_other_veg, g25_white_roots,g6_deep_orange_veg,
+         g4_dark_leafy_green, g5_cruiciferous_veg,g1_citrus,g2_deep_orange_fruit,g3_other_fruits) %>%
+  pivot_longer(cols = -c(ADM1_NAME, SUBJECT)) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = value, y = ADM1_NAME, fill = ADM1_NAME)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01)+
+  # geom_bar(stat = "identity", position = "dodge") +
+  theme_ipsum() +
+  # theme(axis.text.x=element_blank())+
+  xlim(0,400)+
+  labs(x = "Weight of food consumed pp (g)",
+       y = "",
+       title = "Fruit and veg intake \n by State ",
+       fill = "State") + 
+  scale_fill_manual(values = my_colours) + 
+  facet_wrap(vars(name) )
+
+
+# pulses and grains
+joined  %>% 
+  select(SUBJECT,ADM1_NAME, ADM2_NAME, SEX,FOOD_AMOUNT_REPORTED, FOODEX2_INGR_CODE) %>% 
+  full_join(GDQS, by = "FOODEX2_INGR_CODE") %>% 
+  mutate(across(.cols = -c("SUBJECT",ADM1_NAME, ADM2_NAME, SEX,FOOD_AMOUNT_REPORTED,FOODEX2_INGR_CODE,INGREDIENT_ENG), 
+                .fns = ~ if_else(. == 0, 0, FOOD_AMOUNT_REPORTED),
+                .names = "{.col}")) %>% 
+  select(-c(FOODEX2_INGR_CODE,INGREDIENT_ENG)) %>% 
+  group_by(SUBJECT,ADM1_NAME, ADM2_NAME, SEX) %>% 
+  summarize(across(.cols = everything(), .fns = sum)) %>% 
+  ungroup() %>% 
+  select(-c(SEX,ADM2_NAME, FOOD_AMOUNT_REPORTED)) %>% 
+  # group_by(ADM1_NAME) %>% 
+  # summarise(across(.cols = everything(), .fns = mean)) %>% 
+  mutate(ADM1_NAME = factor(ADM1_NAME)) %>% 
+  select(ADM1_NAME, SUBJECT, g8_legumes,g11_whole_grain) %>%
+  pivot_longer(cols = -c(ADM1_NAME, SUBJECT)) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = value, y = ADM1_NAME, fill = ADM1_NAME)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01)+
+  # geom_bar(stat = "identity", position = "dodge") +
+  theme_ipsum() +
+  # theme(axis.text.x=element_blank())+
+  xlim(0,1000)+
+  labs(x = "Weight of food consumed pp (g)",
+       y = "",
+       title = "Whole grains and pulses \n by State ",
+       fill = "State") + 
+  scale_fill_manual(values = my_colours) + 
+  facet_wrap(vars(name) )
+
+
+################################################################################
+#                                                                              #
+#                            states and Rice consumption                       #
+#                                                                              # 
+#                                                                              #
+################################################################################
+
+library(ggridges)
+library(ggplot2)
+library(viridis)
+library(hrbrthemes)
+
+joined %>% 
+  filter(AGE_YEAR>=18) %>% 
+  mutate(FOOD_AMOUNT_REPORTED = ifelse(grepl("RICE",INGREDIENT_ENG.y),FOOD_AMOUNT_REPORTED,0 )) %>% 
+  select(SUBJECT,ADM1_NAME,ADM2_NAME,SEX, AGE_YEAR, FOOD_AMOUNT_REPORTED) %>% 
+  group_by(SUBJECT,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
+  summarise(sum_RICE_g = sum(FOOD_AMOUNT_REPORTED)) %>% 
+  ungroup() %>% 
+  # group_by(ADM1_NAME) %>% 
+  # summarise(mean_rice_g = mean(sum_RICE_g)) %>% 
+  ggplot(aes(x = sum_RICE_g, y = ADM1_NAME, fill = ADM1_NAME)) + 
+    geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01)+
+    theme_ipsum() +
+    # theme(axis.text.x=element_blank())+
+    labs(x = "Rice intake (g)",
+         y = "",
+         title = "Rice intake distribution \n by State ",
+         fill = "State") + 
+    xlim(0, 925)+
+    scale_fill_manual(values = my_colours) 
+  
+
+
+
+
