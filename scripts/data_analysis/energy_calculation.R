@@ -232,4 +232,198 @@ cor(en_women$inadequate_percent, ir_women$inadequate_percent, method = "spearman
 cor(en_women$inadequate_percent, zn_women$inadequate_percent, method = "spearman")
 
 
-#---------------- de
+#---------------- checking the energy contribution -----------------------------
+
+
+conversion <- joined %>% 
+  group_by(SUBJECT, ADM2_NAME, SEX) %>% 
+  filter(FOODEX2_INGR_CODE %in%
+           (GDQS %>% filter(g11_whole_grain== 1) %>% 
+              select(FOODEX2_INGR_CODE))$FOODEX2_INGR_CODE) %>% 
+  mutate(energy_conv = (ENERGY_kcal/FOOD_AMOUNT_REPORTED)*100*4.184) %>% 
+  ungroup() 
+            
+                        
+
+energy_table <- conversion %>% 
+  ungroup() %>% 
+  select(INGREDIENT_ENG.y,energy_conv, FOOD_AMOUNT_REPORTED) %>% 
+  
+  group_by(INGREDIENT_ENG.y) %>% 
+  summarise(mean_KJ = mean(energy_conv),
+            sd_KJ = sd(energy_conv),
+            median_KJ = median(energy_conv))
+
+write_csv(energy_table, "outputs/energy_conversion_table.csv")
+
+
+energy_conv_plot <- conversion %>%  
+  ggplot(aes(energy_conv)) +
+  geom_histogram()+
+  theme_ipsum()+
+  labs(x = "Energy conversion factor (KJ/100g)",
+       y = "",
+       title = "Energy conversion check "
+       ) +
+  facet_wrap(vars(INGREDIENT_ENG.y)) 
+
+
+#### energy calculation of which is rice #############
+
+joined %>% 
+  filter(AGE_YEAR>=18) %>% 
+  mutate(ENERGY_kcal = ifelse(grepl("RICE",INGREDIENT_ENG.y),ENERGY_kcal,0 )) %>% 
+  select(SUBJECT,ADM1_NAME,ADM2_NAME,SEX, AGE_YEAR, ENERGY_kcal) %>% 
+  group_by(SUBJECT,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
+  summarise(RICE_kcal = sum(ENERGY_kcal)) %>% 
+  ungroup() %>% 
+  select(SUBJECT, RICE_kcal) %>% 
+  left_join(energy_population %>% 
+              filter(AGE_YEAR>=18),
+            by = "SUBJECT"
+  ) %>% 
+  pivot_longer(cols = c(sum_ENERGY_kcal,RICE_kcal)) %>% 
+  mutate(name = ifelse(name == "RICE_kcal", "Rice", "All food")) %>% 
+  # filter(PREG_LACT <1, rm.na == F) %>% 
+  ggplot(aes(x = value, fill = name))+
+  geom_histogram( color="#e9ecef", alpha = 0.7, position = 'identity') +
+  geom_vline(xintercept = 2100, color = my_colours[5])+
+  geom_vline(xintercept = 2600, color = my_colours[3])+
+  annotate("text", x=1250, y=2500, label= "Energy requirement \n for women",size = unit(2.4, "pt")) + 
+  annotate("text", x=3500, y=2500, label= "Energy requirement \n for men",size = unit(2.4, "pt"))+
+  scale_fill_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() +
+  labs(title = "Distribution of energy intake \n Adults",
+       x = "Energy intake (kcals)", 
+       y = "count",
+       fill = "Source of energy") + 
+  facet_wrap(vars(SEX))
+  
+ 
+joined %>% 
+  filter(AGE_YEAR>=18) %>% 
+  mutate(ENERGY_kcal = ifelse(grepl("RICE",INGREDIENT_ENG.y),ENERGY_kcal,0 )) %>% 
+  select(SUBJECT,ADM1_NAME,ADM2_NAME,SEX, AGE_YEAR, ENERGY_kcal) %>% 
+  group_by(SUBJECT,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
+  summarise(RICE_kcal = sum(ENERGY_kcal)) %>% 
+  ungroup() %>% 
+  select(SUBJECT, RICE_kcal) %>% 
+  left_join(energy_population %>% 
+              filter(AGE_YEAR>=18),
+            by = "SUBJECT"
+  ) %>% 
+  mutate(percent_rice = RICE_kcal/sum_ENERGY_kcal) %>% 
+  ggplot(aes(x = sum_ENERGY_kcal, y = percent_rice, color = SEX ))+ 
+  geom_point() +
+  # geom_bin2d(bins = 10) +
+  # scale_fill_continuous(type = "viridis") +
+  scale_color_manual(values=c("#69b3a2", "#404080")) +
+  theme_ipsum() %>%
+
+  labs(title = "Proportion of rice for calorie intake \n Adults",
+       x = "Total Energy intake (kcals)", 
+       y = "Percentage of energy from rice",
+       color = "Sex")+
+  facet_wrap(vars(ADM1_NAME))
+  
+
+
+
+joined %>% 
+  filter(AGE_YEAR>=18) %>% 
+  mutate(ENERGY_kcal = ifelse(grepl("RICE",INGREDIENT_ENG.y),ENERGY_kcal,0 )) %>% 
+  select(SUBJECT,ADM1_NAME,ADM2_NAME,SEX, AGE_YEAR, ENERGY_kcal) %>% 
+  group_by(SUBJECT,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
+  summarise(RICE_kcal = sum(ENERGY_kcal)) %>% 
+  ungroup() %>% 
+  select(SUBJECT, RICE_kcal) %>% 
+  left_join(energy_population %>% 
+              filter(AGE_YEAR>=18),
+            by = "SUBJECT"
+  ) %>% 
+  mutate(percent_rice = RICE_kcal/sum_ENERGY_kcal) %>% 
+  group_by(HOUSEHOLD) %>% 
+  select()
+
+
+
+
+
+RICE_men <- joined %>% 
+  filter(AGE_YEAR>=18) %>% 
+  filter(grepl("RICE",INGREDIENT_ENG.y)) %>% 
+  group_by(SUBJECT, HOUSEHOLD,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
+   
+  summarise(sum_RICE_g = sum(FOOD_AMOUNT_REPORTED)
+                             ) %>% 
+  
+  left_join(
+    joined %>% 
+      filter(AGE_YEAR>=18) %>% 
+      mutate(rice_ENERGY_kcal = ifelse(grepl("RICE",INGREDIENT_ENG.y),ENERGY_kcal,0 )) %>%
+      group_by(SUBJECT) %>% 
+      summarise(
+    RICE_sum = sum(rice_ENERGY_kcal),
+    ENERGY_sum = sum(ENERGY_kcal)) %>% 
+      mutate(percent_rice = RICE_sum/ENERGY_sum),
+    by = "SUBJECT"
+  ) %>% 
+  
+  arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
+  mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+  ungroup() %>%
+  group_by(HOUSEHOLD, SEX) %>%
+  filter(SEX == "Male") %>%
+  arrange(HOUSEHOLD,desc(AGE_YEAR)) %>% 
+  dplyr::slice(1)
+
+RICE_women <- joined %>% 
+  filter(AGE_YEAR>=18) %>% 
+  filter(grepl("RICE",INGREDIENT_ENG.y)) %>% 
+  group_by(SUBJECT, HOUSEHOLD,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
+  
+  summarise(sum_RICE_g = sum(FOOD_AMOUNT_REPORTED)
+  ) %>% 
+  
+  left_join(
+    joined %>% 
+      filter(AGE_YEAR>=18) %>% 
+      mutate(rice_ENERGY_kcal = ifelse(grepl("RICE",INGREDIENT_ENG.y),ENERGY_kcal,0 )) %>%
+      group_by(SUBJECT) %>% 
+      summarise(
+        RICE_sum = sum(rice_ENERGY_kcal),
+        ENERGY_sum = sum(ENERGY_kcal)) %>% 
+      mutate(percent_rice = RICE_sum/ENERGY_sum),
+    by = "SUBJECT"
+  ) %>% 
+  
+  arrange(HOUSEHOLD, desc(AGE_YEAR), SEX) %>%
+  mutate(SEX = factor(ifelse(SEX == 1, "Male", "Female"))) %>% 
+  ungroup() %>%
+  group_by(HOUSEHOLD, SEX) %>%
+  filter(SEX == "Female") %>%
+  arrange(HOUSEHOLD,desc(AGE_YEAR)) %>% 
+  dplyr::slice(1)
+
+
+RICE_men %>% 
+  ungroup() %>% 
+  rename(RICE_men_g = sum_RICE_g,
+         percent_rice_men = percent_rice) %>% 
+  select(HOUSEHOLD, ADM2_NAME, RICE_men_g,percent_rice_men) %>% 
+  full_join((RICE_women %>% ungroup() %>% 
+               rename(RICE_women_g = sum_RICE_g,
+                      percent_rice_women = percent_rice
+               ) %>% 
+               select(HOUSEHOLD, ADM2_NAME, RICE_women_g,percent_rice_women)),
+            by = c("HOUSEHOLD","ADM2_NAME")) %>% 
+  mutate(diff_rice_g = RICE_men_g - RICE_women_g) %>% 
+  pivot_longer(cols = c(percent_rice_men,percent_rice_women)) %>% 
+  ggplot(aes(x =diff_rice_g, y = value, color = name))+
+  geom_point(alpha = .5)
+
+
+
+ 
+  
+  

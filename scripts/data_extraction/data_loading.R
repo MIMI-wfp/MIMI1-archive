@@ -48,6 +48,8 @@ shrug_pca11 <- read_csv("../data/shrug-pca11-csv/pc11_pca_clean_pc11dist.csv")
 #census data
 india11_census <- read_csv("../data/india_census/india-districts-census-2011.csv")
 
+
+#### 640 admin 2 in 2011 census
 # plot(india_adm2)
 
 
@@ -120,6 +122,8 @@ sum(zinc_population$sum_ZINC_mg>=zinc_UL_mg)
 energy_population <- MICRONUT_SUM(joined,ENERGY_kcal)
 
 
+
+
 #### rice difference
 
 RICE_men <- joined %>% 
@@ -162,8 +166,7 @@ RICE_HOUSEHOLD <- RICE_men %>%
   mutate(diff_rice_g = RICE_men_g - RICE_women_g) %>% 
   ungroup() %>% 
   group_by(ADM2_NAME) %>% 
-  summarise(mean_rice_g = mean(diff_rice_g, na.rm = T)) %>% 
-  left_join(india_adm2, by = "ADM2_NAME")
+  summarise(mean_rice_g = mean(diff_rice_g, na.rm = T)) 
 
 
 ## oil data sets

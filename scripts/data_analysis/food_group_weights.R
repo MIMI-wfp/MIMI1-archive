@@ -791,7 +791,91 @@ joined %>%
     xlim(0, 925)+
     scale_fill_manual(values = my_colours) 
   
+joined %>% 
+  filter(AGE_YEAR>=18) %>% 
+  mutate(FOOD_AMOUNT_REPORTED = ifelse(grepl("RICE",INGREDIENT_ENG.y),FOOD_AMOUNT_REPORTED,0 )) %>% 
+  select(SUBJECT,ADM1_NAME,ADM2_NAME,SEX, AGE_YEAR, FOOD_AMOUNT_REPORTED) %>% 
+  group_by(SUBJECT,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
+  summarise(sum_RICE_g = sum(FOOD_AMOUNT_REPORTED)) %>% 
+  ungroup() %>% 
+  # group_by(ADM1_NAME) %>% 
+  # summarise(mean_rice_g = mean(sum_RICE_g)) %>% 
+  ggplot(aes(x = sum_RICE_g)) + 
+  geom_histogram()+
+  theme_ipsum() +
+  # theme(axis.text.x=element_blank())+
+  labs(x = "Rice intake (g)",
+       y = "",
+       title = "Rice intake distribution \n overall ",
+       fill = "State") + 
+  xlim(0, 925)+
+  scale_fill_manual(values = my_colours[1]) 
+
+
+###### check conversion of food groups ##############
+
+
+vita_conversion <- joined %>% 
+  group_by(SUBJECT, ADM2_NAME, SEX) %>% 
+  filter(FOODEX2_INGR_CODE %in%
+           (GDQS %>% filter(g4_dark_leafy_green== 1) %>% 
+              select(FOODEX2_INGR_CODE))$FOODEX2_INGR_CODE) %>% 
+  mutate(vita_conv = (VITA_RAE_mcg/FOOD_AMOUNT_REPORTED)*100) %>% 
+  ungroup() 
+
+
+vita_table <- vita_conversion %>% 
+  ungroup() %>% 
+  select(INGREDIENT_ENG.y,vita_conv, FOOD_AMOUNT_REPORTED) %>% 
+  
+  group_by(INGREDIENT_ENG.y) %>% 
+  summarise(mean_mcg = mean(vita_conv),
+            sd_mcg = sd(vita_conv),
+            median_mcg = median(vita_conv))
+
+write_csv(vita_table, "outputs/vita_conversion_table.csv")
+
+
+iron_conv_plot <- iron_conversion %>%  
+  ggplot(aes(iron_conv)) +
+  geom_histogram()+
+  theme_ipsum()+
+  labs(x = "Iron conversion factor (mg/100g)",
+       y = "",
+       title = "Iron conversion check "
+  ) +
+  facet_wrap(vars(INGREDIENT_ENG.y)) 
 
 
 
+iron_conversion <- joined %>% 
+  group_by(SUBJECT, ADM2_NAME, SEX) %>% 
+  filter(FOODEX2_INGR_CODE %in%
+           (GDQS %>% filter(g4_dark_leafy_green== 1) %>% 
+              select(FOODEX2_INGR_CODE))$FOODEX2_INGR_CODE) %>% 
+  mutate(iron_conv = (IRON_mg/FOOD_AMOUNT_REPORTED)*100) %>% 
+  ungroup() 
+
+
+iron_table <- iron_conversion %>% 
+  ungroup() %>% 
+  select(INGREDIENT_ENG.y,iron_conv, FOOD_AMOUNT_REPORTED) %>% 
+  
+  group_by(INGREDIENT_ENG.y) %>% 
+  summarise(mean_mg = mean(iron_conv),
+            sd_mg = sd(iron_conv),
+            median_mg = median(iron_conv))
+
+write_csv(iron_table, "outputs/iron_conversion_table.csv")
+
+
+iron_conv_plot <- iron_conversion %>%  
+  ggplot(aes(iron_conv)) +
+  geom_histogram()+
+  theme_ipsum()+
+  labs(x = "Iron conversion factor (mg/100g)",
+       y = "",
+       title = "Iron conversion check "
+  ) +
+  facet_wrap(vars(INGREDIENT_ENG.y)) 
 
