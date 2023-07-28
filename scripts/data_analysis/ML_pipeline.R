@@ -44,6 +44,11 @@ folate_target <- folate_target %>% select(!c(d_name, geometry))  %>% drop_na()
 pre_process <- preProcess(folate_target, 
                             method=c("range")
                             )
+iron_target <- iron_target %>% select(!c(d_name, geometry))  %>% drop_na()
+pre_process <- preProcess(iron_target, 
+                            method=c("range")
+                            )
+iron_target <- predict(pre_process, iron_target)
 
 folate_target <- predict(pre_process, folate_target)
 folate_target <- folate_target %>% filter(inad_diff!=0)
@@ -53,18 +58,18 @@ summary(folate_target)
 hist(folate_target$inad_diff)
 dim(folate_target)
 
-sum(folate_target$inad_diff == 0)
+sum(iron_target$inad_diff == 0)
 
 
 
 #split the data
 set.seed(123)
-data_split <- initial_split(folate_target, prop = 0.9)
+data_split <- initial_split(iron_target, prop = 0.9)
 data_train <- training(data_split)
 data_test <- testing(data_split)
 
 #fit the tidy models
-folds <- vfold_cv(folate_target, v =nrow(data_train))#LOOCV 
+folds <- vfold_cv(data_train, v =nrow(data_train))#LOOCV 
 
 # Define the recipe for preprocessing
 data_recipe <- recipe(inad_diff ~ ., data = data_train)# %>%
@@ -254,7 +259,7 @@ predictions <- predict(best_fit_rf$.workflow, data_test) %>%
 # Evaluate model performance on the test set
 mape_rf <- mae_metric(data = predictions, truth = inad_diff, estimate = .pred)
 mape_rf
-4two_colours
+
 
 importance_rf <- best_fit_rf$.workflow[[1]] %>% 
   extract_fit_parsnip() %>% 

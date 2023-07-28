@@ -272,6 +272,8 @@ energy_conv_plot <- conversion %>%
 
 joined %>% 
   filter(AGE_YEAR>=18) %>% 
+  mutate(PREG_LACT = replace_na(PREG_LACT,0)) %>% 
+  filter(PREG_LACT<1) %>% 
   mutate(ENERGY_kcal = ifelse(grepl("RICE",INGREDIENT_ENG.y),ENERGY_kcal,0 )) %>% 
   select(SUBJECT,ADM1_NAME,ADM2_NAME,SEX, AGE_YEAR, ENERGY_kcal) %>% 
   group_by(SUBJECT,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
@@ -301,7 +303,9 @@ joined %>%
   
  
 joined %>% 
-  filter(AGE_YEAR>=18) %>% 
+  filter(AGE_YEAR>=18) %>%  
+  mutate(PREG_LACT = replace_na(PREG_LACT,0)) %>% 
+  filter(PREG_LACT<1) %>% 
   mutate(ENERGY_kcal = ifelse(grepl("RICE",INGREDIENT_ENG.y),ENERGY_kcal,0 )) %>% 
   select(SUBJECT,ADM1_NAME,ADM2_NAME,SEX, AGE_YEAR, ENERGY_kcal) %>% 
   group_by(SUBJECT,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
@@ -331,6 +335,8 @@ joined %>%
 
 joined %>% 
   filter(AGE_YEAR>=18) %>% 
+  mutate(PREG_LACT = replace_na(PREG_LACT,0)) %>% 
+  filter(PREG_LACT<1) %>% 
   mutate(ENERGY_kcal = ifelse(grepl("RICE",INGREDIENT_ENG.y),ENERGY_kcal,0 )) %>% 
   select(SUBJECT,ADM1_NAME,ADM2_NAME,SEX, AGE_YEAR, ENERGY_kcal) %>% 
   group_by(SUBJECT,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
@@ -351,6 +357,8 @@ joined %>%
 
 RICE_men <- joined %>% 
   filter(AGE_YEAR>=18) %>% 
+  mutate(PREG_LACT = replace_na(PREG_LACT,0)) %>% 
+  filter(PREG_LACT<1) %>% 
   filter(grepl("RICE",INGREDIENT_ENG.y)) %>% 
   group_by(SUBJECT, HOUSEHOLD,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
    
@@ -360,6 +368,8 @@ RICE_men <- joined %>%
   left_join(
     joined %>% 
       filter(AGE_YEAR>=18) %>% 
+      mutate(PREG_LACT = replace_na(PREG_LACT,0)) %>% 
+      filter(PREG_LACT<1) %>% 
       mutate(rice_ENERGY_kcal = ifelse(grepl("RICE",INGREDIENT_ENG.y),ENERGY_kcal,0 )) %>%
       group_by(SUBJECT) %>% 
       summarise(
@@ -379,6 +389,8 @@ RICE_men <- joined %>%
 
 RICE_women <- joined %>% 
   filter(AGE_YEAR>=18) %>% 
+  mutate(PREG_LACT = replace_na(PREG_LACT,0)) %>% 
+  filter(PREG_LACT<1) %>% 
   filter(grepl("RICE",INGREDIENT_ENG.y)) %>% 
   group_by(SUBJECT, HOUSEHOLD,SEX, AGE_YEAR, ADM1_NAME, ADM2_NAME) %>% 
   
@@ -422,7 +434,44 @@ RICE_men %>%
   ggplot(aes(x =diff_rice_g, y = value, color = name))+
   geom_point(alpha = .5)
 
+###### looking at BMI and rice/energy consumption
 
+energy_minimum <- data.frame(SEX = c("Male", "Female"),
+                             intercept = c(2710,2130),
+                             colors = c(my_colours[3], my_colours[5])) #From NIN
+
+bmi_energy <- user %>% 
+  filter(AGE_YEAR>=18) %>% 
+  mutate(PREG_LACT = replace_na(PREG_LACT,0)) %>%
+  filter(PREG_LACT<1) %>%
+  mutate(BMI = WEIGHT/(HEIGHT/100)**2) %>% 
+  select(SUBJECT, BMI) %>% 
+  left_join(energy_population %>% 
+              filter(AGE_YEAR>=18) ,
+              mutate(PREG_LACT = replace_na(PREG_LACT,0)) %>%
+              filter(PREG_LACT<1),
+            by = "SUBJECT"
+  ) %>% 
+  ggplot(aes(x = BMI, y = sum_ENERGY_kcal))+
+  geom_bin2d(bins = 20)+
+  geom_vline(xintercept = 18.5, color = 'red')+
+  # geom_hline(yintercept = 2100, color = my_colours[5])+
+  # geom_hline(yintercept = 2600, color = my_colours[3])+
+  # geom_point(aes(alpha = 0.7))+
+# 
+  theme_ipsum() %>%
+  
+  labs(title = "BMI with energy intake \n Adults",
+       x = "BMI", 
+       y = "Total observered energy intake (kcals)",
+       color = "Sex")+
+  facet_wrap(vars(SEX))
+
+  
+bmi_energy+
+  geom_hline(data = energy_minimum,
+             aes(yintercept = intercept),
+             color = c('#8cdaec','#d48c84'))
 
  
   
