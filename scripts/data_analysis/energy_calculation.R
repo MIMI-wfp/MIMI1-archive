@@ -440,7 +440,7 @@ energy_minimum <- data.frame(SEX = c("Male", "Female"),
                              intercept = c(2710,2130),
                              colors = c(my_colours[3], my_colours[5])) #From NIN
 
-bmi_energy <- user %>% 
+bmi_energy_gg <- user %>% 
   filter(AGE_YEAR>=18) %>% 
   mutate(PREG_LACT = replace_na(PREG_LACT,0)) %>%
   filter(PREG_LACT<1) %>%
@@ -458,21 +458,37 @@ bmi_energy <- user %>%
   # geom_hline(yintercept = 2100, color = my_colours[5])+
   # geom_hline(yintercept = 2600, color = my_colours[3])+
   # geom_point(aes(alpha = 0.7))+
-# 
-  theme_ipsum() %>%
-  
+  theme_ipsum() +
   labs(title = "BMI with energy intake \n Adults",
+       subtitle = "A density plot showing the distribution of all adults. 
+       The red line indicates the boundary for \n being underweight.",
        x = "BMI", 
        y = "Total observered energy intake (kcals)",
        color = "Sex")+
   facet_wrap(vars(SEX))
 
   
-bmi_energy+
+bmi_energy_gg+
   geom_hline(data = energy_minimum,
              aes(yintercept = intercept),
-             color = c('#8cdaec','#d48c84'))
-
+             color = c('#8cdaec','#d48c84')) +
+  theme_ipsum()
+                      
  
-  
-  
+bmi_energy <- user %>% 
+  filter(AGE_YEAR>=18) %>% 
+  mutate(PREG_LACT = replace_na(PREG_LACT,0)) %>%
+  filter(PREG_LACT<1) %>%
+  mutate(BMI = WEIGHT/(HEIGHT/100)**2) %>% 
+  select(SUBJECT, BMI) %>% 
+  left_join(energy_population %>% 
+              filter(AGE_YEAR>=18) ,
+            mutate(PREG_LACT = replace_na(PREG_LACT,0)) %>%
+              filter(PREG_LACT<1),
+            by = "SUBJECT"
+  )+
+
+      ggsave
+
+summary(lm(sum_ENERGY_kcal~BMI, data = bmi_energy))
+summary(lm(sum_ENERGY_kcal~BMI+factor(ADM1_NAME), data = bmi_energy))
