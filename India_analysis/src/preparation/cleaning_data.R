@@ -209,11 +209,11 @@ demographics_b4 <-
 # 
 # names(test)
 
-
-
-test <- block_5_6_food_consumption %>% dplyr::left_join(item_code_dict %>% dplyr::rename(Item_Code = `unique(Item_Code)`), by = "Item_Code") %>% 
-  dplyr::left_join(ifct, by =c("IFCT_code" = "food_code")) %>% 
-  dplyr::mutate(Total_Consumption_Quantity_100g = Total_Consumption_Quantity/100) %>% 
+# 
+# 
+# test <- block_5_6_food_consumption %>% dplyr::left_join(item_code_dict %>% dplyr::rename(Item_Code = `unique(Item_Code)`), by = "Item_Code") %>% 
+#   dplyr::left_join(ifct, by =c("IFCT_code" = "food_code")) %>% 
+#   dplyr::mutate(Total_Consumption_Quantity_100g = Total_Consumption_Quantity/100) %>% 
 
 
 
