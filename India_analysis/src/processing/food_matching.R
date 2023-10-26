@@ -63,12 +63,12 @@ non_standard_units <- food_item_names %>%
         Item_Code == 174 ~ 1, #candy
         Item_Code == 175 ~ 1, #Honey
         #items with units of no. 
-        Item_Code == 190 ~ 0.053,#eggs, USDA match
-        Item_Code == 216 ~ 0.054,#lemon, USDA match
-        Item_Code == 220 ~ 0.115,#Banana, USDA
-        Item_Code == 228 ~ 0.14,#Orange, USDA
-        Item_Code == 223 ~ 0.905,#Pineapple, USDA
-        Item_Code == 160 ~ 1.05#cow's milk, USDA
+        Item_Code == 190 ~ 0.053, #eggs, USDA match
+        Item_Code == 216 ~ 0.054, #lemon, USDA match
+        Item_Code == 220 ~ 0.115, #Banana, USDA
+        Item_Code == 228 ~ 0.14, #Orange, USDA
+        Item_Code == 223 ~ 0.905, #Pineapple, USDA
+        Item_Code == 160 ~ 1.05 #cow's milk, USDA
       )
   )
 
@@ -89,7 +89,7 @@ block_4_demog %>% dplyr::select(HHID,Person_sr_no) %>%
 
 other_items <- food_item_names %>% 
   dplyr::filter(
-    # stringr::str_detect(item_name, "other|Other")==TRUE &
+   stringr::str_detect(item_name, "other|Other")==TRUE &
       is.na(IFCT_code)
   )
 
