@@ -186,6 +186,10 @@ demographics_b4 <-
     )
   )
 
+readr::write_csv(demographics_b4, here::here("India_analysis",
+                                      "data",
+                                      "processed",
+                                      "demographics.csv"))
 
 # Food composition -------------------------------------------------------------
 
@@ -215,5 +219,5 @@ demographics_b4 <-
 #   dplyr::left_join(ifct, by =c("IFCT_code" = "food_code")) %>% 
 #   dplyr::mutate(Total_Consumption_Quantity_100g = Total_Consumption_Quantity/100) %>% 
 
-
+rm(list = ls())
 
