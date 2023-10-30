@@ -21,7 +21,7 @@ food_item_names <- readxl::read_xlsx(paste0(path_to_file, "food_codes_nsso_to_if
   dplyr::rename(Item_Code = `unique(Item_Code)`) %>% 
   dplyr::select(Item_Code,item_name, IFCT_code, ifct_name)
 
-IN17 <- readxl::read_xlsx("~/Documents/MIMI/India/FCT/ifct_noduplicates_sentencecase_20231110.xlsx")
+IN17 <- readxl::read_xlsx("~/Documents/MIMI/India/FCT/ifct_gabriel_20231030.xlsx")
 head(IN17)
 
 # Data manipulation ------------------------------------------------------------
@@ -93,9 +93,184 @@ block_4_demog %>% dplyr::select(HHID,Person_sr_no) %>%
 
 # 'Other' items
 
+
+
+
+
+# NNMB Weights -----------------------------------------------------------------
+# using 2012 NSSO individual level data to get an idea of proportion of items consumed
+# Bihar and Chat not included so will isolate just to UP
+
+nnmb_food_consumption <- read_csv("~/Documents/LSHTM/WFP_project/data/IND_00062/consumption_user.csv")
+nnmb_subject <- read_csv("~/Documents/LSHTM/WFP_project/data/IND_00062/subject_user.csv")
+gdqs <- read_csv("~/Documents/LSHTM/WFP_project/data/IND_00062/food_groups/GDQS_library.csv")
+
+head(nnmb_food_consumption)
+names(nnmb_food_consumption)
+names(nnmb_subject)
+
+
+# Calculate and match the break down of ASF products
+nnmb_animal_sourced_consumption <- 
+  nnmb_food_consumption %>% 
+  dplyr::select(
+    SUBJECT,FOODEX2_INGR_CODE, FOODEX2_INGR_DESCR, FOOD_AMOUNT_REPORTED
+  ) %>% 
+  dplyr::inner_join(nnmb_subject %>% 
+                      dplyr::select(SUBJECT,
+                                    ADM1_NAME,
+                                    SEX),
+                    by = "SUBJECT") %>% 
+    dplyr::filter(ADM1_NAME == "Uttar Pradesh") %>%
+    dplyr::group_by(FOODEX2_INGR_CODE, FOODEX2_INGR_DESCR) %>% 
+    dplyr::summarise(total_item_consumed_g = sum(FOOD_AMOUNT_REPORTED)) %>% 
+    dplyr::left_join(
+      gdqs, by = "FOODEX2_INGR_CODE"
+    ) %>%
+    dplyr::filter(
+      g18_red_meat == 1 |
+      g13_fish == 1 |
+      g14_poultry_game == 1 |
+      g20_processed_meat == 1
+    ) %>% 
+  dplyr::mutate(
+    ifct19_code = 
+      dplyr::case_when(
+        FOODEX2_INGR_CODE == "A01QZ" ~ "O025",#beef muscle
+        FOODEX2_INGR_CODE == "A01RG" ~ "O048",#pork muscle
+        FOODEX2_INGR_CODE == "A01RJ" ~ "O015",#mutton
+        FOODEX2_INGR_CODE == "A01RL#F10.A077C" ~ "O001",#goat lean
+        FOODEX2_INGR_CODE == "A01SP" ~ "N002",#chicken meat
+        FOODEX2_INGR_CODE == "A026V" ~ "P161",# tunny
+        FOODEX2_INGR_CODE == "A026Y#F01.A07Y6" ~ "P146",#sarputi
+        FOODEX2_INGR_CODE == "A028F" ~ "P101",#bhekti
+        FOODEX2_INGR_CODE == "A02AD" ~ "P039",#mullet
+        FOODEX2_INGR_CODE == "A02FH" ~ "Q007",#prawn
+        FOODEX2_INGR_CODE == "A02LN" ~ "N026",#snail
+        FOODEX2_INGR_CODE == "A0C76#F01.A0875" ~ "P142",#ravas
+        FOODEX2_INGR_CODE == "A0F1C#F01.A0JXY" ~ "P010",#chela
+        FOODEX2_INGR_CODE == "A0F8D" ~ "S006",#rohu
+        FOODEX2_INGR_CODE == "A0F8Q#F01.A081B" ~ "P130",#magur
+        FOODEX2_INGR_CODE == "A0FDD" ~ "P107"#chingai
+        )
+  ) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::select(
+    ifct19_code, 
+    total_item_consumed_g,
+    INGREDIENT_ENG
+  )
+ 
+nnmb_fruit_veg_consumption <- 
+  nnmb_food_consumption %>% 
+  dplyr::select(
+    SUBJECT,FOODEX2_INGR_CODE, FOODEX2_INGR_DESCR, FOOD_AMOUNT_REPORTED
+  ) %>% 
+  dplyr::inner_join(nnmb_subject %>% 
+                      dplyr::select(SUBJECT,
+                                    ADM1_NAME,
+                                    SEX),
+                    by = "SUBJECT") %>% 
+  dplyr::filter(ADM1_NAME == "Uttar Pradesh") %>%
+  dplyr::group_by(FOODEX2_INGR_CODE, FOODEX2_INGR_DESCR) %>% 
+  dplyr::summarise(total_item_consumed_g = sum(FOOD_AMOUNT_REPORTED)) %>% 
+  dplyr::left_join(
+    gdqs, by = "FOODEX2_INGR_CODE"
+  ) %>%
+  dplyr::filter(
+    g1_citrus == 1 |
+      g2_deep_orange_fruit == 1 |
+      g3_other_fruits == 1 |
+      g4_dark_leafy_green == 1|
+      g5_cruiciferous_veg == 1|
+      g6_deep_orange_veg == 1|
+      g7_other_veg == 1)
+  ) %>%
+  dplyr::mutate(
+    ifct19_code =
+      dplyr::case_when(
+        FOODEX2_INGR_CODE =="A00FJ" ~,
+        FOODEX2_INGR_CODE == "A00FR" ~ ,
+        FOODEX2_INGR_CODE == "A00GC"~,
+        FOODEX2_INGR_CODE == "A00GH" ~ ,
+        FOODEX2_INGR_CODE == "A00GZ" ~ ,
+        FOODEX2_INGR_CODE == "A00HC" ~ , 
+        FOODEX2_INGR_CODE == "A00HH" ~ ,
+        FOODEX2_INGR_CODE == "A00JB#F10.A0F2Q" ~ ,
+        FOODEX2_INGR_CODE == "A00JD" ~ ,
+        FOODEX2_INGR_CODE == "A00JF" ~ ,          
+        FOODEX2_INGR_CODE == "A00JM" ~ , 
+        FOODEX2_INGR_CODE == "A00JY" ~, 
+        FOODEX2_INGR_CODE == "A00KB" ~ , 
+        FOODEX2_INGR_CODE == "A00KF" ~ , 
+        FOODEX2_INGR_CODE == "A00KH" ~ , 
+        FOODEX2_INGR_CODE == "A00KL" ~ , 
+        FOODEX2_INGR_CODE == "A00KM" ~ ,
+        FOODEX2_INGR_CODE == "A00KN" ~ ,
+        FOODEX2_INGR_CODE == "A00KR" ~ , 
+        FOODEX2_INGR_CODE == "A00KR#F01.A05AY" ~, 
+        FOODEX2_INGR_CODE == "A00KR#F01.A05HR" ~ , 
+        FOODEX2_INGR_CODE == "A00KR#F01.A0EDH" ~ , 
+        FOODEX2_INGR_CODE == "A00KR#F26.A07XE" ~ , 
+        FOODEX2_INGR_CODE == "A00KX" ~ , 
+        FOODEX2_INGR_CODE == "A00LV" ~ , 
+        FOODEX2_INGR_CODE == "A00MB" ~ , 
+        FOODEX2_INGR_CODE == "A00MJ" ~ , 
+        FOODEX2_INGR_CODE == "A00NV#F10.A0F2Q" ~, 
+        FOODEX2_INGR_CODE == "A00QH" ~ ,
+        FOODEX2_INGR_CODE == "A00XF" ~ , 
+        FOODEX2_INGR_CODE == "A00XG" ~ , 
+        FOODEX2_INGR_CODE == "A00XH" ~ , 
+        FOODEX2_INGR_CODE == "A00XZ" ~ , 
+        FOODEX2_INGR_CODE == "A00ZQ#F27.A00JB" ~, 
+        FOODEX2_INGR_CODE == "A012J" ~ , 
+        FOODEX2_INGR_CODE == "A012J#F28.A07GY" ~ , 
+        FOODEX2_INGR_CODE == "A01BY" ~ , 
+        FOODEX2_INGR_CODE == "A01CR" ~ ,          
+        FOODEX2_INGR_CODE == "A01DJ" ~ , 
+        FOODEX2_INGR_CODE == "A01DX#F10.A0F2Q" ~ , 
+        FOODEX2_INGR_CODE == "A01EP" ~ , 
+        FOODEX2_INGR_CODE == "A01HF#F10.A166Y" ~ , 
+        FOODEX2_INGR_CODE == "A01JJ" ~ , 
+        FOODEX2_INGR_CODE == "A01KB" ~ , 
+        FOODEX2_INGR_CODE == "A01LC#F10.A07XL" ~, 
+        FOODEX2_INGR_CODE == "A01LF#F10.A07XL" ~, 
+        FOODEX2_INGR_CODE == "A01LF#F10.A0F2Q"~ , 
+        FOODEX2_INGR_CODE == "A01LH" ~ , 
+        FOODEX2_INGR_CODE == "A01LR" ~ , 
+        FOODEX2_INGR_CODE == "A01ME" ~ , 
+        FOODEX2_INGR_CODE == "A01MF" ~, 
+        FOODEX2_INGR_CODE == "A01MK#F03.A06JD" , 
+        FOODEX2_INGR_CODE == "A01QE#F01.A05XA" ~, 
+        FOODEX2_INGR_CODE == "A05FY" ~ , 
+        FOODEX2_INGR_CODE == "A0CGD" ~, 
+        FOODEX2_INGR_CODE == "A0CGZ#F26.A07XE" ~, 
+        FOODEX2_INGR_CODE == "A0DEM" ~ , 
+        FOODEX2_INGR_CODE == "A0DFE" ~ , 
+        FOODEX2_INGR_CODE == "A0DJT" ~ , 
+        FOODEX2_INGR_CODE == "A0DLX" ~, 
+        FOODEX2_INGR_CODE == "A0DLY" ~ , 
+        FOODEX2_INGR_CODE == "A0DMK" ~, 
+        FOODEX2_INGR_CODE == "A0DMX#F10.A07XL" ~ , 
+        FOODEX2_INGR_CODE == "A0DMX#F10.A0F2Q" ~ , 
+        FOODEX2_INGR_CODE == "A0DYS"
+      )
+  ) 
+  # dplyr::ungroup() %>% 
+  # dplyr::select(
+  #   ifct19_code, 
+  #   total_item_consumed_g,
+  #   INGREDIENT_ENG
+  # )
+
+
+
+
+# Matching composite items using NNMB ------------------------------------------ 
+
 unmatched_items <- food_item_names %>% 
   dplyr::filter(
-      is.na(IFCT_code)
+    is.na(IFCT_code)
   ) %>% 
   dplyr::mutate(
     IFCT_code =
@@ -143,7 +318,8 @@ unmatched_items <- food_item_names %>%
                             O041
                             O042
                             O043
-                            O044",#beef items
+                            O044
+                            N021",#beef items
         Item_Code == 194 ~ "O045
                             O046
                             O047
@@ -334,7 +510,6 @@ unmatched_items <- food_item_names %>%
                             N017
                             N018
                             N019
-                            N021
                             N022
                             N023
                             N024
@@ -344,9 +519,219 @@ unmatched_items <- food_item_names %>%
                             N028
                             N029
                             N030
-                            N031"#other meats
-        # Item_Code == 1
+                            N031",#other meats
+        Item_Code == 217 ~ "D001
+                            D002
+                            D003
+                            D004
+                            D007
+                            D031
+                            D032
+                            D033
+                            D034
+                            D035
+                            D036
+                            D037
+                            D038
+                            D039
+                            D040
+                            D041
+                            D042
+                            D043
+                            D044
+                            D045
+                            D046
+                            D047
+                            D049
+                            D051
+                            D052
+                            D053
+                            D054
+                            D056
+                            D057
+                            D058
+                            D059
+                            D060
+                            D062
+                            D063
+                            D064
+                            D065
+                            D068
+                            D070
+                            D073
+                            D074
+                            D076
+                            D077
+                            D078
+                            C001
+                            C002
+                            C003
+                            C004
+                            C005
+                            C006
+                            C007
+                            C008
+                            C009
+                            C010
+                            C012
+                            C013
+                            C014
+                            C015
+                            C016
+                            C017
+                            C018
+                            C019
+                            C020
+                            C021
+                            C022
+                            C023
+                            C024
+                            C025
+                            C026
+                            C027
+                            C028
+                            C029
+                            C030
+                            C031
+                            C032
+                            C033
+                            C034",#other veg
+        Item_Code == 148 ~ "B001
+                            B003
+                            B005
+                            B006
+                            B007
+                            B008
+                            B009
+                            B010
+                            B012
+                            B013
+                            B016
+                            B018
+                            B021
+                            B023
+                            B024
+                            B025
+                            B027
+                            B028
+                            B030
+                            B031
+                            B032",#other pulses
+        Item_Code == 106 ~ "A010
+                            A011
+                            A012
+                            A013
+                            A014
+                            A015
+                            A027
+                            A028
+                            A029",#other rice
+        Item_Code == 113 ~ "A033
+                            A034",#bread
+        Item_Code == 122 ~ "A035
+                            A036
+                            A037
+                            A038
+                            A039
+                            A040
+                            A041
+                            A042
+                            A043
+                            A044
+                            A045
+                            A046
+                            A047
+                            A001
+                            A003
+                            A004
+                            A005
+                            A006
+                            A007
+                            A009", #other_cereals
+        Item_Code == 167 ~ "L001
+                            L002
+                            L003
+                            L004
+                            L005
+                            L006
+                            L007
+                            L008
+                            L009
+                            L010
+                            L011
+                            L012
+                            L013
+                            L014
+                            L017
+                            L018",# other milk
         
+        Item_Code == 234 ~ "E013
+                            E021
+                            E063", 
+        Item_Code == 238 ~ "E001
+                            E006
+                            E007
+                            E008
+                            E009
+                            E014
+                            E015
+                            E016
+                            E019
+                            E020
+                            E021
+                            E022
+                            E024
+                            E025
+                            E027
+                            E028
+                            E029
+                            E030
+                            E031
+                            E032
+                            E033
+                            E035
+                            E036
+                            E043
+                            E044
+                            E045
+                            E046
+                            E048
+                            E049
+                            E050
+                            E051
+                            E052
+                            E053
+                            E054
+                            E055
+                            E056
+                            E059
+                            E060
+                            E061
+                            E062
+                            E063
+                            E065
+                            E066
+                            E067
+                            E068",#other fresh fruit
+        Item_Code == 247 ~ "E005
+                            E017
+                            E057
+                            E058",#dried fruit
+        Item_Code == 245 ~ "H001
+                            H004
+                            H005
+                            H006
+                            H012
+                            H018
+                            H021",#other nuts
+        Item_Code == 260 ~ "H008
+                            H009
+                            H013
+                            H014
+                            H015
+                            H017
+                            H019
+                            H020"#oil seeds
         
       )
   ) %>% 
@@ -357,21 +742,31 @@ unmatched_items <- food_item_names %>%
   dplyr::left_join(
     IN17, by = c("IFCT_code" = "food_code")
   ) %>% 
-# %>% 
+  # %>% 
   #group to then take the average per NSSO food item
   # note this can be supstituted by a better method
   dplyr::group_by(
     Item_Code, item_name
-  ) %>% 
+  ) %>%
+  
+  dplyr::left_join(nnmb_animal_sourced_consumption, by = c("IFCT_code" = "ifct19_code")) %>% 
   dplyr::select(
-    -c(IFCT_code,ifct_name,food_unit,conversion_factor,food_name)
-  ) %>% 
+    -c(IFCT_code,ifct_name,food_unit,conversion_factor,food_name,INGREDIENT_ENG)
+  ) %>%
   dplyr::mutate(
     dplyr::across(
       everything(),
-      ~mean(.x, na.rm = TRUE)
-      
-  )
-)  
-  
-
+      ~tidyr::replace_na(.x,0)
+    ))
+  # )  %>% 
+  # 
+  # 
+  # 
+  # 
+  # dplyr::summarise(
+  #   dplyr::across(
+  #     everything(),
+  #     ~weighted.mean(x = .x, w = total_item_consumed_g, na.rm = TRUE)
+  #     
+  #   )
+  # )
