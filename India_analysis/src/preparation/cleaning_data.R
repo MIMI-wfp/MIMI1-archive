@@ -121,9 +121,13 @@ household_characteristic_b3 <-
         )
       ),
     
-    
   )
 
+
+readr::write_csv(household_characteristic_b3, here::here("India_analysis",
+                                                 "data",
+                                                 "processed",
+                                                 "household_char.csv"))
 
 # Household demographics -------------------------------------------------------
 
@@ -197,27 +201,22 @@ readr::write_csv(demographics_b4, here::here("India_analysis",
 
 
 
-# block_5_6_food_consumption %>% 
-#     
-#     dplyr::select("HHID", 
-#                   "State_code",
-#                   "District_code","Combined_multiplier","Subsample_multiplier","IFCT_code",
-#     "ifct_name","NSS_CES_group", "food_name","energy_kcal","carb_g","protein_g","fat_g","iron_mg","calcium_mg","zinc_mg","sodium_mg",
-#     "cholesterol_mg","freesugar_g","sfa_mg","mufa_mg","pufa_mg","fibre_g","folate_ug","vita_mg","vitb1_mg","vitb2_mg","vitb3_mg","vitb5_mg",                      
-#     "carotenoids_ug","Total_Consumption_Quantity_100g") %>% 
-#     dplyr::mutate(dplyr::across(-c(HHID, State_code,District_code,Combined_multiplier,Subsample_multiplier,item_name,IFCT_code,
-#                                    ifct_name,NSS_CES_group,food_name,Total_Consumption_Quantity_100g),~ .x* Total_Consumption_Quantity_100g)) %>% 
-#     dplyr::select(!c(Total_Consumption_Quantity_100g))
-# 
-# # }
-# 
-# names(test)
+consumption_b5 <- block_5_6_food_consumption %>%
+    dplyr::select(HHID,
+                  State_code,
+                  Item_Code,
+                  Home_Produce_Quantity,
+                  Home_Produce_Value,
+                  Total_Consumption_Quantity,
+                  Total_Consumption_Value)
 
-# 
-# 
-# test <- block_5_6_food_consumption %>% dplyr::left_join(item_code_dict %>% dplyr::rename(Item_Code = `unique(Item_Code)`), by = "Item_Code") %>% 
-#   dplyr::left_join(ifct, by =c("IFCT_code" = "food_code")) %>% 
-#   dplyr::mutate(Total_Consumption_Quantity_100g = Total_Consumption_Quantity/100) %>% 
+
+readr::write_csv(consumption_b5, here::here("India_analysis",
+                                             "data",
+                                             "processed",
+                                             "consumption.csv"))
+
+
 
 rm(list = ls())
 

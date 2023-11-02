@@ -24,6 +24,10 @@ food_item_names <- readxl::read_xlsx(paste0(path_to_file, "food_codes_nsso_to_if
 IN17 <- readxl::read_xlsx("~/Documents/MIMI/India/FCT/ifct_gabriel_20231030.xlsx")
 head(IN17)
 
+vb12_fct <- read_csv(
+  "~/Documents/LSHTM/WFP_project/data/IND_00062/dictionaries/vb12_dict.csv"
+)
+
 # Data manipulation ------------------------------------------------------------
 
 # select only the HHID, item codes and quantities
@@ -83,8 +87,8 @@ non_standard_units <- food_item_names %>%
 block_5_6_food_consumption %>% dplyr::select(HHID,Item_Code, Total_Consumption_Quantity) %>% 
   dplyr::filter(Item_Code == 175)
   
-block_4_demog %>% dplyr::select(HHID,Person_sr_no) %>% 
-  dplyr::filter(HHID == 741431101) 
+# block_4_demog %>% dplyr::select(HHID,Person_sr_no) %>% 
+#   dplyr::filter(HHID == 741431101) 
 
 
 # head(non_standard_units)
@@ -158,7 +162,8 @@ nnmb_animal_sourced_consumption <-
   dplyr::select(
     ifct19_code, 
     total_item_consumed_g,
-    INGREDIENT_ENG
+    INGREDIENT_ENG,
+    FOODEX2_INGR_CODE
   )
  
 nnmb_fruit_veg_consumption <- 
@@ -184,84 +189,84 @@ nnmb_fruit_veg_consumption <-
       g4_dark_leafy_green == 1|
       g5_cruiciferous_veg == 1|
       g6_deep_orange_veg == 1|
-      g7_other_veg == 1)
-  ) %>%
+      g7_other_veg == 1) %>% 
   dplyr::mutate(
     ifct19_code =
       dplyr::case_when(
-        FOODEX2_INGR_CODE =="A00FJ" ~,
-        FOODEX2_INGR_CODE == "A00FR" ~ ,
-        FOODEX2_INGR_CODE == "A00GC"~,
-        FOODEX2_INGR_CODE == "A00GH" ~ ,
-        FOODEX2_INGR_CODE == "A00GZ" ~ ,
-        FOODEX2_INGR_CODE == "A00HC" ~ , 
-        FOODEX2_INGR_CODE == "A00HH" ~ ,
-        FOODEX2_INGR_CODE == "A00JB#F10.A0F2Q" ~ ,
-        FOODEX2_INGR_CODE == "A00JD" ~ ,
-        FOODEX2_INGR_CODE == "A00JF" ~ ,          
-        FOODEX2_INGR_CODE == "A00JM" ~ , 
-        FOODEX2_INGR_CODE == "A00JY" ~, 
-        FOODEX2_INGR_CODE == "A00KB" ~ , 
-        FOODEX2_INGR_CODE == "A00KF" ~ , 
-        FOODEX2_INGR_CODE == "A00KH" ~ , 
-        FOODEX2_INGR_CODE == "A00KL" ~ , 
-        FOODEX2_INGR_CODE == "A00KM" ~ ,
-        FOODEX2_INGR_CODE == "A00KN" ~ ,
-        FOODEX2_INGR_CODE == "A00KR" ~ , 
-        FOODEX2_INGR_CODE == "A00KR#F01.A05AY" ~, 
-        FOODEX2_INGR_CODE == "A00KR#F01.A05HR" ~ , 
-        FOODEX2_INGR_CODE == "A00KR#F01.A0EDH" ~ , 
-        FOODEX2_INGR_CODE == "A00KR#F26.A07XE" ~ , 
-        FOODEX2_INGR_CODE == "A00KX" ~ , 
-        FOODEX2_INGR_CODE == "A00LV" ~ , 
-        FOODEX2_INGR_CODE == "A00MB" ~ , 
-        FOODEX2_INGR_CODE == "A00MJ" ~ , 
-        FOODEX2_INGR_CODE == "A00NV#F10.A0F2Q" ~, 
-        FOODEX2_INGR_CODE == "A00QH" ~ ,
-        FOODEX2_INGR_CODE == "A00XF" ~ , 
-        FOODEX2_INGR_CODE == "A00XG" ~ , 
-        FOODEX2_INGR_CODE == "A00XH" ~ , 
-        FOODEX2_INGR_CODE == "A00XZ" ~ , 
-        FOODEX2_INGR_CODE == "A00ZQ#F27.A00JB" ~, 
-        FOODEX2_INGR_CODE == "A012J" ~ , 
-        FOODEX2_INGR_CODE == "A012J#F28.A07GY" ~ , 
-        FOODEX2_INGR_CODE == "A01BY" ~ , 
-        FOODEX2_INGR_CODE == "A01CR" ~ ,          
-        FOODEX2_INGR_CODE == "A01DJ" ~ , 
-        FOODEX2_INGR_CODE == "A01DX#F10.A0F2Q" ~ , 
-        FOODEX2_INGR_CODE == "A01EP" ~ , 
-        FOODEX2_INGR_CODE == "A01HF#F10.A166Y" ~ , 
-        FOODEX2_INGR_CODE == "A01JJ" ~ , 
-        FOODEX2_INGR_CODE == "A01KB" ~ , 
-        FOODEX2_INGR_CODE == "A01LC#F10.A07XL" ~, 
-        FOODEX2_INGR_CODE == "A01LF#F10.A07XL" ~, 
-        FOODEX2_INGR_CODE == "A01LF#F10.A0F2Q"~ , 
-        FOODEX2_INGR_CODE == "A01LH" ~ , 
-        FOODEX2_INGR_CODE == "A01LR" ~ , 
-        FOODEX2_INGR_CODE == "A01ME" ~ , 
-        FOODEX2_INGR_CODE == "A01MF" ~, 
-        FOODEX2_INGR_CODE == "A01MK#F03.A06JD" , 
-        FOODEX2_INGR_CODE == "A01QE#F01.A05XA" ~, 
-        FOODEX2_INGR_CODE == "A05FY" ~ , 
-        FOODEX2_INGR_CODE == "A0CGD" ~, 
-        FOODEX2_INGR_CODE == "A0CGZ#F26.A07XE" ~, 
-        FOODEX2_INGR_CODE == "A0DEM" ~ , 
-        FOODEX2_INGR_CODE == "A0DFE" ~ , 
-        FOODEX2_INGR_CODE == "A0DJT" ~ , 
-        FOODEX2_INGR_CODE == "A0DLX" ~, 
-        FOODEX2_INGR_CODE == "A0DLY" ~ , 
-        FOODEX2_INGR_CODE == "A0DMK" ~, 
-        FOODEX2_INGR_CODE == "A0DMX#F10.A07XL" ~ , 
-        FOODEX2_INGR_CODE == "A0DMX#F10.A0F2Q" ~ , 
-        FOODEX2_INGR_CODE == "A0DYS"
+        FOODEX2_INGR_CODE =="A00FJ" ~"None",
+        FOODEX2_INGR_CODE == "A00FR" ~ "D036",
+        FOODEX2_INGR_CODE == "A00GC"~ "C015",
+        FOODEX2_INGR_CODE == "A00GH" ~ "C026",
+        FOODEX2_INGR_CODE == "A00GZ" ~ "G011",
+        FOODEX2_INGR_CODE == "A00HC" ~ "G018", 
+        FOODEX2_INGR_CODE == "A00HH" ~ "D058",
+        FOODEX2_INGR_CODE == "A00JB#F10.A0F2Q" ~ "G008",
+        FOODEX2_INGR_CODE == "A00JD" ~ "D031",
+        FOODEX2_INGR_CODE == "A00JF" ~ "D056",          
+        FOODEX2_INGR_CODE == "A00JM" ~ "D043", 
+        FOODEX2_INGR_CODE == "A00JY" ~ "D004", 
+        FOODEX2_INGR_CODE == "A00KB" ~ "D068", 
+        FOODEX2_INGR_CODE == "A00KF" ~ "D046", 
+        FOODEX2_INGR_CODE == "A00KH" ~ "D065", 
+        FOODEX2_INGR_CODE == "A00KL" ~ "D007", 
+        FOODEX2_INGR_CODE == "A00KM" ~ "D070",
+        FOODEX2_INGR_CODE == "A00KN" ~ "D007",
+        FOODEX2_INGR_CODE == "A00KR" ~ "None",
+        FOODEX2_INGR_CODE == "A00KR#F01.A05AY" ~ "C017", 
+        FOODEX2_INGR_CODE == "A00KR#F01.A05HR" ~ "C042", 
+        FOODEX2_INGR_CODE == "A00KR#F01.A0EDH" ~ "D060", 
+        FOODEX2_INGR_CODE == "A00KR#F26.A07XE" ~ "C079", 
+        FOODEX2_INGR_CODE == "A00KX" ~ "C025", 
+        FOODEX2_INGR_CODE == "A00LV" ~ "C068", 
+        FOODEX2_INGR_CODE == "A00MB" ~ "C031", 
+        FOODEX2_INGR_CODE == "A00MJ" ~ "C033", 
+        FOODEX2_INGR_CODE == "A00NV#F10.A0F2Q" ~"C018", 
+        FOODEX2_INGR_CODE == "A00QH" ~ "F002",
+        FOODEX2_INGR_CODE == "A00XF" ~ "G009", 
+        FOODEX2_INGR_CODE == "A00XG" ~ "G010", 
+        FOODEX2_INGR_CODE == "A00XH" ~ "C107", 
+        FOODEX2_INGR_CODE == "A00XZ" ~ "C107", 
+        FOODEX2_INGR_CODE == "A00ZQ#F27.A00JB" ~ "G022", 
+        FOODEX2_INGR_CODE == "A012J" ~ "B028", 
+        FOODEX2_INGR_CODE == "A012J#F28.A07GY" ~ "None",
+        FOODEX2_INGR_CODE == "A01BY" ~ "E033", 
+        FOODEX2_INGR_CODE == "A01CR" ~ "E095",          
+        FOODEX2_INGR_CODE == "A01DJ" ~ "E001", 
+        FOODEX2_INGR_CODE == "A01DX#F10.A0F2Q" ~ "E022", 
+        FOODEX2_INGR_CODE == "A01EP" ~ "E103", 
+        FOODEX2_INGR_CODE == "A01HF#F10.A166Y" ~ "E019", 
+        FOODEX2_INGR_CODE == "A01JJ" ~ "E069", 
+        FOODEX2_INGR_CODE == "A01KB" ~ "E031", 
+        FOODEX2_INGR_CODE == "A01LC#F10.A07XL" ~ "E009", 
+        FOODEX2_INGR_CODE == "A01LF#F10.A07XL" ~ "E036", 
+        FOODEX2_INGR_CODE == "A01LF#F10.A0F2Q" ~ "D057", 
+        FOODEX2_INGR_CODE == "A01LH" ~ "E055", 
+        FOODEX2_INGR_CODE == "A01LR" ~ "E030", 
+        FOODEX2_INGR_CODE == "A01ME" ~ "E057", 
+        FOODEX2_INGR_CODE == "A01MF" ~ "E017", 
+        FOODEX2_INGR_CODE == "A01MK#F03.A06JD" ~"G037" , 
+        FOODEX2_INGR_CODE == "A01QE#F01.A05XA" ~ "G036", 
+        FOODEX2_INGR_CODE == "A05FY" ~ "C008", 
+        FOODEX2_INGR_CODE == "A0CGD" ~ "E028", 
+        FOODEX2_INGR_CODE == "A0CGZ#F26.A07XE" ~"G015", 
+        FOODEX2_INGR_CODE == "A0DEM" ~ "D062", 
+        FOODEX2_INGR_CODE == "A0DFE" ~ "D046", 
+        FOODEX2_INGR_CODE == "A0DJT" ~ "C009", 
+        FOODEX2_INGR_CODE == "A0DLX" ~ "D060", 
+        FOODEX2_INGR_CODE == "A0DLY" ~ "D054", 
+        FOODEX2_INGR_CODE == "A0DMK" ~ "D033", 
+        FOODEX2_INGR_CODE == "A0DMX#F10.A07XL" ~ "D076", 
+        FOODEX2_INGR_CODE == "A0DMX#F10.A0F2Q" ~ "D074", 
+        FOODEX2_INGR_CODE == "A0DYS" ~ "E088"
       )
-  ) 
-  # dplyr::ungroup() %>% 
-  # dplyr::select(
-  #   ifct19_code, 
-  #   total_item_consumed_g,
-  #   INGREDIENT_ENG
-  # )
+  ) %>% 
+  dplyr::ungroup() %>%
+  dplyr::select(
+    ifct19_code,
+    total_item_consumed_g,
+    INGREDIENT_ENG, 
+    FOODEX2_INGR_CODE
+  )
 
 
 
@@ -271,7 +276,9 @@ nnmb_fruit_veg_consumption <-
 unmatched_items <- food_item_names %>% 
   dplyr::filter(
     is.na(IFCT_code)
-  ) %>% 
+  )
+
+mixed_items <- unmatched_items%>% 
   dplyr::mutate(
     IFCT_code =
       dplyr::case_when(
@@ -738,10 +745,7 @@ unmatched_items <- food_item_names %>%
   tidyr::separate_rows(
     IFCT_code
   )%>% 
-  #join the fct
-  dplyr::left_join(
-    IN17, by = c("IFCT_code" = "food_code")
-  ) %>% 
+  
   # %>% 
   #group to then take the average per NSSO food item
   # note this can be supstituted by a better method
@@ -749,24 +753,92 @@ unmatched_items <- food_item_names %>%
     Item_Code, item_name
   ) %>%
   
-  dplyr::left_join(nnmb_animal_sourced_consumption, by = c("IFCT_code" = "ifct19_code")) %>% 
+  dplyr::left_join(
+    dplyr::bind_rows(nnmb_animal_sourced_consumption,nnmb_fruit_veg_consumption),
+    by = c("IFCT_code" = "ifct19_code")) %>% 
+  #join the fct
+  dplyr::left_join(
+    IN17, by = c("IFCT_code" = "food_code")
+  ) %>% 
+  # add vb12 from a composite list (IFCT doesn't have b12)
+  dplyr::left_join(
+    vb12_fct %>% dplyr::select(
+      FOODEX2_INGR_CODE,
+      vitaminb12_in_mg
+    ),
+    by = "FOODEX2_INGR_CODE"
+  ) %>% 
   dplyr::select(
-    -c(IFCT_code,ifct_name,food_unit,conversion_factor,food_name,INGREDIENT_ENG)
+    -c(IFCT_code,ifct_name,food_unit,conversion_factor,food_name,INGREDIENT_ENG,FOODEX2_INGR_CODE)
   ) %>%
   dplyr::mutate(
     dplyr::across(
       everything(),
       ~tidyr::replace_na(.x,0)
-    ))
-  # )  %>% 
-  # 
-  # 
-  # 
-  # 
-  # dplyr::summarise(
-  #   dplyr::across(
-  #     everything(),
-  #     ~weighted.mean(x = .x, w = total_item_consumed_g, na.rm = TRUE)
-  #     
-  #   )
-  # )
+  )) 
+
+
+weighted_ave <- mixed_items%>%
+  dplyr::filter(
+    total_item_consumed_g>0
+  ) %>%
+  dplyr::summarise(
+    dplyr::across(
+      everything(),
+      ~weighted.mean(x = .x, w = total_item_consumed_g, na.rm = TRUE)
+
+    )
+  ) %>% 
+  dplyr::select(
+    -total_item_consumed_g
+  )
+
+normal_ave <- mixed_items %>% 
+  dplyr::anti_join(weighted_ave, by = "Item_Code") %>% 
+  dplyr::filter(
+    total_item_consumed_g==0 
+  ) %>%
+  dplyr::summarise(
+    dplyr::across(
+      everything(),
+     ~mean(., na.rm = TRUE)
+      
+    )
+  ) %>% 
+  dplyr::select(
+    -total_item_consumed_g
+  )
+
+
+print(dplyr::anti_join(unmatched_items, mixed_items, by = "Item_Code"), n =29)
+
+
+# creating a final FCT with the directly matched data and averaged data
+
+final_fct <- food_item_names %>% 
+  dplyr::filter(
+    !is.na(IFCT_code)
+  ) %>% 
+  dplyr::left_join(IN17, by = c("IFCT_code" = "food_code")) %>% 
+  dplyr::select(
+    -c(IFCT_code,ifct_name,food_unit,conversion_factor,food_name)
+  ) %>% 
+  dplyr::mutate(
+    vitaminb12_in_mg = 0
+  ) %>% 
+  dplyr::bind_rows(
+    normal_ave
+  ) %>% 
+  dplyr::bind_rows(
+    weighted_ave
+  )
+
+final_fct
+
+dplyr:: anti_join(final_fct, food_item_names, by = "Item_Code")
+
+path_to_save = here::here("India_analysis/data/processed/")
+write_csv(final_fct, paste0(path_to_save,"matched_fct.csv"))
+
+
+rm(list= ls())
