@@ -54,12 +54,14 @@ food_item_names <- food_item_names %>%
   dplyr::filter(
     Item_Code < 300 #filter out tobacco, alcohol and fuels
       # stringr::str_detect(item_name, "s.t") == FALSE
-    ) %>% dplyr::filter( stringr::str_detect(item_name, "s.t") == FALSE)
+    ) %>% 
+  dplyr::filter( stringr::str_detect(item_name, "s.t") == FALSE) 
 
 
 #convert the non-standard units
 
 non_standard_units <- food_item_names %>% 
+  dplyr::filter( stringr::str_detect(food_unit,"Kg|kg") == FALSE) %>% 
   dplyr::filter(is.na(conversion_factor)) %>% 
   dplyr::mutate(
     conversion_factor = 
@@ -72,15 +74,25 @@ non_standard_units <- food_item_names %>%
         Item_Code == 174 ~ 1, #candy
         Item_Code == 175 ~ 1, #Honey
         #items with units of no. 
-        Item_Code == 190 ~ 0.053, #eggs, USDA match
-        Item_Code == 216 ~ 0.054, #lemon, USDA match
-        Item_Code == 220 ~ 0.115, #Banana, USDA
-        Item_Code == 228 ~ 0.14, #Orange, USDA
-        Item_Code == 223 ~ 0.905, #Pineapple, USDA
-        Item_Code == 160 ~ 1.05 #cow's milk, USDA
+        Item_Code == 190 ~ 053, #eggs, USDA match
+        Item_Code == 216 ~ 054, #lemon, USDA match
+        Item_Code == 220 ~ 115, #Banana, USDA
+        Item_Code == 228 ~ 14, #Orange, USDA
+        Item_Code == 223 ~ 905, #Pineapple, USDA
+        Item_Code == 160 ~ 1.05, #cow's milk, USDA
+        Item_Code == 270 ~ 200, #tea, assuming a cup of tea is 200ml
+        Item_Code == 272 ~ 200, #coffee, as above
+        Item_Code == 224 ~ 980, #dry coconuts - Varghese et al., "A Study of Physical 
+                                #and Mechanical Properties of the Indian Coconut for Efficient Dehusking"
+        Item_Code == 225 ~ 1300, # green coconuts
         
       )
+  ) %>% 
+  dplyr::select(
+    Item_Code,item_name,
+    conversion_factor
   )
+
 
 
 
@@ -777,7 +789,7 @@ mixed_items <- unmatched_items%>%
       ~tidyr::replace_na(.x,0)
   )) 
 
-
+# take weighted averages of items corresponding to NNMB
 weighted_ave <- mixed_items%>%
   dplyr::filter(
     total_item_consumed_g>0
@@ -792,6 +804,8 @@ weighted_ave <- mixed_items%>%
   dplyr::select(
     -total_item_consumed_g
   )
+
+# take normal average of other items that are not matched directly
 
 normal_ave <- mixed_items %>% 
   dplyr::anti_join(weighted_ave, by = "Item_Code") %>% 
@@ -810,7 +824,7 @@ normal_ave <- mixed_items %>%
   )
 
 
-print(dplyr::anti_join(unmatched_items, mixed_items, by = "Item_Code"), n =29)
+# print(dplyr::anti_join(unmatched_items, mixed_items, by = "Item_Code"), n =29)
 
 
 # creating a final FCT with the directly matched data and averaged data
@@ -824,20 +838,26 @@ final_fct <- food_item_names %>%
     -c(IFCT_code,ifct_name,food_unit,conversion_factor,food_name)
   ) %>% 
   dplyr::mutate(
-    vitaminb12_in_mg = 0
+    vitaminb12_in_mg = ifelse(Item_Code == 190, 2.7, 0)#UKFCT
   ) %>% 
   dplyr::bind_rows(
     normal_ave
   ) %>% 
   dplyr::bind_rows(
     weighted_ave
-  )
+  ) %>% 
+  dplyr::group_by(Item_Code) %>%
+  dplyr::slice(1) %>% 
+  dplyr::ungroup() 
+  
 
-final_fct
+final_fct 
+  
 
 dplyr:: anti_join(final_fct, food_item_names, by = "Item_Code")
 
 path_to_save = here::here("India_analysis/data/processed/")
+write_csv(non_standard_units, paste0(path_to_save, "conversion_factors.csv"))
 write_csv(final_fct, paste0(path_to_save,"matched_fct.csv"))
 
 
