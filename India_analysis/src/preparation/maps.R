@@ -1,0 +1,273 @@
+## Map building
+
+load(here::here("India_analysis/src/processing/data_validation"))
+library(tmap)
+library(tidyr)
+library(readr)
+library(sf)
+library(rmapshaper)
+library(readxl)
+library(here)
+library(ggplot2)
+library(hrbrthemes)
+library(wesanderson)
+library(srvyr)
+library(treemap)
+library(treemapify)
+library(ggridges)
+library(gt)
+
+base_model <- read_csv(here::here("India_analysis/data/final/base_model.csv"))
+india_adm2 <- st_read(here::here("India_analysis/data/processed/district_shape.shp"))
+india_adm1 <- st_read(here::here("India_analysis/data/processed/state_shape.shp"))
+# x <-  india_adm2%>% dplyr::anti_join(base_model, by = c("Dstrct_c" = "District_code"))
+
+# create average intakes at adm2 level 
+nin_ear <- data.frame(
+  energy_kcal = 2130,
+  vita_mg  = 390, 
+  vitb1_mg = 1.4,
+  vitb2_mg = 2.0, 
+  vitb3_mg = 12, 
+  vitb5_mg = 4,#from allen 2020
+  vitb6_mg = 1.6, 
+  folate_ug = 180, 
+  vitaminb12_in_mg = 2, 
+  iron_mg = 15, 
+  calcium_mg = 800, 
+  zinc_mg = 11
+)
+
+
+sw_mean_intake <- base_model %>% 
+  dplyr::left_join(
+    household_characteristics %>% 
+      dplyr::select(
+        HHID, Combined_multiplier
+      ), by = "HHID"
+  ) %>% 
+  dplyr::mutate(
+    energy_kcal = ifelse(energy_kcal<nin_ear$energy_kcal, 
+                         energy_kcal/nin_ear$energy_kcal,
+                         1),
+    vita_mg = ifelse(vita_mg<nin_ear$vita_mg, 
+                     vita_mg/nin_ear$vita_mg,
+                         1),
+    vitb1_mg = ifelse(vitb1_mg<nin_ear$vitb1_mg, 
+                      vitb1_mg/nin_ear$vitb1_mg,
+                         1),
+    vitb2_mg = ifelse(vitb2_mg<nin_ear$vitb2_mg, 
+                      vitb2_mg/nin_ear$vitb2_mg,
+                         1),
+    vitb3_mg = ifelse(vitb3_mg<nin_ear$vitb3_mg, 
+                      vitb3_mg/nin_ear$vitb3_mg,
+                         1),
+    vitb5_mg = ifelse(vitb5_mg<nin_ear$vitb5_mg, 
+                      vitb5_mg/nin_ear$vitb5_mg,
+                         1),
+    vitb6_mg = ifelse(vitb6_mg<nin_ear$vitb6_mg, 
+                      vitb6_mg/nin_ear$vitb6_mg,
+                         1),
+    folate_ug = ifelse(folate_ug<nin_ear$folate_ug, 
+                       folate_ug/nin_ear$folate_ug,
+                         1),
+    vitaminb12_in_mg = ifelse(vitaminb12_in_mg<nin_ear$vitaminb12_in_mg, 
+                              vitaminb12_in_mg/nin_ear$vitaminb12_in_mg,
+                         1),
+    iron_mg = ifelse(iron_mg<nin_ear$iron_mg, 
+                     iron_mg/nin_ear$iron_mg,
+                         1),
+    calcium_mg= ifelse(calcium_mg<nin_ear$calcium_mg, 
+                       calcium_mg/nin_ear$calcium_mg,
+                       1),
+    zinc_mg = ifelse(zinc_mg<nin_ear$zinc_mg, 
+                     zinc_mg/nin_ear$zinc_mg,
+                    1)
+  ) %>% 
+  srvyr::as_survey_design(id = HHID, strata = District_code, 
+                          weights = Combined_multiplier, nest=T) %>% 
+  srvyr::group_by(District_code) %>% 
+  srvyr::summarise(
+    srvyr::across(-c(HHID,State_code, State_name,Combined_multiplier),
+                  ~mean(.))
+  ) %>% 
+  dplyr::left_join(
+    india_adm2, 
+    by = c("District_code" = "Dstrct_c")
+  ) %>% 
+  st_as_sf()
+  
+
+
+# showing which states we are using
+
+india_sp <- india_adm1 %>%
+  dplyr::mutate(
+    state = ifelse(NAME_1%in%c("Uttar Pradesh", "Bihar", "Chhattisgarh"),
+                   1,
+                   0
+  ))
+  st_as_sf()
+
+
+
+
+
+
+
+# Create maps: 
+  india_co <- tm_shape(india_sp) + 
+    tm_fill(col = "state") +
+    tm_layout(main.title = "", frame = F,
+              main.title.size = 0.8) +
+    tm_borders(col = "black", lwd = 0.7) +
+    tm_legend(show = F)
+
+
+breaks <- c(0, 0.20,0.4, 0.6, 0.8, 1)
+# rm(breaks)
+# Rice
+energy_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "energy_kcal", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Energy", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+energy_adm2
+
+# Wheat flour
+vita_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "vita_mg", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Vitamin A", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+vita_adm2
+
+# Maize flour: 
+vitb1_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "vitb1_mg", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Vitamin B1", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+vitb1_adm2
+
+
+vitb2_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "vitb2_mg", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Vitamin B2", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+vitb2_adm2
+
+
+vitb3_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "vitb3_mg", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Vitamin B3", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+vitb3_adm2
+
+
+
+vitb5_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "vitb5_mg", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Vitamin B5", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+vitb5_adm2
+
+
+vitb6_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "vitb6_mg", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Vitamin B6", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+vitb6_adm2
+
+
+folate_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "folate_ug", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Folate", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+folate_adm2
+
+vitb12_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "vitaminb12_in_mg", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Vitamin B12", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+vitb12_adm2
+
+iron_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "iron_mg", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Iron", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+iron_adm2
+
+
+calcium_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "calcium_mg", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Calcium", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+calcium_adm2
+
+zinc_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "zinc_mg", breaks = breaks, palette = "-Blues") +
+  tm_layout(main.title = "Zinc", frame = F,
+            main.title.size = 0.8) +
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_legend(show = F)
+
+zinc_adm2
+
+# legend: 
+legend_adm2 <- tm_shape(sw_mean_intake) + 
+  tm_fill(col = "zinc_mg", breaks = breaks, palette = "-Blues",
+          title = "Nurtient Adequacy Ratio",
+          labels = c("0-20%", "20-40%", "40-60%", "60-80%", "80-100%"),
+          textNA = "Missing Data",
+          colorNA = "gray35") +
+  tm_layout(legend.only = T,
+            legend.position = c("center", "center"),
+            legend.width = 1,
+            legend.height = 1) +
+  tm_compass(north = 0, type = "arrow")
+
+legend_adm2
+
+
+# Integrate these mapsand legend into a single figure: 
+
+nar_adm2 <- list(energy_adm2, vita_adm2, vitb1_adm2, vitb2_adm2,
+                 vitb3_adm2,vitb5_adm2,vitb6_adm2,folate_adm2,vitb12_adm2,
+                 iron_adm2,calcium_adm2,zinc_adm2,legend_adm2,india_co)
+
+nar_adm2 <- tmap_arrange(nar_adm2, ncol = 4, sync = TRUE)
+
+nar_adm2
+
+tmap_save(nar_adm2, "nar_adm2.png", height = 4.5, width = 7)
