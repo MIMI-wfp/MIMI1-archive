@@ -38,6 +38,7 @@ block_5_6_food_consumption <- block_5_6_food_consumption %>%
                 Total_Consumption_Value) 
 head(block_5_6_food_consumption)
 
+# raw data
 # find any food items in odd units
 
 food_item_names <- food_item_names %>% 
@@ -47,6 +48,7 @@ food_item_names <- food_item_names %>%
     ) %>% 
   dplyr::mutate(
     conversion_factor = ifelse(stringr::str_detect(food_unit,"Kg|kg") == TRUE, 1,
+                               #isolate the unit of measurement where it exists
                          ifelse(stringr::str_detect(food_unit,"\\gm")== TRUE, 0.001, 
                                 NA))
                                 # ifelse(stringr::str_detect(item_name))))
@@ -59,7 +61,6 @@ food_item_names <- food_item_names %>%
 
 
 #convert the non-standard units
-
 non_standard_units <- food_item_names %>% 
   dplyr::filter( stringr::str_detect(food_unit,"Kg|kg") == FALSE) %>% 
   dplyr::filter(is.na(conversion_factor)) %>% 
@@ -91,25 +92,7 @@ non_standard_units <- food_item_names %>%
   dplyr::select(
     Item_Code,item_name,
     conversion_factor
-  )
-
-
-
-
-block_5_6_food_consumption %>% dplyr::select(HHID,Item_Code, Total_Consumption_Quantity) %>% 
-  dplyr::filter(Item_Code == 175)
-  
-# block_4_demog %>% dplyr::select(HHID,Person_sr_no) %>% 
-#   dplyr::filter(HHID == 741431101) 
-
-
-# head(non_standard_units)
-  #   
-
-
-# 'Other' items
-
-
+  )#just provides 
 
 
 
@@ -143,6 +126,8 @@ nnmb_animal_sourced_consumption <-
     dplyr::left_join(
       gdqs, by = "FOODEX2_INGR_CODE"
     ) %>%
+  # at this stage, we have the NNMB food item list combined with gdqs food group 
+  # information which will then manually be mapped to codes from IFCT2017
     dplyr::filter(
       g18_red_meat == 1 |
       g13_fish == 1 |
@@ -176,8 +161,10 @@ nnmb_animal_sourced_consumption <-
     total_item_consumed_g,
     INGREDIENT_ENG,
     FOODEX2_INGR_CODE
-  )
+  )#creates mapping for 
  
+
+## mapping fruits and vegetables from NNMB to NSSO
 nnmb_fruit_veg_consumption <- 
   nnmb_food_consumption %>% 
   dplyr::select(
@@ -284,12 +271,20 @@ nnmb_fruit_veg_consumption <-
 
 
 # Matching composite items using NNMB ------------------------------------------ 
+# isolating the items that were not directly manually matched from the 
+# NSSO food item list to the IFCT2017. 
 
 unmatched_items <- food_item_names %>% 
   dplyr::filter(
     is.na(IFCT_code)
   )
 
+#for items on the NSSO food item list which are broad/mixed items 
+#(such as goat meat rather than a specific muscle), I am mutating 
+# the match from the single code to all the items that are related
+# this results in a very long function that should be minimised
+
+# mixed items ##############################################################
 mixed_items <- unmatched_items%>% 
   dplyr::mutate(
     IFCT_code =
@@ -801,15 +796,12 @@ mixed_items <- unmatched_items%>%
   tidyr::separate_rows(
     IFCT_code
   )%>% 
-  
-  # %>% 
   #group to then take the average per NSSO food item
   # note this can be supstituted by a better method
   dplyr::group_by(
     Item_Code, item_name
   ) %>%
-  
-  dplyr::left_join(
+    dplyr::left_join(
     dplyr::bind_rows(nnmb_animal_sourced_consumption,nnmb_fruit_veg_consumption),
     by = c("IFCT_code" = "ifct19_code")) %>% 
   #join the fct
@@ -833,7 +825,8 @@ mixed_items <- unmatched_items%>%
       ~tidyr::replace_na(.x,0)
   )) 
 
-# take weighted averages of items corresponding to NNMB
+## calculated averages #######################################################
+### Weighted Average ---------------------------------------------------------
 weighted_ave <- mixed_items%>%
   dplyr::filter(
     total_item_consumed_g>0
@@ -849,7 +842,7 @@ weighted_ave <- mixed_items%>%
     -total_item_consumed_g
   )
 
-# take normal average of other items that are not matched directly
+### standardard average ----------------------------------------------------
 
 normal_ave <- mixed_items %>% 
   dplyr::anti_join(weighted_ave, by = "Item_Code") %>% 
@@ -860,7 +853,6 @@ normal_ave <- mixed_items %>%
     dplyr::across(
       everything(),
      ~mean(., na.rm = TRUE)
-      
     )
   ) %>% 
   dplyr::select(
@@ -872,8 +864,10 @@ x <- mixed_items %>%
 
 # print(dplyr::anti_join(unmatched_items, mixed_items, by = "Item_Code"), n =29)
 
-
+# Final FCT ------------------------------------------------------------------
 # creating a final FCT with the directly matched data and averaged data
+# this creates a data frame that maps all proper food items from the NSSO 2012
+# to the IFCT2017
 
 final_fct <- food_item_names %>% 
   dplyr::filter(
@@ -917,4 +911,4 @@ write_csv(final_fct, paste0(path_to_save,"matched_fct.csv"))
 # )
 
 
-# rm(list= ls())
+rm(list= ls())

@@ -1,4 +1,9 @@
 ### Validating the intake data
+### This script reads in the consumption data and demographic data from 
+### the NSSO 2012 and maps it to the IFCT2017. 
+### AFE for each hh is calculated
+### Food intake data is validated through looking at the distributions.
+### Micronutrient intake distributions are also plotted
 
 library(tidyr)
 library(readr)
@@ -45,7 +50,7 @@ sum_or_function <- function(x){
 # can now aggregate by HH or by individual item to test and validate
 # distributions of key food items and micronutrients
 
-#### Calculate daily consumption per household --------------
+#### Calculate daily consumption per household -----------------------------
 
 daily_food_items_consumed <- consumption %>% 
   dplyr::left_join(
@@ -54,6 +59,7 @@ daily_food_items_consumed <- consumption %>%
   dplyr::left_join(
     conversion, by = c("Item_Code", "item_name")
   ) %>% 
+  #split the name withou the unit of consumption
   dplyr::mutate(
     item_name = stringr::str_split_i(item_name,"\\(", 1)
   ) %>% 
@@ -66,6 +72,7 @@ daily_food_items_consumed <- consumption %>%
     household_characteristics %>% dplyr::select(HHID, District_code),
     by = "HHID"
   ) %>% 
+  #create state name
   dplyr::mutate(
     quantity_100g = Total_Consumption_Quantity/100,
     State_name = dplyr::case_when(
@@ -77,10 +84,10 @@ daily_food_items_consumed <- consumption %>%
   dplyr::select(
     -c( Home_Produce_Quantity,Home_Produce_Value,Total_Consumption_Quantity,Total_Consumption_Value)
   ) %>% 
-  dplyr::filter(
-    !is.na(item_name) &
-      !is.na(quantity_100g)
-  ) %>% 
+  # dplyr::filter(
+  #   !is.na(item_name) &
+  #     !is.na(quantity_100g)
+  # ) %>% 
   dplyr::mutate(
     dplyr::across(
       -c(item_name, Item_Code, State_code, District_code, HHID, quantity_100g, State_name),
@@ -101,9 +108,24 @@ daily_food_items_consumed <- consumption %>%
 # All adults are assumed to have moderate energy expenditure
 # Men are assumed to have 65 kg and women 55 kg
 
+
+children_under_2 <- demographics %>% 
+  dplyr::group_by(HHID) %>% 
+  dplyr::summarise(
+    under_2 = factor(ifelse(
+      sum(Age < 2) >= 1,
+      1,
+      0
+    )
+    )
+  )
+
+summary(children_under_2)
+
 adult_female_requirement <- 2130
 
 demographics <- demographics %>%
+  dplyr::left_join(children_under_2, by = "HHID") %>% 
   dplyr::mutate(
     energy_requirement = 
       dplyr::case_when(
@@ -115,7 +137,10 @@ demographics <- demographics %>%
         Age < 16 ~ ifelse(Sex == "Male", 2860, 2400),
         Age < 18 ~ ifelse(Sex == "Male", 2860, 2400),
         Age >= 18 ~ ifelse(Sex == "Male", 2710,
-                           2130)# can add in a lactating condition if needed
+                           ifelse(Age<50, 2130,
+                            ifelse(under_2 == 0, 
+                                  2130,
+                                  2690)))# can add in a lactating condition if needed
       ) 
   ) %>% 
   dplyr::mutate(
@@ -134,6 +159,18 @@ household_afe <-
       capita = dplyr::n(),
       afe = sum(afe)
     )
+
+#check that capita and afe are not mapped completely wrong
+
+household_afe %>% 
+  dplyr::mutate(
+    ratio = capita/afe
+  ) %>% 
+  ggplot(aes(x = capita, y = afe)) + 
+  geom_point(alpha = 0.8, color = "darkblue") + 
+  geom_abline(intercept = 0, slope =1)+
+  labs(x = "Capita", y = "AFE") +
+  theme_ipsum()
 
 #### Distributions #############################################################
 
@@ -175,7 +212,7 @@ food_items_grouped <- daily_food_items_consumed %>%
 food_items_grouped %>%
   dplyr::ungroup() %>%
   dplyr::filter(Item_Code == 160) %>%
-  dplyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
+  # dplyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
   ggplot(aes(x = quantity_g)) +
   geom_histogram()
 
@@ -187,8 +224,9 @@ food_item_summary_state <- food_items_grouped %>%
                      dplyr::select(HHID, Combined_multiplier), by = "HHID") %>% 
   srvyr::as_survey_design(id = HHID, strata = State_code, weights = Combined_multiplier, nest=T) %>% 
   srvyr::group_by(Item_Code, item_name, State_code, hdds_groups) %>% 
-  srvyr::filter(quantity_g<stats::quantile(quantity_g, 0.999, na.rm = TRUE)[[1]]) %>%
+  # srvyr::filter(quantity_g<stats::quantile(quantity_g, 0.999, na.rm = TRUE)[[1]]) %>%
   srvyr::summarise(mean_g = mean(quantity_g),
+                   median_g = median(quantity_g),
                    low_95 = mean(quantity_g)-1.96*sd(quantity_g)/sqrt(dplyr::n()),
                    up_95 = mean(quantity_g)+1.96*sd(quantity_g)/sqrt(dplyr::n()),
                    n_hh_consumed = dplyr::n(),
@@ -200,7 +238,7 @@ food_item_summary <- food_items_grouped %>%
                      dplyr::select(HHID, Combined_multiplier), by = "HHID") %>% 
   srvyr::as_survey_design(id = HHID, weights = Combined_multiplier, nest=T) %>% 
   srvyr::group_by(Item_Code, item_name, hdds_groups) %>% 
-  srvyr::filter(quantity_g<stats::quantile(quantity_g, 0.999, na.rm = TRUE)[[1]]) %>%
+  srvyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
   srvyr::summarise(mean_g = mean(quantity_g),
                    low_95 = mean(quantity_g)-1.96*sd(quantity_g)/sqrt(dplyr::n()),
                    up_95 = mean(quantity_g)+1.96*sd(quantity_g)/sqrt(dplyr::n()),
@@ -268,7 +306,7 @@ food_item_summary %>%
 
 food_item_summary %>% 
   dplyr::filter(
-    hdds_groups%in%c("C_vegetables","D_fruits")
+    hdds_groups%in%c("C_vegetables")
     
   ) %>% 
   dplyr::ungroup() %>% 
@@ -285,7 +323,7 @@ food_item_summary %>%
               source_notes.font.size = 10,
               #source_notes.
               table.font.size = 11) |>
-  tab_header(title = "Intake of Fruits and Vegetables",
+  tab_header(title = "Intake of  Vegetables",
   )|>
   cols_label(
     item_name = "Food item",
@@ -337,6 +375,18 @@ groups[[1]] %>%
   scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
   facet_wrap(facets = vars(item_name)) +
   theme_ridges() +
+  labs(title = "Cereals")+
+  ylab("") +
+  xlab("Quantity (g)")
+
+groups[[3]] %>% 
+  dplyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
+  ggplot(aes(x = quantity_g, y= State_name, fill = State_name)) +
+  geom_density_ridges(stat = "binline", show.legend = FALSE) +
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
+  facet_wrap(facets = vars(item_name)) +
+  theme_ridges() +
+  labs(title = "Vegetables")+
   ylab("") +
   xlab("Quantity (g)")
 
@@ -353,6 +403,7 @@ groups[[5]] %>%
   scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
   facet_wrap(facets = vars(item_name)) +
   theme_ridges() +
+  labs(title = "Animal sourced foods")+
   ylab("") +
   xlab("Quantity (g)")
 
@@ -434,11 +485,12 @@ micronutrient_distributions <- food_items_grouped %>%
     )
   ) %>% 
   #calculate the per capita consumption to play with the data
-  dplyr::ungroup() %>% 
+  dplyr::ungroup()%>%
   dplyr::filter(
-    energy_kcal<stats::quantile(energy_kcal, 0.99, na.rm = TRUE)[[1]]
-  ) 
+    energy_kcal<stats::quantile(energy_kcal, 0.999, na.rm = TRUE)[[1]]
+  )
 
+  
 write_csv(micronutrient_distributions, here::here(
   "India_analysis/data/final/base_model.csv"
 ))
@@ -505,9 +557,13 @@ for(item in micronutrients){
   mn_plots_list[[item]] <- p1
 }
 
-subtitle <- cowplot::ggdraw() + 
-  cowplot::draw_label(  "Red line is EAR for an adult woman", type = "title")
+# subtitle <- cowplot::ggdraw() + 
+#   cowplot::draw_label(  "Red line is EAR for an adult woman", type = "title")
 cowplot::plot_grid(plotlist = mn_plots_list)
+
+
+
+  
 
 
 
@@ -546,15 +602,21 @@ means_micronutrient_state <- micronutrient_distributions %>%
   dplyr::left_join(
     household_characteristics %>% 
       dplyr::select(
-        HHID, Combined_multiplier
+        HHID, Subsample_multiplier
       ), by = "HHID"
-  ) %>% 
-  srvyr::as_survey_design(id = HHID, strata = State_code, weights = Combined_multiplier, nest=T) %>% 
-  srvyr::group_by(State_name) %>% 
+   ) %>%
+  srvyr::as_survey_design(id = HHID, strata = State_code, weights = Subsample_multiplier, nest=T) %>%
+  srvyr::group_by(State_name) %>%
   srvyr::summarise(
-    srvyr::across(-c(HHID,State_code, District_code,Combined_multiplier),
-                  ~mean(.))
-  )
+    srvyr::across(-c(HHID,State_code, District_code,Subsample_multiplier),
+                  .fns = list(
+                    mean = ~mean(.x, na.rm = TRUE), 
+                    sd = ~sd(.x, na.rm = TRUE), 
+                    se = ~sd(.x, na.rm = TRUE)/sqrt(length(.x)),
+                    # n = ~dplyr::n(),
+                    ci_l = ~mean(.x, na.rm = TRUE) - (1.96 * sd(.x, na.rm = TRUE)/sqrt(dplyr::n())),
+                    ci_u = ~mean(.x, na.rm = TRUE) + (1.96 * sd(.x, na.rm = TRUE)/sqrt(dplyr::n())))))
+  
   
 
 

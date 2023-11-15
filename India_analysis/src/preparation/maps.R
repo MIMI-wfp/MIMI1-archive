@@ -1,6 +1,6 @@
 ## Map building
 
-load(here::here("India_analysis/src/processing/data_validation"))
+# load(here::here("India_analysis/src/processing/data_validation"))
 library(tmap)
 library(tidyr)
 library(readr)
@@ -43,7 +43,7 @@ sw_mean_intake <- base_model %>%
   dplyr::left_join(
     household_characteristics %>% 
       dplyr::select(
-        HHID, Combined_multiplier
+        HHID, Combined_multiplier, HH_Type_code
       ), by = "HHID"
   ) %>% 
   dplyr::mutate(
@@ -85,8 +85,22 @@ sw_mean_intake <- base_model %>%
                     1)
   ) %>% 
   srvyr::as_survey_design(id = HHID, strata = District_code, 
-                          weights = Combined_multiplier, nest=T) %>% 
+                          weights = Combined_multiplier, nest=T)
+
+sw_mean_intake_district_tot <- sw_mean_intake %>% 
   srvyr::group_by(District_code) %>% 
+  srvyr::summarise(
+    srvyr::across(-c(HHID,State_code, State_name,Combined_multiplier),
+                  ~mean(.))
+  ) %>% 
+  dplyr::left_join(
+    india_adm2, 
+    by = c("District_code" = "Dstrct_c")
+  ) %>% 
+  st_as_sf()
+
+sw_mean_intake_district_urb_rural <- sw_mean_intake %>%
+  srvyr::group_by(District_code, HH_Type_code) %>% 
   srvyr::summarise(
     srvyr::across(-c(HHID,State_code, State_name,Combined_multiplier),
                   ~mean(.))
