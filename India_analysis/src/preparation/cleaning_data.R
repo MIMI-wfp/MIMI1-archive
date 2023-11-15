@@ -41,22 +41,25 @@ plot(state$geometry)
 
 
 # Collecting names of the districts from the NSSO data to match with names of shape file
-# district_names <- block_1_2_identification %>% dplyr::select(State_code, District_code) %>% dplyr::group_by(State_code, District_code) %>% 
+# district_names <- block_1_2_identification %>% dplyr::select(State_code, District_code) %>% 
+#   dplyr::group_by(State_code, District_code) %>%
 #   dplyr::summarise()
-# write_csv(district_names, paste0(path_to_file, "district_names.csv" ))
+# # write_csv(district_names, paste0(path_to_file, "district_names.csv" ))
 # district_dict <- read_csv(paste0(path_to_file, "district_names.csv"))
 
 
 # 
-# bmgf_states <- district_dict %>% 
+# bmgf_states <- district_dict %>%
 #   dplyr::left_join(district, by = c("State_code" = "pc11_s_id", "District_name" = "d_name"))
 # plot(bmgf_states$geometry)
 
-
-# dplyr::anti_join(district %>% dplyr::filter(pc11_s_id == "09"), bmgf_states)
-# write a shape file
-# write_sf(bmgf_states, "./India_analysis/data/processed/district_shape.shp")
+# x_name$d_name %in% bmgf_states$District_name
 # 
+# x_name <- district %>% dplyr::filter(pc11_s_id %in% c("09","10","22"))
+# # dplyr::anti_join(district %>% dplyr::filter(pc11_s_id == "09"), bmgf_states)
+# # write a shape file
+# # write_sf(bmgf_states, "./India_analysis/data/processed/district_shape.shp")
+# write_sf(state, "./India_analysis/data/processed/state_shape.shp")
 
 # household level --------------------------------------------------------------
 
