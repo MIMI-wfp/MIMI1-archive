@@ -78,7 +78,7 @@ non_standard_units <- food_item_names %>%
         Item_Code == 190 ~ 053, #eggs, USDA match
         Item_Code == 216 ~ 054, #lemon, USDA match
         Item_Code == 220 ~ 115, #Banana, USDA
-        Item_Code == 228 ~ 14, #Orange, USDA
+        Item_Code == 228 ~ 140, #Orange, USDA
         Item_Code == 223 ~ 905, #Pineapple, USDA
         Item_Code == 160 ~ 1.05, #cow's milk, USDA
         Item_Code == 270 ~ 200, #tea, assuming a cup of tea is 200ml
@@ -86,7 +86,9 @@ non_standard_units <- food_item_names %>%
         Item_Code == 224 ~ 980, #dry coconuts - Varghese et al., "A Study of Physical 
                                 #and Mechanical Properties of the Indian Coconut for Efficient Dehusking"
         Item_Code == 225 ~ 1300, # green coconuts
-        
+        Item_Code == 280 ~ 100,
+        Item_Code == 281 ~ 100,
+        Item_Code == 282 ~ 100
       )
   ) %>% 
   dplyr::select(
@@ -790,7 +792,10 @@ mixed_items <- unmatched_items%>%
                             A025
                             A030",#millets
         Item_Code == 151 ~ "B001
-                            B002"#besan to bengal gram
+                            B002",#besan to bengal gram
+        Item_Code == 280 ~ "ASC122",
+        Item_Code == 281 ~ "ASC122",
+        Item_Code == 282 ~ "ASC122"
       )
   ) %>% 
   tidyr::separate_rows(

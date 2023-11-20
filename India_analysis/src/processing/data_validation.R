@@ -29,11 +29,9 @@ consumption <- read_csv(paste0(path_to_data, "consumption.csv"))
 demographics <- read_csv(paste0(path_to_data,"demographics.csv"))
 household_characteristics <- read_csv(paste0(path_to_data, "household_char.csv"))
 
-
 india_fct <- read_csv(paste0(path_to_data, "matched_fct.csv"))
 conversion <- read_csv(paste0(path_to_data, "conversion_factors.csv"))
 hdds <- read_csv(here::here("India_analysis", "data", "raw","hdds_nsso.csv"))
-
 
 sum_or_function <- function(x){
   #### TO DO ## explain the function
@@ -50,16 +48,17 @@ sum_or_function <- function(x){
 # can now aggregate by HH or by individual item to test and validate
 # distributions of key food items and micronutrients
 
+
 #### Calculate daily consumption per household -----------------------------
 
-daily_food_items_consumed <- consumption %>% 
+daily_food_items_consumed <-consumption %>% 
   dplyr::left_join(
     india_fct, by = "Item_Code"
   ) %>% 
   dplyr::left_join(
     conversion, by = c("Item_Code", "item_name")
   ) %>% 
-  #split the name withou the unit of consumption
+  #split the name without the unit of consumption
   dplyr::mutate(
     item_name = stringr::str_split_i(item_name,"\\(", 1)
   ) %>% 
@@ -84,19 +83,60 @@ daily_food_items_consumed <- consumption %>%
   dplyr::select(
     -c( Home_Produce_Quantity,Home_Produce_Value,Total_Consumption_Quantity,Total_Consumption_Value)
   ) %>% 
-  # dplyr::filter(
-  #   !is.na(item_name) &
-  #     !is.na(quantity_100g)
-  # ) %>% 
+  dplyr::filter(
+    !is.na(item_name) &
+      !is.na(quantity_100g)
+  ) %>%
   dplyr::mutate(
     dplyr::across(
-      -c(item_name, Item_Code, State_code, District_code, HHID, quantity_100g, State_name),
+      -c(item_name, Item_Code, State_code, District_code, HHID, quantity_100g, State_name, conversion_factor),
       ~.x*quantity_100g/30
     )
   ) %>% 
   dplyr::mutate(
     quantity_100g = quantity_100g/30
-  )
+  ) 
+
+
+#check the energy distribution of households with foods consumed outside the household
+
+meals_consumed_outside_house <-  daily_food_items_consumed%>%
+  dplyr::filter(
+    (HHID %in% daily_food_items_consumed$item_name[daily_food_items_consumed$Item_Code %in% c('280','281', '282')])
+  ) %>% 
+  dplyr::distinct(HHID)
+
+4130/15000
+
+# 
+# daily_food_items_consumed%>%
+#   dplyr::filter(
+#     HHID == "412001101"
+#   )
+# 
+#   
+# 
+# meals_consumed_outside_house %>% 
+#   dplyr::left_join(
+#     household_afe, by = c("HHID")
+#   ) %>%
+#   dplyr::mutate(
+#     dplyr::across(
+#       -c( HHID, State_code,Item_Code,item_name, District_code,capita,afe, State_name),
+#       ~.x/afe
+#     )) %>%
+#   dplyr::ungroup() %>%
+#   dplyr::group_by(HHID) %>%
+#   dplyr::summarise(
+#       energy = sum(energy_kcal,na.rm=TRUE)
+#     ) %>%
+#   dplyr::ungroup() %>%
+#   dplyr::filter(energy <5000) %>% 
+#   ggplot(aes(x = energy))+
+#   geom_histogram()
+
+
+
 
 #### Calculate adult female equivalent per hh -----------------------------------
 
@@ -179,20 +219,19 @@ household_afe %>%
 total_households <- dplyr::n_distinct(daily_food_items_consumed$HHID)
 
 food_items_grouped <- daily_food_items_consumed %>% 
-  dplyr::full_join(
+  dplyr::left_join(
     household_afe, by = c("HHID")
   ) %>%
   dplyr::mutate(
     dplyr::across(
       -c( HHID, State_code,Item_Code,item_name, District_code,capita,afe, State_name),
-      ~.x/afe
+      ~.x/capita
     )) %>% 
   dplyr::group_by(
     Item_Code,
     item_name,
   ) %>% 
   dplyr::mutate(quantity_g = quantity_100g*100) %>% 
-  dplyr::filter(!is.na(State_code)) %>% 
   dplyr::left_join(hdds %>% dplyr::select(-item_name), by = c("Item_Code")) %>% 
   dplyr::group_by(Item_Code, item_name) %>%
   tidyr::pivot_longer(cols = c(A_cereals,B_roots_tubers,C_vegetables,
@@ -207,32 +246,68 @@ food_items_grouped <- daily_food_items_consumed %>%
   # ) %>%
   dplyr::ungroup()
 
+# food_items_grouped %>%
+#   dplyr::ungroup() %>%
+#   dplyr::filter(Item_Code == 160) %>%
+#   # dplyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
+#   ggplot(aes(x = quantity_g)) +
+#   geom_histogram()
+# 
 
 
-food_items_grouped %>%
-  dplyr::ungroup() %>%
-  dplyr::filter(Item_Code == 160) %>%
-  # dplyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
-  ggplot(aes(x = quantity_g)) +
+#### For each household, replace any uncomsumed items with a 0
+
+full_list <- daily_food_items_consumed %>% 
+  dplyr::distinct(HHID, State_code) %>% 
+  dplyr::cross_join(india_fct %>% 
+                      dplyr::mutate(
+                        item_name = stringr::str_split_i(item_name,"\\(", 1)
+                      ) %>% 
+                      dplyr::select(Item_Code, item_name))
+
+# summary of food items consumed
+food_item_summary_state <- 
+  # micronutrient_distributions %>% 
+  # dplyr::select(HHID) %>% 
+  # dplyr::left_join(
+    full_list %>% 
+# ,
+                   # by = "HHID") %>% 
+  dplyr::left_join(food_items_grouped, 
+                   by = c("HHID", "Item_Code","item_name","State_code")) %>% 
+  dplyr::mutate(
+    dplyr::across(
+      -c("HHID", "Item_Code","item_name","State_code","conversion_factor","District_code","quantity_100g" ,"State_name","capita","afe",              
+         "hdds_groups"),
+      ~tidyr::replace_na(.x,0)
+    )
+  ) %>% 
+  dplyr::left_join(household_characteristics %>% 
+                     dplyr::select(HHID, Combined_multiplier), by = "HHID")
+
+
+# create a summary table of the mean intake
+food_item_summary_state %>% 
+  srvyr::as_survey_design(id = HHID, strata = State_code, weights = Combined_multiplier, nest=T) %>% 
+  srvyr::group_by(Item_Code, item_name, State_code) %>% 
+  # srvyr::filter(quantity_g<stats::quantile(quantity_g, 0.999, na.rm = TRUE)[[1]]) %>%
+  srvyr::summarise(mean_g = mean(quantity_g, na.rm = T),
+                   median_g = median(quantity_g, na.rm = T),
+                   low_95 = mean(quantity_g, na.rm = T)-1.96*sd(quantity_g, na.rm = T)/sqrt(dplyr::n()),
+                   up_95 = mean(quantity_g, na.rm = T)+1.96*sd(quantity_g, na.rm = T)/sqrt(dplyr::n()),
+                   
+  )
+
+# this shows we have the same item intake as TATA-NIN
+
+
+food_item_summary_state %>% 
+  dplyr::filter(Item_Code==102 & State_code == "09") %>% 
+  ggplot(aes(quantity_g)) +
   geom_histogram()
 
 
-
-# summary of food items consumed
-food_item_summary_state <- food_items_grouped %>% 
-  dplyr::left_join(household_characteristics %>% 
-                     dplyr::select(HHID, Combined_multiplier), by = "HHID") %>% 
-  srvyr::as_survey_design(id = HHID, strata = State_code, weights = Combined_multiplier, nest=T) %>% 
-  srvyr::group_by(Item_Code, item_name, State_code, hdds_groups) %>% 
-  # srvyr::filter(quantity_g<stats::quantile(quantity_g, 0.999, na.rm = TRUE)[[1]]) %>%
-  srvyr::summarise(mean_g = mean(quantity_g),
-                   median_g = median(quantity_g),
-                   low_95 = mean(quantity_g)-1.96*sd(quantity_g)/sqrt(dplyr::n()),
-                   up_95 = mean(quantity_g)+1.96*sd(quantity_g)/sqrt(dplyr::n()),
-                   n_hh_consumed = dplyr::n(),
-                   perc_hh_consumed = dplyr::n()/total_households*100
-                   )
-
+# not split by state
 food_item_summary <- food_items_grouped %>% 
   dplyr::left_join(household_characteristics %>% 
                      dplyr::select(HHID, Combined_multiplier), by = "HHID") %>% 
@@ -246,6 +321,8 @@ food_item_summary <- food_items_grouped %>%
                    perc_hh_consumed = dplyr::n()/total_households*100
   )
   
+##### Create tables -------------------------------------------------------------
+
 food_item_summary %>% 
   dplyr::filter(
     hdds_groups == "A_cereals"
@@ -414,7 +491,7 @@ groups[[5]] %>%
 # total bar charts for food group
 
 daily_food_items_consumed %>% 
-  dplyr::full_join(
+  dplyr::left_join(
     household_afe, by = c("HHID")
   ) %>%
   dplyr::mutate(
@@ -446,7 +523,6 @@ daily_food_items_consumed %>%
       ~sum_or_function(.)
     )
   ) %>% 
-
   dplyr::ungroup() %>% 
   dplyr::group_by(State_code) %>% 
   dplyr::summarise(
@@ -471,13 +547,15 @@ daily_food_items_consumed %>%
 
 
 
-##### Micronutrients per capita -------------------------------------------------
+
+#### Micronutrients distributions -------------------------------------------------
 micronutrient_distributions <- food_items_grouped %>% 
+  dplyr::ungroup() %>% 
   dplyr::select(
-    c("HHID","State_code",State_name, "District_code", "energy_kcal", "vita_mg", "vitb1_mg", "vitb2_mg", "vitb3_mg", "vitb5_mg",
-      "vitb6_mg", "folate_ug","vitaminb12_in_mg", "iron_mg", "calcium_mg", "zinc_mg")
+    c("HHID","State_code",State_name,capita, "District_code", "energy_kcal", "vita_mg", "vitb1_mg", "vitb2_mg", "vitb3_mg", "vitb5_mg",
+      "vitb6_mg", "folate_ug","vitb9_ug","vitaminb12_in_mg", "iron_mg", "calcium_mg", "zinc_mg")
   ) %>% 
-  dplyr::group_by(HHID, State_code,State_name, District_code) %>% 
+  dplyr::group_by(HHID, State_code,State_name, District_code,capita) %>% 
   dplyr::summarise(
     dplyr::across(
       everything(),
@@ -485,18 +563,26 @@ micronutrient_distributions <- food_items_grouped %>%
     )
   ) %>% 
   #calculate the per capita consumption to play with the data
-  dplyr::ungroup()%>%
+  dplyr::ungroup() %>% 
   dplyr::filter(
-    energy_kcal<stats::quantile(energy_kcal, 0.999, na.rm = TRUE)[[1]]
+    energy_kcal<5000
   )
 
   
+summary(micronutrient_distributions)
+
+x <- food_items_grouped %>% 
+  dplyr::filter(HHID == "412001102")
+
 write_csv(micronutrient_distributions, here::here(
   "India_analysis/data/final/base_model.csv"
 ))
+
+micronutrient_distributions %>% 
   
-
-
+  ggplot(aes(x = energy_kcal)) + 
+  geom_histogram()
+  
 
 #look at the distributions of:
 #     # Vit A, B1 2 3 5 6 9 12 Fe Zn Ca kcal
@@ -513,6 +599,7 @@ nin_ear <- data.frame(
   vitb5_mg = 4,#from allen 2020
   vitb6_mg = 1.6, 
   folate_ug = 180, 
+  vitb9_ug = 180,
   vitaminb12_in_mg = 2, 
   iron_mg = 15, 
   calcium_mg = 800, 
@@ -538,20 +625,10 @@ for(item in micronutrients){
                                     "\\_",
                                     1)
       ),
-      
-      x = 
-      #   stringr::str_split_i(item,
-      # "\\_",
-      # 1)
-        
-        stringr::str_split_i(item,
+      x = stringr::str_split_i(item,
                              "\\_",
                              2),
       y = ""
-        # stringr::str_split_i(as.character(item),
-        #                    "\\_",
-                           # 2)
-      
     )+
     theme_ipsum()
   mn_plots_list[[item]] <- p1
@@ -562,17 +639,12 @@ for(item in micronutrients){
 cowplot::plot_grid(plotlist = mn_plots_list)
 
 
-
-  
-
-
-
 ## Distributions of micronutrients from food groups
 
 micronutrient_food_groups <- food_items_grouped %>% 
   dplyr::select(
     c("HHID",hdds_groups, "energy_kcal", "vita_mg", "vitb1_mg", "vitb2_mg", "vitb3_mg", "vitb5_mg",
-      "vitb6_mg", "folate_ug","vitaminb12_in_mg", "iron_mg", "calcium_mg", "zinc_mg")
+      "vitb6_mg", "folate_ug","vitb9_ug","vitaminb12_in_mg", "iron_mg", "calcium_mg", "zinc_mg")
   ) %>% 
   dplyr::group_by(HHID,hdds_groups) %>% 
   dplyr::summarise(
@@ -583,10 +655,9 @@ micronutrient_food_groups <- food_items_grouped %>%
   ) %>% 
   #calculate the per afe consumption to play with the data
   dplyr::ungroup() %>% 
-  dplyr::filter(
-    energy_kcal<stats::quantile(energy_kcal, 0.99, na.rm = TRUE)[[1]]
-  ) %>% 
-  dplyr::ungroup() %>% 
+  # dplyr::filter(
+  #   energy_kcal<stats::quantile(energy_kcal, 0.99, na.rm = TRUE)[[1]]
+  # ) %>% 
   dplyr::group_by(
      hdds_groups
   ) %>% 
@@ -613,11 +684,25 @@ means_micronutrient_state <- micronutrient_distributions %>%
                     mean = ~mean(.x, na.rm = TRUE), 
                     sd = ~sd(.x, na.rm = TRUE), 
                     se = ~sd(.x, na.rm = TRUE)/sqrt(length(.x)),
-                    # n = ~dplyr::n(),
+                    n = ~dplyr::n(),
                     ci_l = ~mean(.x, na.rm = TRUE) - (1.96 * sd(.x, na.rm = TRUE)/sqrt(dplyr::n())),
                     ci_u = ~mean(.x, na.rm = TRUE) + (1.96 * sd(.x, na.rm = TRUE)/sqrt(dplyr::n())))))
   
-  
+
+#check the households with low energy
+low_energy <- micronutrient_distributions %>% 
+  dplyr::filter(
+    energy_kcal<1000
+  )
+
+x <- low_energy %>% 
+  dplyr::select(HHID) %>% 
+  dplyr::left_join(
+    daily_food_items_consumed,
+    by = "HHID"
+  )
+
+
 
 
 mn_fg_plots <- list()
