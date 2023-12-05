@@ -89,6 +89,27 @@ sw_mean_intake <- base_model %>%
   srvyr::as_survey_design(id = HHID, strata = District_code,
                           weights = Combined_multiplier, nest=T)
 
+intake <- base_model %>%
+  dplyr::left_join(
+    household_characteristics %>% 
+      dplyr::select(
+        HHID, Combined_multiplier, HH_Type_code
+      ), by = "HHID"
+  ) %>% 
+  srvyr::as_survey_design(id = HHID, strata = District_code,
+                          weights = Combined_multiplier, nest=T) %>% 
+  srvyr::group_by(District_code) %>% 
+  srvyr::summarise(
+    srvyr::across(-c(HHID,State_code, State_name,Combined_multiplier,HH_Type_code),
+                  ~mean(.))
+  ) %>% 
+  dplyr::left_join(
+    india_adm2, 
+    by = c("District_code" = "Dstrct_c")
+  ) %>% 
+  dplyr::ungroup() %>% 
+  st_as_sf()
+
 sw_mean_intake_district_tot <- sw_mean_intake %>% 
   srvyr::group_by(District_code) %>% 
   srvyr::summarise(
@@ -131,7 +152,6 @@ india_sp <- india_adm1 %>%
 
 
 
-
 # Create maps: 
   india_co <- tm_shape(india_sp) + 
     tm_fill(col = "state") +
@@ -154,6 +174,17 @@ energy_adm2 <- tm_shape(sw_mean_intake_district_tot) +
   tm_legend(show = F)
 
 energy_adm2
+
+# energy_adm2_cont <- tm_shape(intake) + 
+#   tm_fill(col = "energy_kcal", style = "cont",
+#           palette = "Blues")+
+#   tm_layout(main.title =  "Energy", 
+#             frame = F,
+#             main.title.size = 0.8) +
+#   tm_borders(col = "black", lwd = 0.5)+
+#   tm_legend(show = T)
+# 
+# energy_adm2
 
 # tmap_save(energy_adm2, here::here("../energy_adm2.png"))
 

@@ -49,7 +49,7 @@ food_item_names <- food_item_names %>%
   dplyr::mutate(
     conversion_factor = ifelse(stringr::str_detect(food_unit,"Kg|kg") == TRUE, 1,
                                #isolate the unit of measurement where it exists
-                         ifelse(stringr::str_detect(food_unit,"\\gm")== TRUE, 0.001, 
+                         ifelse(stringr::str_detect(food_unit,"\\gm")== TRUE, 1, 
                                 NA))
                                 # ifelse(stringr::str_detect(item_name))))
     ) %>% 
@@ -86,9 +86,10 @@ non_standard_units <- food_item_names %>%
         Item_Code == 224 ~ 980, #dry coconuts - Varghese et al., "A Study of Physical 
                                 #and Mechanical Properties of the Indian Coconut for Efficient Dehusking"
         Item_Code == 225 ~ 1300, # green coconuts
-        Item_Code == 280 ~ 100,
-        Item_Code == 281 ~ 100,
-        Item_Code == 282 ~ 100
+        Item_Code == 280 ~ 300,
+        Item_Code == 281 ~ 300,
+        Item_Code == 282 ~ 300,
+        Item_Code == 284 ~ 300
       )
   ) %>% 
   dplyr::select(
@@ -628,11 +629,7 @@ mixed_items <- unmatched_items%>%
                             B023
                             B024
                             B025
-                            B027
-                            B028
-                            B030
-                            B031
-                            B032",#other pulses
+                           ",#other pulses
         Item_Code == 152 ~ "B001
                             B003
                             B005
@@ -649,11 +646,7 @@ mixed_items <- unmatched_items%>%
                             B023
                             B024
                             B025
-                            B027
-                            B028
-                            B030
-                            B031
-                            B032",#other pulse products
+                            ",#other pulse products
         Item_Code == 106 ~ "A010
                             A011
                             A012
@@ -795,7 +788,8 @@ mixed_items <- unmatched_items%>%
                             B002",#besan to bengal gram
         Item_Code == 280 ~ "ASC122",
         Item_Code == 281 ~ "ASC122",
-        Item_Code == 282 ~ "ASC122"
+        Item_Code == 282 ~ "ASC122",
+        Item_Code == 284 ~ "ASC122"
       )
   ) %>% 
   tidyr::separate_rows(
@@ -839,8 +833,8 @@ weighted_ave <- mixed_items%>%
   dplyr::summarise(
     dplyr::across(
       everything(),
-      ~weighted.mean(x = .x, w = total_item_consumed_g, na.rm = TRUE)
-
+      # ~weighted.mean(x = .x, w = total_item_consumed_g, na.rm = TRUE)
+      ~mean(., na.rm = TRUE)
     )
   ) %>% 
   dplyr::select(

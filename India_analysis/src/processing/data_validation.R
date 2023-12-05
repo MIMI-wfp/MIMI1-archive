@@ -18,6 +18,7 @@ library(srvyr)
 library(treemap)
 library(treemapify)
 library(ggridges)
+library(dplyr)
 library(gt)
 
 source("India_analysis/src/processing/food_matching.R")
@@ -83,10 +84,6 @@ daily_food_items_consumed <-consumption %>%
   dplyr::select(
     -c( Home_Produce_Quantity,Home_Produce_Value,Total_Consumption_Quantity,Total_Consumption_Value)
   ) %>% 
-  dplyr::filter(
-    !is.na(item_name) &
-      !is.na(quantity_100g)
-  ) %>%
   dplyr::mutate(
     dplyr::across(
       -c(item_name, Item_Code, State_code, District_code, HHID, quantity_100g, State_name, conversion_factor),
@@ -95,46 +92,15 @@ daily_food_items_consumed <-consumption %>%
   ) %>% 
   dplyr::mutate(
     quantity_100g = quantity_100g/30
-  ) 
-
-
-#check the energy distribution of households with foods consumed outside the household
-
-meals_consumed_outside_house <-  daily_food_items_consumed%>%
+  )  %>%
   dplyr::filter(
-    (HHID %in% daily_food_items_consumed$item_name[daily_food_items_consumed$Item_Code %in% c('280','281', '282')])
-  ) %>% 
-  dplyr::distinct(HHID)
+    !is.na(item_name)
+  )
 
-4130/15000
 
-# 
-# daily_food_items_consumed%>%
-#   dplyr::filter(
-#     HHID == "412001101"
-#   )
-# 
-#   
-# 
-# meals_consumed_outside_house %>% 
-#   dplyr::left_join(
-#     household_afe, by = c("HHID")
-#   ) %>%
-#   dplyr::mutate(
-#     dplyr::across(
-#       -c( HHID, State_code,Item_Code,item_name, District_code,capita,afe, State_name),
-#       ~.x/afe
-#     )) %>%
-#   dplyr::ungroup() %>%
-#   dplyr::group_by(HHID) %>%
-#   dplyr::summarise(
-#       energy = sum(energy_kcal,na.rm=TRUE)
-#     ) %>%
-#   dplyr::ungroup() %>%
-#   dplyr::filter(energy <5000) %>% 
-#   ggplot(aes(x = energy))+
-#   geom_histogram()
 
+
+### check the individual(household) intake per month of rice and wheat
 
 
 
@@ -169,7 +135,7 @@ demographics <- demographics %>%
   dplyr::mutate(
     energy_requirement = 
       dplyr::case_when(
-        Age < 1 ~ 595,
+        Age < 1 ~ 0,
         Age < 4 ~ 1070,
         Age < 7 ~ 1360,
         Age < 10 ~ 1700,
@@ -180,7 +146,7 @@ demographics <- demographics %>%
                            ifelse(Age<50, 2130,
                             ifelse(under_2 == 0, 
                                   2130,
-                                  2690)))# can add in a lactating condition if needed
+                                  2690)))
       ) 
   ) %>% 
   dplyr::mutate(
@@ -199,6 +165,8 @@ household_afe <-
       capita = dplyr::n(),
       afe = sum(afe)
     )
+# %>% 
+  # left_join(household_characteristics %>% select(HHID,HH_Size), by = "HHID")
 
 #check that capita and afe are not mapped completely wrong
 
@@ -207,10 +175,20 @@ household_afe %>%
     ratio = capita/afe
   ) %>% 
   ggplot(aes(x = capita, y = afe)) + 
-  geom_point(alpha = 0.8, color = "darkblue") + 
+  geom_point(alpha = 0.2, color = "darkblue") + 
+  # geom_point(aes(x = as.numeric(HH_Size), y = afe), color = "red",alpha = 0.2)+
   geom_abline(intercept = 0, slope =1)+
   labs(x = "Capita", y = "AFE") +
   theme_ipsum()
+
+
+
+consumption %>%
+  left_join(household_afe,by = "HHID") %>% 
+  mutate(per_capita_consumption = Total_Consumption_Quantity/capita) %>% 
+  group_by(State_code, Item_Code) %>% 
+  summarise(mean = mean(per_capita_consumption),
+            median = median(per_capita_consumption))
 
 #### Distributions #############################################################
 
@@ -225,7 +203,7 @@ food_items_grouped <- daily_food_items_consumed %>%
   dplyr::mutate(
     dplyr::across(
       -c( HHID, State_code,Item_Code,item_name, District_code,capita,afe, State_name),
-      ~.x/capita
+      ~.x/afe
     )) %>% 
   dplyr::group_by(
     Item_Code,
@@ -270,24 +248,26 @@ food_item_summary_state <-
   # micronutrient_distributions %>% 
   # dplyr::select(HHID) %>% 
   # dplyr::left_join(
-    full_list %>% 
-# ,
+    full_list  %>% 
                    # by = "HHID") %>% 
-  dplyr::left_join(food_items_grouped, 
-                   by = c("HHID", "Item_Code","item_name","State_code")) %>% 
-  dplyr::mutate(
-    dplyr::across(
-      -c("HHID", "Item_Code","item_name","State_code","conversion_factor","District_code","quantity_100g" ,"State_name","capita","afe",              
-         "hdds_groups"),
-      ~tidyr::replace_na(.x,0)
-    )
-  ) %>% 
-  dplyr::left_join(household_characteristics %>% 
-                     dplyr::select(HHID, Combined_multiplier), by = "HHID")
+      dplyr::left_join(food_items_grouped %>% 
+                         dplyr::filter(!is.na(energy_kcal)), 
+                       by = c("HHID", "Item_Code","item_name","State_code")) %>% 
+      dplyr::mutate(
+        dplyr::across(
+          -c("HHID", "Item_Code","item_name","State_code","conversion_factor","District_code","quantity_100g" ,"State_name","capita","afe",
+             "hdds_groups"),
+           ~tidyr::replace_na(.x,0)
+
+        )
+      ) %>%
+
+      dplyr::left_join(household_characteristics %>% 
+                         dplyr::select(HHID, Combined_multiplier), by = "HHID")
 
 
 # create a summary table of the mean intake
-food_item_summary_state %>% 
+food_intake_by_state <- food_item_summary_state %>% 
   srvyr::as_survey_design(id = HHID, strata = State_code, weights = Combined_multiplier, nest=T) %>% 
   srvyr::group_by(Item_Code, item_name, State_code) %>% 
   # srvyr::filter(quantity_g<stats::quantile(quantity_g, 0.999, na.rm = TRUE)[[1]]) %>%
@@ -296,15 +276,25 @@ food_item_summary_state %>%
                    low_95 = mean(quantity_g, na.rm = T)-1.96*sd(quantity_g, na.rm = T)/sqrt(dplyr::n()),
                    up_95 = mean(quantity_g, na.rm = T)+1.96*sd(quantity_g, na.rm = T)/sqrt(dplyr::n()),
                    
+  ) %>% 
+  srvyr::ungroup() %>% 
+  dplyr::mutate(
+    dplyr::across(
+      -c(Item_Code,item_name,State_code),
+      ~.x*30
+    )
   )
+
+
 
 # this shows we have the same item intake as TATA-NIN
 
 
 food_item_summary_state %>% 
   dplyr::filter(Item_Code==102 & State_code == "09") %>% 
-  ggplot(aes(quantity_g)) +
-  geom_histogram()
+  ggplot(aes(quantity_g*30)) +
+  geom_histogram(color = "black", fill = "black") +
+  theme_ipsum_pub()
 
 
 # not split by state
@@ -772,10 +762,10 @@ food_items_grouped %>%
   ) %>% 
   dplyr::ungroup() %>% 
   dplyr::summarise(
-    mean_matched_foods = mean(grams_perc),
-    lower = mean(grams_perc)-1.96*sd(grams_perc)/sqrt(dplyr::n()),
-    upper = mean(grams_perc)+1.96*sd(grams_perc)/sqrt(dplyr::n()),
-    sd = sd(grams_perc)
+    mean_matched_foods = mean(grams_perc,na.rm = T),
+    lower = mean(grams_perc,na.rm = T)-1.96*sd(grams_perc,na.rm = T)/sqrt(dplyr::n()),
+    upper = mean(grams_perc,na.rm = T)+1.96*sd(grams_perc ,na.rm = T)/sqrt(dplyr::n()),
+    sd = sd(grams_perc,na.rm = T)
   )
 
 # rm(list = ls())

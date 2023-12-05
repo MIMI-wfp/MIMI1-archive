@@ -7,7 +7,7 @@ library(haven)
 library(tidyverse)
 
 # For Fabriel local only
-path_to_file <- "~/Documents/MIMI/nsso_data/"
+path_to_file <- "~/Documents/MIMI/India/nsso_data/"
   
 
 block_1_2_identification <- read_dta(paste0(path_to_file, "Identification of Sample Household - Block 1 and 2 - Level 1 -  68.dta"))
