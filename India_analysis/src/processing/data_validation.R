@@ -587,7 +587,7 @@ micronutrient_distributions %>%
 #look at the distributions of:
 #     # Vit A, B1 2 3 5 6 9 12 Fe Zn Ca kcal
 micronutrients <- colnames(micronutrient_distributions)
-micronutrients <- micronutrients[-c(1:4)]
+micronutrients <- micronutrients[-c(1:5)]
 
 #create a data frame of adult women EAR values
 nin_ear <- data.frame(
@@ -714,7 +714,8 @@ mn_fg_plots <- list()
                      stringr::str_split_i(hdds_groups,
                                           "\\_",
                                           2)), 
-                   label = stringr::str_to_title(
+                   label = 
+                     stringr::str_to_title(
                    stringr::str_split_i(hdds_groups,
                                                 "\\_",
                                                 2)))
@@ -722,16 +723,33 @@ mn_fg_plots <- list()
         geom_treemap() +
         geom_treemap_text( colour = "darkblue", place = "topleft", alpha = 0.6,
                            grow = FALSE, size = 12)+
-        labs(title = stringr::str_to_title(stringr::str_split_i(item,
-                                          "\\_",
-                                          1)),
+        labs(title = ""
+               # stringr::str_to_title(stringr::str_split_i(item,
+               #                            "\\_",
+               #                            1)),
              
                                   )+
         scale_fill_brewer(palette = "Set3")+
-        guides(fill=guide_legend(title="Food group"))+
+        # guides(fill=guide_legend())+
+        theme(legend.position="bottom",
+              legend.spacing.x = unit(0, 'cm'))+
+        guides(fill = guide_legend(title="Food group",label.position = "bottom"))
+        # theme(legend.direction = "horizontal", legend.position = "bottom")+
+        # guides(fill = "none")+
         theme_ipsum()
     mn_fg_plots[[item]] <- p1
   }
+
+legend_fg <- cowplot::get_legend(mn_fg_plots[[3]])
+legend_fg <- cowplot::ggdraw(legend_fg)
+
+
+energy_fg <- mn_fg_plots[[1]]
+vita_fg <- mn_fg_plots[[2]]
+folate_fg <- mn_fg_plots[[8]]
+vitb12_fg <- mn_fg_plots[[10]]
+fe_fg <- mn_fg_plots[[11]]
+zn_fg <- mn_fg_plots[[13]]
 
 ggpubr::ggarrange(plotlist = mn_fg_plots, common.legend = TRUE)
 
