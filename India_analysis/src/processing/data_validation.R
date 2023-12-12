@@ -99,6 +99,74 @@ daily_food_items_consumed <-consumption %>%
 
 
 
+household_daily <-consumption %>%
+  dplyr::left_join(
+    india_fct, by = "Item_Code"
+  ) %>%
+  dplyr::left_join(
+    conversion, by = c("Item_Code", "item_name")
+  ) %>%
+  #split the name without the unit of consumption
+  dplyr::mutate(
+    item_name = stringr::str_split_i(item_name,"\\(", 1)
+  ) %>%
+  dplyr::mutate(
+    Total_Consumption_Quantity = ifelse(is.na(conversion_factor),
+                                        Total_Consumption_Quantity,
+                                        Total_Consumption_Quantity*conversion_factor)
+  ) %>%
+  dplyr::left_join(
+    household_characteristics %>% dplyr::select(HHID, District_code),
+    by = "HHID"
+  ) %>%
+  #create state name
+  dplyr::mutate(
+    quantity_100g = Total_Consumption_Quantity/100,
+    State_name = dplyr::case_when(
+      State_code == "09" ~ "Uttar Pradesh",
+      State_code == "10" ~ "Bihar",
+      State_code == "22" ~ "Chhattisgarh"
+    )
+  ) %>%
+  ungroup() %>%
+  # dplyr::select(
+  #   -c( Home_Produce_Quantity,Home_Produce_Value,Total_Consumption_Quantity,Total_Consumption_Value)
+  # ) %>%
+  dplyr::mutate(
+    across( c(Total_Consumption_Quantity,Total_Consumption_Value),
+    ~ .x/30)
+    ) %>%
+  dplyr::select(HHID,State_code,Item_Code,item_name,Total_Consumption_Quantity,Total_Consumption_Value) %>%
+  dplyr::filter(
+    !is.na(item_name)
+  ) %>%
+  dplyr::left_join(hdds %>% dplyr::select(-item_name), by = c("Item_Code")) %>%
+  dplyr::group_by(Item_Code, item_name) %>%
+  tidyr::pivot_longer(cols = c(A_cereals,B_roots_tubers,C_vegetables,
+                               D_fruits,E_meat,F_eggs,G_fish,H_pulses,
+                               I_milk,J_oil,J_sugar,L_misc)#HDDS food groups
+  ) %>%
+  dplyr::filter(!is.na(value)) %>%
+  dplyr::select(-value) %>%
+  dplyr::rename(hdds_groups = name)
+
+
+write.csv(household_daily,paste0(path_to_data, "india_daily_consumption.csv"))
+
+
+
+
+
+#remove large outliers based on energy
+filter_households <- daily_food_items_consumed %>% 
+  group_by(HHID) %>% 
+  summarise(total_energy_hh = sum(energy_kcal,na.rm = T)) %>% 
+  ungroup() %>% 
+  filter(total_energy_hh<stats::quantile(total_energy_hh, 0.99, na.rm = TRUE)[[1]]) 
+
+daily_food_items_consumed <- filter_households %>% 
+  select(HHID) %>% 
+  left_join(daily_food_items_consumed, by = "HHID")
 
 ### check the individual(household) intake per month of rice and wheat
 
@@ -165,6 +233,9 @@ household_afe <-
       capita = dplyr::n(),
       afe = sum(afe)
     )
+
+write.csv(household_afe, paste0(path_to_data, "india_afe.csv"))
+
 # %>% 
   # left_join(household_characteristics %>% select(HHID,HH_Size), by = "HHID")
 
@@ -203,7 +274,7 @@ food_items_grouped <- daily_food_items_consumed %>%
   dplyr::mutate(
     dplyr::across(
       -c( HHID, State_code,Item_Code,item_name, District_code,capita,afe, State_name),
-      ~.x/afe
+      ~.x/capita
     )) %>% 
   dplyr::group_by(
     Item_Code,
@@ -223,14 +294,6 @@ food_items_grouped <- daily_food_items_consumed %>%
   #   hdds_groups = factor(hdds_groups)
   # ) %>%
   dplyr::ungroup()
-
-# food_items_grouped %>%
-#   dplyr::ungroup() %>%
-#   dplyr::filter(Item_Code == 160) %>%
-#   # dplyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
-#   ggplot(aes(x = quantity_g)) +
-#   geom_histogram()
-# 
 
 
 #### For each household, replace any uncomsumed items with a 0
@@ -270,7 +333,6 @@ food_item_summary_state <-
 food_intake_by_state <- food_item_summary_state %>% 
   srvyr::as_survey_design(id = HHID, strata = State_code, weights = Combined_multiplier, nest=T) %>% 
   srvyr::group_by(Item_Code, item_name, State_code) %>% 
-  # srvyr::filter(quantity_g<stats::quantile(quantity_g, 0.999, na.rm = TRUE)[[1]]) %>%
   srvyr::summarise(mean_g = mean(quantity_g, na.rm = T),
                    median_g = median(quantity_g, na.rm = T),
                    low_95 = mean(quantity_g, na.rm = T)-1.96*sd(quantity_g, na.rm = T)/sqrt(dplyr::n()),
@@ -303,7 +365,6 @@ food_item_summary <- food_items_grouped %>%
                      dplyr::select(HHID, Combined_multiplier), by = "HHID") %>% 
   srvyr::as_survey_design(id = HHID, weights = Combined_multiplier, nest=T) %>% 
   srvyr::group_by(Item_Code, item_name, hdds_groups) %>% 
-  srvyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
   srvyr::summarise(mean_g = mean(quantity_g),
                    low_95 = mean(quantity_g)-1.96*sd(quantity_g)/sqrt(dplyr::n()),
                    up_95 = mean(quantity_g)+1.96*sd(quantity_g)/sqrt(dplyr::n()),
@@ -417,7 +478,6 @@ i <- 1
 for(item in groups){
   # print(item)
   food_group_plot <-  item %>%
-    dplyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
     ggplot(aes(x = quantity_g, y= State_name, fill = State_name)) +
       geom_density_ridges(stat = "binline", show.legend = FALSE) +
       scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
@@ -436,7 +496,7 @@ for(item in groups){
 #cereals
 groups[[1]] %>% 
   dplyr::filter(Item_Code%in%c(102,108,101,107)) %>% 
-  dplyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
+
   ggplot(aes(x = quantity_g, y= State_name, fill = State_name)) +
   geom_density_ridges(stat = "binline", show.legend = FALSE) +
   scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
@@ -447,7 +507,7 @@ groups[[1]] %>%
   xlab("Quantity (g)")
 
 groups[[3]] %>% 
-  dplyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
+
   ggplot(aes(x = quantity_g, y= State_name, fill = State_name)) +
   geom_density_ridges(stat = "binline", show.legend = FALSE) +
   scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
@@ -464,7 +524,7 @@ groups[[5]] %>%
   dplyr::bind_rows(groups[[7]]) %>% 
   # dplyr::bind_rows(groups[[9]]) %>% 
   dplyr::filter(Item_Code!=196) %>% 
-  dplyr::filter(quantity_g<stats::quantile(quantity_g, 0.99, na.rm = TRUE)[[1]]) %>%
+
   ggplot(aes(x = quantity_g, y= State_name, fill = State_name)) +
   geom_density_ridges(stat = "binline", show.legend = FALSE) +
   scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
@@ -654,7 +714,7 @@ micronutrient_food_groups <- food_items_grouped %>%
   dplyr::summarise(
     dplyr::across(
       -c(HHID),
-      ~mean(.)
+      ~median(.)
     )
   ) 
 
@@ -744,15 +804,6 @@ zn_fg <- mn_fg_plots[[13]]
 ggpubr::ggarrange(plotlist = mn_fg_plots, common.legend = TRUE)
 
 
-# micronutrient_food_groups %>% 
-#  ggplot(aes(area = energy_kcal, fill = hdds_groups, label = hdds_groups))+
-#   geom_treemap() +
-#   geom_treemap_text( colour = "darkblue", place = "centre", alpha = 0.6,
-#                     grow = TRUE)+
-#   facet_wrap(vars(State_name), nrow = 2) +
-#   scale_fill_brewer(palette = "Paired")+
-#   labs(title = item)+
-#   theme_ipsum()
 
 #total percentage of consumed food items
 food_items_grouped %>% 
