@@ -5,6 +5,8 @@
 library(tidyr)
 library(readr)
 library(dplyr)
+library(stringr)
+library(lubridate)
 
 path_to_data <- "~/Documents/MIMI/MIMI_data/"
 path_to_save <- here::here("all_base_models/data/")
@@ -334,3 +336,240 @@ write_csv(nga_fct, paste0(path_to_save,"nga1819_fct.csv"))
 
 rm(nga_fct)
 rm(nga_food_consumption)
+
+################################################################################
+##                                                                            ##
+##                                                                            ##
+##                                                                            ##
+##                                                                            ##
+##                       household information                                ##
+##                                                                            ##
+##                                                                            ##
+##                                                                            ##
+################################################################################
+
+
+
+# nsso #########################################################################
+nsso_basics <- read.csv("India_analysis/data/raw/block_1_2_identification.csv")
+
+nsso_household_information <- read.csv("India_analysis/data/processed/household_char.csv")
+nsso_demographics <- read.csv("India_analysis/data/processed/demographics.csv")
+
+
+nsso_household_information <- nsso_household_information %>% 
+  inner_join(nsso_demographics, by = "HHID") %>% 
+  filter(Relation == "Self") %>% 
+  mutate(sex_head = Sex,
+         age_head = Age,
+         educ_head = Education,
+         urbrur = HH_Type_code) %>% 
+   select(HHID,
+          urbrur,
+          sex_head,
+          age_head,
+          educ_head,
+          Combined_multiplier) %>% 
+   rename(hhid = HHID,
+          survey_wgt = Combined_multiplier)
+  
+    
+nsso_basics <- nsso_basics %>% 
+  select(HHID,
+         Date_of_Survey, 
+         State_code,
+         District_code) %>% 
+  mutate(year = paste0("20",
+                       str_sub(Date_of_Survey, -2,-1)),
+         month = str_sub(Date_of_Survey, -4,-3)) %>%
+  rename(hhid = HHID,
+         adm1 = State_code,
+         adm2 = District_code
+         )
+
+# NEED SEP QUNINTILES -- MAYBE CALCULATE MYSLEF?
+
+nsso_household_information <- nsso_household_information %>% 
+  left_join(nsso_basics, by = "hhid")
+
+write_csv(nsso_household_information, paste0(path_to_save,"nsso1112_hh_info.csv"))
+
+rm(nsso_household_information)
+rm(nsso_basics)
+rm(nsso_demographics)
+
+
+# hices -----------------------------------------------------------------------
+
+hices_food_consumption <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/eth_hces1516_foodbev.csv"))
+hices_rur_quintiles <- read.csv(here::here("ethiopia/data/urb_rur_quintiles.csv"))
+
+unique(hices_food_consumption$CQ11)
+
+hices_hh_info <- hices_food_consumption %>% 
+  select(hhid,
+         CQ11, 
+         CQ12,
+         MONTH,
+         UR,
+         SEX_Head,
+         Age_Head,
+         EDUC_Head,
+         WGT) %>% 
+  rename(
+    adm1 = CQ11,
+    adm2 = CQ12,
+    month = MONTH,
+    urbrur = UR,
+    sex_head = SEX_Head,
+    age_head = Age_Head,
+    educ_head = EDUC_Head,
+    survey_wgt = WGT
+  ) %>% 
+  group_by(hhid) %>% 
+  slice(1) %>% 
+  left_join(
+    hices_rur_quintiles, by = "hhid"
+  ) %>% 
+  select(-c(UR, urbrur_quintiles)) %>% 
+  rename(ur_quintile = quintile)
+
+write.csv(hices_hh_info, paste0(path_to_save, "hices1516_hh_info.csv"))      
+
+# ESS --------------------------------------------------------------------------
+
+#  adm1 = saq01, adm2 = saq02, urbrur = saq14, hhid = household_id, date = InterviewStart
+# head of household == 
+
+ess1 <- read.csv(paste0(path_to_data, "Ethiopia/ETH_2018_ESS_v03_M_CSV/sect_cover_hh_w4.csv"))
+ess2_roster <- read.csv(paste0(path_to_data, "Ethiopia/ETH_2018_ESS_v03_M_CSV/sect1_hh_w4.csv"))
+ess3_educ <- read.csv(paste0(path_to_data, "Ethiopia/ETH_2018_ESS_v03_M_CSV/sect2_hh_w4.csv"))
+
+
+ess_hh_info <- ess1 %>% 
+  select(
+    household_id,
+    saq14,
+    pw_w4,
+    saq01,
+    saq02,
+    InterviewStart
+    ) %>% 
+  left_join(
+    ess2_roster %>% 
+      select(
+        household_id,
+        s1q01,
+        s1q02,
+        s1q03a
+      ),
+    by = "household_id"
+    ) %>% 
+  filter(
+    s1q01 == "1. Head"
+  ) %>% 
+  rename(
+    hhid = household_id,
+    urbrur = saq14,
+    adm1 = saq01,
+    adm2 = saq02,
+    sex_head = s1q02,
+    age_head = s1q03a,
+    survey_wgt = pw_w4
+  ) %>% 
+  left_join(
+    ess3_educ %>% 
+      select(household_id, 
+             individual_id,
+             s2q06
+             ) %>% 
+      filter(individual_id == 1) %>% 
+      rename(
+        hhid = household_id,
+        educ_head = s2q06) %>% 
+      mutate(educ_head = ifelse(is.na(educ_head),"None", educ_head)),
+    by = "hhid"
+  ) %>% 
+  mutate(
+    year =  str_sub(InterviewStart, 1,4),
+    month = str_sub(InterviewStart, 6,7),
+    sex_head = str_sub(sex_head, 4, -1)
+  ) %>% 
+  select(-c(
+    individual_id,
+    InterviewStart,
+    s1q01
+  ))
+  
+
+write.csv(ess_hh_info, paste0(path_to_save, "ess1819_hh_info.csv"))
+
+## need SEP as well
+
+# mwi --------------------------------------------------------------------------
+
+
+mwi1_hh <- read.csv(paste0(path_to_data, "mwi/MWI_2016_IHS-IV_v04_M_CSV/household/hh_mod_a_filt.csv"))
+mwi2_hh <- read.csv(paste0(path_to_data, "mwi/MWI_2016_IHS-IV_v04_M_CSV/household/hh_mod_b.csv"))
+mwi3_hh <- read.csv(paste0(path_to_data, "mwi/MWI_2016_IHS-IV_v04_M_CSV/household/hh_mod_c.csv"))
+
+
+mwi_hh_info <- mwi1_hh %>% 
+  select(
+    HHID, 
+    region,
+    district,
+    reside,
+    interviewDate,
+    hh_wgt) %>% 
+  left_join(
+    mwi2_hh %>% 
+      select(
+        HHID,
+        PID,
+        hh_b03,#sex
+        hh_b04,#relationship
+        hh_b06b
+        
+      ),
+    by = "HHID"
+  ) %>% 
+  left_join(mwi3_hh %>% 
+              select(HHID,
+                     PID,
+                     hh_c09),
+            by = c("HHID", "PID")
+            ) %>% 
+  rename(
+    hhid = HHID,
+    adm1 = region,
+    adm2 = district,
+    urbrur = reside,
+    survey_wgt = hh_wgt
+    
+  ) %>% 
+  filter(hh_b04 == 1) %>% 
+  mutate(
+    age_head = as.numeric(str_sub(interviewDate, 1,4)) - as.numeric(hh_b06b),
+    sex_head = ifelse(hh_b03 == 1, "Male", "Female"),
+    educ_head = hh_c09,
+    urbrur = ifelse(urbrur == 1, "Urban", "Rural"),
+    year = str_sub(interviewDate, 1,4),
+    month = str_sub(interviewDate, 6,7)
+  ) %>% 
+  select(
+    hhid,
+    adm1,
+    adm2,
+    urbrur,
+    age_head,
+    sex_head,
+    educ_head,
+    year, 
+    month,
+    survey_wgt
+  ) 
+
+# need sep!
+
+write.csv(mwi_hh_info, paste0(path_to_save, "mwi1516_hh_info.csv"))
