@@ -50,7 +50,19 @@ nsso_fct <- nsso_fct %>%
 
 write_csv(nsso_fct, paste0(path_to_save,"nsso1112_fct.csv"))
 
+nsso_afe<- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_afe.csv")) 
 
+nsso_afe <- nsso_afe %>% 
+  rename(hhid = HHID) %>% 
+  select(hhid,
+         afe)
+
+write(nsso_afe, paste0(path_to_save,"nsso1112_afe.csv" ))
+
+rm(nsso_afe)
+rm(nsso_basics)
+rm(nsso_food_consumption)
+rm(nsso_fct)
 
 
 # Ethiopia #####################################################################
@@ -117,8 +129,12 @@ hices_fct <- hices_fct %>%
 
 write_csv(hices_fct, paste0(path_to_save,"hices1516_fct.csv"))
 
+hices_afe <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/eth_hces1516_afe.csv"))
+write_csv(hices_afe, paste0(path_to_save,"hices1516_afe.csv"))
+
 rm(hices_fct)
 rm(hices_food_consumption)
+rm(hices_afe)
 # ESS --------------------------------------------------------------------------
 
 
@@ -186,8 +202,17 @@ ess_fct <- ess_fct %>%
 
 write_csv(ess_fct, paste0(path_to_save,"ess1819_fct.csv"))
 
+
+ess_afe <- read.csv(paste0(path_to_data, "Ethiopia/eth/ess41819/eth_ess4_hme.csv"))
+ess_afe <- ess_afe %>% 
+  select(HHID,afe) %>% 
+  rename(hhid = HHID)
+
+write_csv(ess_afe, paste0(path_to_save,"ess1819_afe.csv"))
+
 rm(ess_fct)
 rm(ess_food_consumption)
+rm(ess_afe)
 
 # MWI ##########################################################################
 
@@ -263,6 +288,13 @@ names(mwi_fct)
 
 write_csv(mwi_fct, paste0(path_to_save,"mwi1516_fct.csv"))
 
+mwi_afe<- read.csv(paste0(path_to_data, "mwi/mwi_afe.csv"))
+mwi_afe <- mwi_afe %>% 
+  rename(hhid = HHID)
+
+write_csv(mwi_afe, paste0(path_to_save,"mwi1516_afe.csv"))
+
+
 rm(mwi_fct)
 rm(mwi_food_consumption)
 
@@ -281,12 +313,13 @@ nga_food_consumption <- nga_food_consumption %>%
     quantity_100g = g100_d_nep,
   ) %>% 
   mutate(
-    quantity_g = quantity_100g*100
+    quantity_g = quantity_100g*100,
+    item_code = as.character(item_code)
   ) %>% 
   filter(
     quantity_g>0
   )
-
+as_tibble(nga_food_consumption)
 
 write_csv(nga_food_consumption, paste0(path_to_save,"nga1819_food_consumption.csv"))
 
@@ -327,12 +360,22 @@ nga_fct <- nga_fct %>%
     zn_mg = zn_in_mg
   ) %>% 
   filter(!is.na(item_code))
-names(mwi_fct)
+
 
 # fct 
 
 
 write_csv(nga_fct, paste0(path_to_save,"nga1819_fct.csv"))
+
+asread.dta(paste0(path_to_data,"nga/NGA_LSS1819_estimates.dta"))
+
+
+nga_afe <- nga_lss1_estimates %>% 
+  select(hhid,
+         hhafe) %>% 
+  rename(afe = hhafe)
+
+write_csv(nga_afe, paste0(path_to_save,"nga1819_afe.csv"))
 
 rm(nga_fct)
 rm(nga_food_consumption)
@@ -573,3 +616,77 @@ mwi_hh_info <- mwi1_hh %>%
 # need sep!
 
 write.csv(mwi_hh_info, paste0(path_to_save, "mwi1516_hh_info.csv"))
+rm(mwi_hh_info)
+rm(mwi1_hh)
+rm(mwi2_hh)
+rm(mwi3_hh)
+
+# nga --------------------------------------------------------------------------
+
+nga_hh1 <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/secta_cover.csv"))
+nga_roster <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/sect1_roster.csv"))
+nga_edu <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/sect2_education.csv"))
+
+nga_hh_info <- nga_hh1 %>% 
+  select(hhid,
+         sector,
+         state,
+         lga,
+         InterviewStart,
+         wt_final) %>% 
+  mutate(
+    month =format(as.Date(InterviewStart, "%m/%d/%Y %H:%M:%S"),"%m"),
+    year =format(as.Date(InterviewStart, "%m/%d/%Y %H:%M:%S"),"%Y")
+  ) %>% 
+  select(-InterviewStart) %>% 
+  left_join(
+    nga_roster %>% 
+      select(hhid, 
+             indiv,
+             s01q02,
+             s01q03,
+             s01q04a) %>% 
+      left_join(nga_edu %>% 
+                  select(hhid,
+                         indiv,
+                         s02q07),
+                  by = c("hhid","indiv")
+                ) %>% 
+      filter(s01q03 == 1),
+    by = "hhid"
+  ) %>% 
+  mutate(
+    urbrur = ifelse(sector == 1,"Urban", "Rural"),
+    sex_head = ifelse(s01q02 == 1, "Male", "Female"),
+  ) %>% 
+  rename(age_head = s01q04a,
+         educ_head = s02q07,
+         survey_wgt = wt_final,
+         adm1 = state,
+         adm2 = lga) %>% 
+  left_join(nga_lss1_estimates %>% select(
+    hhid,
+    ses, ses_urban
+  ), 
+  by = "hhid") %>% 
+  select(
+    hhid,
+    adm1,
+    adm2,
+    urbrur,
+    age_head,
+    sex_head,
+    educ_head,
+    year, 
+    month,
+    survey_wgt
+  ) 
+
+
+write.csv(nga_hh_info, paste0(path_to_save, "nga1819_hh_info.csv"))
+rm(nga_edu)
+rm(nga_hh1)
+rm(nga_hh_info)
+rm(nga_roster)
+
+

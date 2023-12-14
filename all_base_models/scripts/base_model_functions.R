@@ -1,0 +1,93 @@
+## functions to compile base models
+
+## read in the food consumption and fct and create data frame of 
+## each food item 
+
+
+
+path_to_file <- here::here("all_base_models/data/")
+
+read_in_survey <- function(name_of_survey){
+  
+  afe <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_afe.csv")))
+  food_consumption<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_food_consumption.csv")))
+  fct <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
+}
+
+rm(afe)
+rm(food_consumption)
+rm(fct)
+read_in_survey(name_of_survey = "hices1516")
+afe
+
+full_item_list <- function(name_of_survey){
+  #creates a data frame with a full list of food items for every
+  # household. If food item is not consumed, quantity = 0
+  # uesful for food group analyses
+  
+
+  afe <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_afe.csv")))
+  food_consumption<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_food_consumption.csv")))
+  fct <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
+  
+  x <- afe %>% 
+    select(hhid) %>% 
+    cross_join(fct %>% 
+                 select(item_code)) %>% 
+    left_join(food_consumption, 
+              by = c("hhid", "item_code")) %>% 
+    select(-food_group) %>% 
+    mutate(
+      across(
+        c(quantity_100g, quantity_g),
+        ~replace_na(.,0)
+      )
+    ) %>% 
+    left_join(fct, by = "item_code")
+  x
+}
+
+afe <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_afe.csv"))))
+food_consumption<- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_food_consumption.csv"))))
+fct <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_fct.csv"))))
+
+
+afe
+food_consumption
+head(fct)
+full_item_list("nga1819")
+
+
+
+apparent_intake <- function(name_of_survey){
+  # Estimates apparent intake of nutrients based on consumed food items
+  # and adult female equivalent unit of the household
+  read_in_survey(name_of_survey)
+  
+  x <- food_consumption %>% 
+    left_join(fct, by = "item_code") %>% 
+    mutate(
+      across(
+        -c(item_code, hhid, food_group, quantity_100g, quantity_g),
+        ~.x*quantity_100g
+      )
+    ) %>% 
+    group_by(hhid) %>% 
+    summarise(
+      across(-c(item_code, quantity_100g,quantity_g, food_group),
+             ~sum(.))
+    ) %>% 
+    left_join(afe, by = "hhid") %>% 
+    mutate(
+      across(
+        -c(hhid,afe),
+        ~.x/afe
+      )
+    ) %>% 
+    ungroup()
+  x
+}
+
+
+apparent_intake("hices1516") 
+
