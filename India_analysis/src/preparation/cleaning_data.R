@@ -220,6 +220,5 @@ readr::write_csv(consumption_b5, here::here("India_analysis",
                                              "consumption.csv"))
 
 
-
 rm(list = ls())
 
