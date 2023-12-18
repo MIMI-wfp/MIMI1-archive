@@ -3,10 +3,10 @@
 .RData
 .Ruserdata
 
+# Ignore all fles in the at the following directory:
+data/
 
-
-
-
+# Ignore all files with the following extensions: 
 *.csv
 *.dta
 *.DS_Store
