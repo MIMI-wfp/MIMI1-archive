@@ -16,15 +16,8 @@ read_in_survey <- function(name_of_survey){
   afe <<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_afe.csv")))
   food_consumption<<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_food_consumption.csv")))
   fct <<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
+  # fct causes conflict with fct() function in forcats package, reconsider the name of this object
 }
-
-rm(afe)
-rm(food_consumption)
-rm(fct)
-read_in_survey(name_of_survey = "nga1819")
-afe
-
-
 
 
 full_item_list <- function(name_of_survey){
