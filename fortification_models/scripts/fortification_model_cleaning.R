@@ -21,12 +21,14 @@ rm(list= c("rq_packages", "installed_packages"))
 #-------------------------------------------------------------------------------
 
 # Source script required to create base models: 
-source("all_base_models/scripts/base_model_functions.R")
+# source("all_base_models/scripts/base_model_functions.R")
+# Re-add above line of code once base model functions have been fixed.
 
 #-------------------------------------------------------------------------------
 
 # NIGERIA
 
-# Read-in base model:
-nga_food_consumption <- read_csv("data/nga1819_food_consumption.csv")
-nga
+# Read-in base model data:
+nga_food_consumption <- read_csv("all_base_models/data/nga1819_food_consumption.csv")
+nga_fct <- read_csv("all_base_models/data/nga1819_fct.csv")
+nga_afe <- read_csv("all_base_models/data/nga1819_afe.csv")

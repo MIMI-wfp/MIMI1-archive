@@ -19,11 +19,6 @@ read_in_survey <- function(name_of_survey){
   # fct causes conflict with fct() function in forcats package, reconsider the name of this object
 }
 
-read_in_survey(name_of_survey = "nga1819")
-afe
-
-
-
 
 full_item_list <- function(name_of_survey){
   # creates a data frame with a full list of food items for every
