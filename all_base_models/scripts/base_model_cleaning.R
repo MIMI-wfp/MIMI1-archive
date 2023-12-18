@@ -7,6 +7,7 @@ library(readr)
 library(dplyr)
 library(stringr)
 library(lubridate)
+library(haven)
 
 path_to_data <- "~/Documents/MIMI/MIMI_data/"
 path_to_save <- here::here("all_base_models/data/")
@@ -32,7 +33,8 @@ write_csv(nsso_food_consumption, paste0(path_to_save,"nsso1112_food_consumption.
 
 nsso_fct <- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_matched_fct.csv"))
 
-nsso_fct <- nsso_fct %>% 
+nsso_fct <- nsso_fct %>%  
+  
   rename(
     item_code = Item_Code,
     vita_rae_mcg = vita_mg,
@@ -44,8 +46,8 @@ nsso_fct <- nsso_fct %>%
     na_mg = sodium_mg,
     thia_mg = vitb1_mg,
     ribo_mg = vitb2_mg,
-    niac_mg = vitb3_mg
-  )
+    niac_mg = vitb3_mg,
+  ) 
 
 
 write_csv(nsso_fct, paste0(path_to_save,"nsso1112_fct.csv"))
@@ -57,12 +59,13 @@ nsso_afe <- nsso_afe %>%
   select(hhid,
          afe)
 
-write(nsso_afe, paste0(path_to_save,"nsso1112_afe.csv" ))
+write.csv(nsso_afe, paste0(path_to_save,"nsso1112_afe.csv" ))
 
 rm(nsso_afe)
 rm(nsso_basics)
 rm(nsso_food_consumption)
 rm(nsso_fct)
+rm(nsso_afe)
 
 
 # Ethiopia #####################################################################
@@ -125,7 +128,8 @@ hices_fct <- hices_fct %>%
     fe_mg = fe_in_mg,
     se_mcg = se_in_mcg,
     zn_mg = zn_in_mg
-  )
+  ) %>% 
+  mutate(item_name = item_code)
 
 write_csv(hices_fct, paste0(path_to_save,"hices1516_fct.csv"))
 
@@ -280,7 +284,8 @@ mwi_fct <- mwi_base_model %>%
     ca_mg, 
     fe_mg,
     zn_mg
-  )
+  ) %>% 
+  mutate(item_name = item_code)
 names(mwi_fct)
 
 # fct 
@@ -314,7 +319,7 @@ nga_food_consumption <- nga_food_consumption %>%
   ) %>% 
   mutate(
     quantity_g = quantity_100g*100,
-    item_code = as.character(item_code)
+    item_code = item_code
   ) %>% 
   filter(
     quantity_g>0
@@ -325,11 +330,12 @@ write_csv(nga_food_consumption, paste0(path_to_save,"nga1819_food_consumption.cs
 
 
 nga_fct <- read.csv(paste0(path_to_data, "nga/fct_nga_v4.0_full.csv"))
-
+nga_item_names <- readxl::read_xlsx(paste0(path_to_data,"nga/NGA_LSS1819_fctmatch.xlsx"), sheet = "Nutrient values", skip = 1)
 
 nga_fct <- nga_fct %>% 
   select(
    item_code,
+   ref_fooditem,
    energy_in_kcal,
    vitamina_in_rae_in_mcg,
    thiamine_in_mg,
@@ -345,6 +351,7 @@ nga_fct <- nga_fct %>%
    zn_in_mg
   ) %>% 
   rename(
+    item_name = ref_fooditem,
     energy_kcal = energy_in_kcal,
     vita_rae_mcg = vitamina_in_rae_in_mcg,
     thia_mg = thiamine_in_mg,
@@ -359,15 +366,16 @@ nga_fct <- nga_fct %>%
     fe_mg = fe_in_mg,
     zn_mg = zn_in_mg
   ) %>% 
-  filter(!is.na(item_code))
+  filter(!is.na(item_code)) %>% 
+  mutate(item_code = as.integer(item_code))
 
 
 # fct 
 
-
+as_tibble(nga_fct)
 write_csv(nga_fct, paste0(path_to_save,"nga1819_fct.csv"))
 
-asread.dta(paste0(path_to_data,"nga/NGA_LSS1819_estimates.dta"))
+nga_lss1_estimates <- haven::read_dta(paste0(path_to_data,"nga/NGA_LSS1819_estimates.dta"))
 
 
 nga_afe <- nga_lss1_estimates %>% 

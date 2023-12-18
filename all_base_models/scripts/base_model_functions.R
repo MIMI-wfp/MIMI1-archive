@@ -3,25 +3,32 @@
 ## read in the food consumption and fct and create data frame of 
 ## each food item 
 
-
+library(ggplot2)
 
 path_to_file <- here::here("all_base_models/data/")
 
+
 read_in_survey <- function(name_of_survey){
+  # given the name of the survey of country
+  # the function reads in each part of the base model into general 
+  # object names
   
-  afe <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_afe.csv")))
-  food_consumption<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_food_consumption.csv")))
-  fct <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
+  afe <<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_afe.csv")))
+  food_consumption<<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_food_consumption.csv")))
+  fct <<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
 }
 
 rm(afe)
 rm(food_consumption)
 rm(fct)
-read_in_survey(name_of_survey = "hices1516")
+read_in_survey(name_of_survey = "nga1819")
 afe
 
+
+
+
 full_item_list <- function(name_of_survey){
-  #creates a data frame with a full list of food items for every
+  # creates a data frame with a full list of food items for every
   # household. If food item is not consumed, quantity = 0
   # uesful for food group analyses
   
@@ -52,9 +59,7 @@ food_consumption<- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_f
 fct <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_fct.csv"))))
 
 
-afe
-food_consumption
-head(fct)
+
 full_item_list("nga1819")
 
 
@@ -68,14 +73,14 @@ apparent_intake <- function(name_of_survey){
     left_join(fct, by = "item_code") %>% 
     mutate(
       across(
-        -c(item_code, hhid, food_group, quantity_100g, quantity_g),
+        -c(item_code, hhid,item_name ,food_group, quantity_100g, quantity_g),
         ~.x*quantity_100g
       )
     ) %>% 
     group_by(hhid) %>% 
     summarise(
-      across(-c(item_code, quantity_100g,quantity_g, food_group),
-             ~sum(.))
+      across(-c(item_code,item_name,quantity_100g,quantity_g, food_group),
+             ~sum(.,na.rm = T))
     ) %>% 
     left_join(afe, by = "hhid") %>% 
     mutate(
@@ -88,6 +93,11 @@ apparent_intake <- function(name_of_survey){
   x
 }
 
+apparent_intake("ess1819")
 
-apparent_intake("hices1516") 
+
+apparent_intake("nga") %>% 
+  filter(energy_kcal<5000) %>% 
+  ggplot(aes(x = energy_kcal))+ 
+  geom_histogram()
 
