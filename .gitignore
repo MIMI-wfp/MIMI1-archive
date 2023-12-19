@@ -3,11 +3,14 @@
 .RData
 .Ruserdata
 
+# Ignore all fles in the at the following directory:
+data/
+MSc_MO/map_data/
+MSc_MO/NLSS_data/
+MSC_MO/nutrient_data/
 
-
-
-
+# Ignore all files with the following extensions: 
 *.csv
 *.dta
-
+*.DS_Store
 
