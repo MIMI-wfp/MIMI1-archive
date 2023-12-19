@@ -9,5 +9,5 @@
 
 *.csv
 *.dta
-
+*.DS_Store
 
