@@ -634,6 +634,7 @@ rm(mwi3_hh)
 nga_hh1 <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/secta_cover.csv"))
 nga_roster <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/sect1_roster.csv"))
 nga_edu <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/sect2_education.csv"))
+nga_consumption <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/totcons.csv"))
 
 nga_hh_info <- nga_hh1 %>% 
   select(hhid,
@@ -672,16 +673,21 @@ nga_hh_info <- nga_hh1 %>%
          survey_wgt = wt_final,
          adm1 = state,
          adm2 = lga) %>% 
-  left_join(nga_lss1_estimates %>% select(
-    hhid,
-    ses, ses_urban
-  ), 
-  by = "hhid") %>% 
+  left_join(nga_consumption %>% 
+              dplyr::select(hhid, totcons_adj),
+            by = "hhid")  %>% 
+  rename(total_consumption = totcons_adj) %>% 
+  mutate(sep_quintile = ntile(total_consumption, 5)) %>% 
+  group_by(urbrur) %>% 
+  mutate(ur_quintile = ntile(total_consumption, 5)) %>% 
+  ungroup() %>% 
   select(
     hhid,
     adm1,
     adm2,
     urbrur,
+    sep_quintile,
+    ur_quintile,
     age_head,
     sex_head,
     educ_head,
