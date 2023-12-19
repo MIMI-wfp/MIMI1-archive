@@ -47,13 +47,13 @@ full_item_list <- function(name_of_survey){
   x
 }
 
-afe <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_afe.csv"))))
-food_consumption<- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_food_consumption.csv"))))
-fct <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_fct.csv"))))
+# afe <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_afe.csv"))))
+# food_consumption<- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_food_consumption.csv"))))
+# fct <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_fct.csv"))))
 
 
 
-full_item_list("nga1819")
+# full_item_list("nga1819")
 
 
 
@@ -86,11 +86,11 @@ apparent_intake <- function(name_of_survey){
   x
 }
 
-apparent_intake("ess1819")
-
-
-apparent_intake("nga") %>% 
-  filter(energy_kcal<5000) %>% 
-  ggplot(aes(x = energy_kcal))+ 
-  geom_histogram()
+# apparent_intake("ess1819")
+# 
+# 
+# apparent_intake("nga") %>% 
+#   filter(energy_kcal<5000) %>% 
+#   ggplot(aes(x = energy_kcal))+ 
+#   geom_histogram()
 

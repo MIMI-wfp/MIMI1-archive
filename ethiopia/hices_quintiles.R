@@ -41,25 +41,25 @@ eth_hces1516$hhid <- paste0(as.character(eth_hces1516$CQ11),
 
 names(eth_hces1516)
 #calculate the total expnediture per hh
-# x <- eth_hces1516 %>% 
-#   select(hhid, VALUE, CQ14, QUANTITY,STPRICE,FOOD,FOODEXP,EXPCC, ADEQUIV) %>% 
-#   group_by(hhid, CQ14,ADEQUIV, EXPCC) %>% 
-#   summarise(tot_val = sum(VALUE)) %>% 
-#   mutate(total_per_cap = tot_val/round(ADEQUIV)) %>% 
-#   ungroup() %>% 
-#   mutate(quintile =
-#            case_when(
-#              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[2]]~
-#                "exp quant 1",
-#              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[3]]~
-#                "exp quant 2",
-#              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[4]]~
-#                "exp quant 3",
-#              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[5]]~
-#                "exp quant 4",
-#              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[6]]~
-#                "exp quant 5",
-#            ))
+x <- eth_hces1516 %>%
+  select(hhid, VALUE, CQ14, QUANTITY,STPRICE,FOOD,FOODEXP,EXPCC, ADEQUIV) %>%
+  group_by(hhid, CQ14,ADEQUIV, EXPCC) %>%
+  summarise(tot_val = sum(VALUE)) %>%
+  mutate(total_per_cap = tot_val/round(ADEQUIV)) %>%
+  ungroup() %>%
+  mutate(quintile =
+           case_when(
+             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[2]]~
+               "1",
+             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[3]]~
+               "2",
+             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[4]]~
+               "3",
+             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[5]]~
+               "4",
+             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[6]]~
+               "5",
+           ))
 # mutate(quintile = 
 #          case_when(
 #            total_per_cap<y[[2]]~
@@ -136,22 +136,34 @@ eth_hces_urbrur_quint <- eth_hces1516 %>%
   # adjust for inflation
   mutate(total_per_cap = tot_val/round(ADEQUIV)) %>% 
   ungroup() %>% 
-  group_by(UR) %>% 
   mutate(quintile =
            case_when(
              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[2]]~
-               "Quintile 1",
+               "1",
              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[3]]~
-               "Quintile 2",
+               "2",
              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[4]]~
-               "Quintile 3",
+               "3",
              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[5]]~
-               "Quintile 4",
+               "4",
              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[6]]~
-               "Quintile 5",
+               "5",
            )) %>% 
-  mutate(urbrur_quintiles = paste(UR, quintile)) %>% 
-  select(hhid, UR, quintile, urbrur_quintiles, EXPCC)
+  group_by(UR) %>% 
+  mutate(ur_quintile =
+           case_when(
+             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[2]]~
+               "1",
+             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[3]]~
+               "2",
+             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[4]]~
+               "3",
+             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[5]]~
+               "4",
+             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[6]]~
+               "5",
+           )) %>% 
+  select(hhid, UR, quintile, ur_quintile, EXPCC)
 
 ## summarise the number in each quintile
 
