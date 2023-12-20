@@ -31,7 +31,7 @@ full_item_list <- function(name_of_survey){
   fct <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
   
   x <- afe %>% 
-    select(hhid) %>% 
+    select(hhid,afe) %>% 
     cross_join(fct %>% 
                  select(item_code)) %>% 
     left_join(food_consumption, 
@@ -43,6 +43,10 @@ full_item_list <- function(name_of_survey){
         ~replace_na(.,0)
       )
     ) %>% 
+    mutate(
+      quantity_100g = quantity_100g/afe, 
+      quantity_g = quantity_g/afe
+    )
     left_join(fct, by = "item_code")
   x
 }
