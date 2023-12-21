@@ -46,7 +46,7 @@ full_item_list <- function(name_of_survey){
     mutate(
       quantity_100g = quantity_100g/afe, 
       quantity_g = quantity_g/afe
-    )
+    ) %>% 
     left_join(fct, by = "item_code")
   x
 }
@@ -97,4 +97,9 @@ apparent_intake <- function(name_of_survey){
 #   filter(energy_kcal<5000) %>% 
 #   ggplot(aes(x = energy_kcal))+ 
 #   geom_histogram()
+
+household_data <- function(name_of_survey){
+  x <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_hh_info.csv")))
+  x
+}
 
