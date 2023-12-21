@@ -90,16 +90,44 @@ apparent_intake <- function(name_of_survey){
   x
 }
 
-# apparent_intake("ess1819")
-# 
-# 
-# apparent_intake("nga") %>% 
-#   filter(energy_kcal<5000) %>% 
-#   ggplot(aes(x = energy_kcal))+ 
-#   geom_histogram()
 
 household_data <- function(name_of_survey){
+  #reads in the household information data
   x <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_hh_info.csv")))
   x
 }
+
+
+nutrient_density <- function(name_of_survey){
+  # returns a data frame of nutrient density for each household
+  # values are given in unit of mn per 1000kcal 
+  #
+  x <- food_consumption %>% 
+    left_join(fct, by = "item_code") %>% 
+    mutate(
+      across(
+        -c(item_code, hhid,item_name ,food_group, quantity_100g, quantity_g),
+        ~.x*quantity_100g
+      )
+    ) %>% 
+    group_by(hhid) %>% 
+    summarise(
+      across(-c(item_code,item_name,quantity_100g,quantity_g, food_group),
+             ~sum(.,na.rm = T))
+    ) %>% 
+    mutate(energy_1000kcal = energy_kcal/1000) %>% 
+    mutate(
+      across(
+        -c(hhid),
+        ~.x/energy_1000kcal,
+        .names ="{.col}_1000kcal"
+      )
+    ) %>% 
+    select(hhid, ends_with("1000kcal")) %>% 
+    select(-energy_kcal_1000kcal)
+  x
+}
+
+
+
 
