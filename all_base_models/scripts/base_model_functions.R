@@ -56,10 +56,7 @@ full_item_list <- function(name_of_survey){
 # fct <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_fct.csv"))))
 
 
-
 # full_item_list("nga1819")
-
-
 
 apparent_intake <- function(name_of_survey){
   # Estimates apparent intake of nutrients based on consumed food items
@@ -127,7 +124,6 @@ nutrient_density <- function(name_of_survey){
     select(-energy_kcal_1000kcal)
   x
 }
-
 
 
 
