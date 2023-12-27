@@ -8,7 +8,7 @@
 # Last edited: 22-Dec-2023
 
 # This script is for extracting binarised (Yes/No) consumption of fortification 
-# vehicles for each household, and the quantities consumed (in kg/L). 
+# vehicles for each household, and the quantities consumed (in kg or L). 
 
 # Install and load required packages:
 rq_packages <- c("readr", "tidyverse", "haven")
@@ -184,14 +184,35 @@ rm(list = c("food_consumption", "vehicle_quantities", "base_ai"))
 #-------------------------------------------------------------------------------
 
 #########################
-#### PART 1: MALAWI #####
+#### PART 2: MALAWI #####
 #########################
 
 # Get base case apparent intake data for Malawi: 
 base_ai <- apparent_intake("mwi1516")
 
+# Check the year of this survey.
+
 # Read in food consumption data for Malawi:
 food_consumption <- read_csv("all_base_models/data/mwi1516_food_consumption.csv")
 
+# Add a column called food_item which includes name of food item for all 
+# fortification vehicles:
+food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
+  item_code == 101 ~ "Maize flour", # normal flour
+  item_code == 102 ~ "Maize flour", # fine flour
+  item_code == 103 ~ "Maize flour", # bran flour
+  item_code == 106 ~ "Rice",
+  item_code == 110 ~ "Wheat flour",
+  # item_code == 111 ~ "Bread",
+  # item_code == 112 ~ "Buns, scones",
+  # item_code == 113 ~ "Biscuits",
+  # item_code == 114 ~ "Spaghetti, macaroni, pasta",
+  # item_code == 115 ~ "Breakfast cereal",
+  item_code == 801 ~ "Sugar",
+  item_code == 803 ~ "Edible oil",
+  item_code == 810 ~ "Salt"
+  # Other food items to be included once recipe data available (e.g. bread)
+))
 
+# Need to add an additional column to indicate if the food item was purchased.
 
