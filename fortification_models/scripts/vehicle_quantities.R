@@ -5,12 +5,13 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 18-Dec-2023
-# Last edited: 22-Dec-2023
+# Last edited: 28-Dec-2023
 
 # This script is for extracting binarised (Yes/No) consumption of fortification 
 # vehicles for each household, and the quantities consumed (in kg or L). 
 
-# Install and load required packages:
+# INSTALL AND LOAD PACKAGES:
+
 rq_packages <- c("readr", "tidyverse", "haven")
 
 installed_packages <- rq_packages %in% rownames(installed.packages())
@@ -24,8 +25,13 @@ rm(list= c("rq_packages", "installed_packages"))
 
 #-------------------------------------------------------------------------------
 
+# READ IN FUNCTIONS:
+
 # Source script required to create base models: 
 source("all_base_models/scripts/base_model_functions.R")
+
+# Source script required to get quantities of each fortification vehicle: 
+source("fortification_models/scripts/fortification_model_functions.R")
 
 #-------------------------------------------------------------------------------
 
@@ -33,7 +39,9 @@ source("all_base_models/scripts/base_model_functions.R")
 #### PART 1: NIGERIA ####
 #########################
 
-# Derive base case apparent MN intake for each household
+# READ IN NIGERIA DATA: 
+
+# Get base case apparent MN intake for each household
 base_ai <- apparent_intake("nga1819")
 
 # Note that the base_ai is based on MN values from UNFORTIFIED foods.
@@ -45,7 +53,7 @@ base_ai <- apparent_intake("nga1819")
 rm(list = c("fct", "food_consumption", "afe", "full_item_list"))
 
 # Read in food consumption module of the NLSS:
-food_consumption <- read_csv("MIMI_data/nga/sect6b_food_cons.csv")
+food_consumption <- read_csv("MIMI_data/nga/NGA_2018_LSS_v01_M_CSV/Household/sect6b_food_cons.csv")
 
 #-------------------------------------------------------------------------------
 
@@ -76,8 +84,9 @@ food_consumption <- food_consumption %>%
          conversion_factor = s06bq02_cvn,
          quantity_purchased = s06bq03)
 
-# Calculate the quantity consumed in standard units (kg/L)
-food_consumption$quantity_kg_L <- food_consumption$quantity_consumed * food_consumption$conversion_factor
+# Calculate the quantity consumed as a multiple of 100 grams:
+# (Multiply by 10, as conversion factor gives us quantity in kg)
+food_consumption$quantity_100g <- food_consumption$quantity_consumed * food_consumption$conversion_factor * 10
 
 # Create a column if at least some of the food item was purchased (i.e. quantity > 0, and not NA):
 food_consumption$food_purchased <- ifelse(food_consumption$quantity_purchased > 0, 
@@ -89,93 +98,21 @@ food_consumption$food_purchased <- ifelse(is.na(food_consumption$food_purchased)
 
 food_consumption <- food_consumption %>% 
   dplyr::select("hhid", "food_item", "consumed", "food_purchased", 
-                "quantity_kg_L")
+                "quantity_100g")
 
 # If a household has both consumed and purchased a particular food item, then
 # combine the rows into one row, and sum the quantities: 
 food_consumption <- food_consumption %>% 
   group_by(hhid, food_item, consumed, food_purchased) %>% 
-  summarise(quantity_kg_L = sum(quantity_kg_L))
+  summarise(quantity_100g = sum(quantity_100g))
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles: 
 
-vehicle_quantities <- base_ai %>% select("hhid") %>% 
-  # RICE
-  left_join((food_consumption %>%
-               dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                             "quantity_kg_L") %>%
-               filter(food_item == "Rice",
-                      consumed == "Yes",
-                      food_purchased == "Yes") %>%
-               rename("rice_kg" = "quantity_kg_L") %>%
-               ungroup() %>% 
-               mutate(rice = "Yes") %>% 
-               dplyr::select("hhid", "rice", "rice_kg")), by = "hhid") %>% 
-  # WHEAT FLOUR:
-  left_join((food_consumption %>%
-               dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                             "quantity_kg_L") %>%
-               filter(food_item == "Wheat flour",
-                      consumed == "Yes",
-                      food_purchased == "Yes") %>%
-               rename("wheatflour_kg" = "quantity_kg_L") %>%
-               ungroup() %>% 
-               mutate(wheatflour = "Yes") %>% 
-               dplyr::select("hhid", "wheatflour", "wheatflour_kg")), by = "hhid") %>% 
-  # MAIZE FLOUR:
-  left_join((food_consumption %>%
-               dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                             "quantity_kg_L") %>%
-               filter(food_item == "Maize flour",
-                      consumed == "Yes",
-                      food_purchased == "Yes") %>%
-               rename("maizeflour_kg" = "quantity_kg_L") %>%
-               ungroup() %>% 
-               mutate(maizeflour = "Yes") %>% 
-               dplyr::select("hhid", "maizeflour", "maizeflour_kg")), by = "hhid") %>%
-  # SUGAR:
-  left_join((food_consumption %>%
-               dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                             "quantity_kg_L") %>%
-               filter(food_item == "Sugar",
-                      consumed == "Yes",
-                      food_purchased == "Yes") %>%
-               rename("sugar_kg" = "quantity_kg_L") %>%
-               ungroup() %>% 
-               mutate(sugar = "Yes") %>% 
-               dplyr::select("hhid", "sugar", "sugar_kg")), by = "hhid") %>%
-  # EDIBLE OIL:
-  left_join((food_consumption %>%
-               dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                             "quantity_kg_L") %>%
-               filter(food_item == "Edible oil",
-                      consumed == "Yes",
-                      food_purchased == "Yes") %>%
-               rename("edible_oil_kg" = "quantity_kg_L") %>%
-               ungroup() %>% 
-               mutate(edible_oil = "Yes") %>% 
-               dplyr::select("hhid", "edible_oil", "edible_oil_kg")), by = "hhid") %>%
-  # SALT:
-  left_join((food_consumption %>%
-               dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                             "quantity_kg_L") %>%
-               filter(food_item == "Salt",
-                      consumed == "Yes",
-                      food_purchased == "Yes") %>%
-               rename("salt_kg" = "quantity_kg_L") %>%
-               ungroup() %>% 
-               mutate(salt = "Yes") %>% 
-               dplyr::select("hhid", "salt", "salt_kg")), by = "hhid") %>%
-  # If food item is not consumed, then replace NA with "No":
-  mutate_at(vars(rice, wheatflour, maizeflour, sugar, edible_oil, salt), 
-            funs(replace(., is.na(.), "No"))) %>% 
-  # Change food item variables to factor: 
-  mutate_at(vars(rice, wheatflour, maizeflour, sugar, edible_oil, salt), 
-            funs(factor(., levels = c("Yes", "No"))))
+get_vehicle_quantities(base_ai, food_consumption)
 
 # Save this data-frame as a .csv file:
-# write_csv(vehicle_quantities, 
+# write_csv(vehicle_quantities,
 #           "fortification_models/data/nga1819_vehicle_quantities.csv")
 
 # Remove objects no longer required: 
@@ -187,16 +124,56 @@ rm(list = c("food_consumption", "vehicle_quantities", "base_ai"))
 #### PART 2: MALAWI #####
 #########################
 
+# READ IN MALAWI DATA:  
+
 # Get base case apparent intake data for Malawi: 
 base_ai <- apparent_intake("mwi1516")
 
-# Check the year of this survey.
+# Save data-frame for base_ai:
+# write_csv(base_ai, "fortification_models/data/mwi1516_base_ai.csv")
+
+# CHECK WITH GABRIEL SOURCE DATA - If it's the fourth integrated household survey
+# then we have used the wrong dates in the naming structure (2016-2017 not 2015-2016)
 
 # Read in food consumption data for Malawi:
 food_consumption <- read_csv("all_base_models/data/mwi1516_food_consumption.csv")
 
+# Select only required columns:
+food_consumption <- food_consumption %>% 
+  dplyr::select("hhid", "item_code", "quantity_100g")
+
+# Keep only required data: 
+rm(fct)
+
+# Get data for food purchases:
+food_purchases <- read_csv("MIMI_data/mwi/MWI_2016_IHS-IV_v04_M_CSV/household/hh_mod_g1.csv")
+food_purchases <- food_purchases %>% rename("hhid" = "HHID",
+                                 "item_code" = "hh_g02",
+                                 "quantity_purchased" = "hh_g04a") %>% 
+  select("hhid", "item_code", "quantity_purchased")
+
+# Keep only complete cases of food_purchases:
+food_purchases <- na.omit(food_purchases)
+
+# Check if there are any duplicate rows by "hhid" and "item_code" in food_purchases:
+food_purchases[duplicated(food_purchases[c("hhid", "item_code")]), ]
+
+# There are no duplicates, therefore left_join food_purchases to food_consumption:
+food_consumption <- left_join(food_consumption, food_purchases, by = c("hhid", "item_code"))
+
+# Keep only required columns, and remove food_purchases df: 
+food_consumption <- food_consumption %>% 
+  dplyr::select("hhid", "item_code", "quantity_100g", "quantity_purchased")
+
+rm(food_purchases)
+
+#-------------------------------------------------------------------------------
+
+# FORTIFICATION VEHICLES: 
+
 # Add a column called food_item which includes name of food item for all 
 # fortification vehicles:
+
 food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
   item_code == 101 ~ "Maize flour", # normal flour
   item_code == 102 ~ "Maize flour", # fine flour
@@ -208,11 +185,52 @@ food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
   # item_code == 113 ~ "Biscuits",
   # item_code == 114 ~ "Spaghetti, macaroni, pasta",
   # item_code == 115 ~ "Breakfast cereal",
+  # item_code == 116 ~ "Infant feeding cereals",
   item_code == 801 ~ "Sugar",
   item_code == 803 ~ "Edible oil",
   item_code == 810 ~ "Salt"
   # Other food items to be included once recipe data available (e.g. bread)
 ))
 
-# Need to add an additional column to indicate if the food item was purchased.
+# TO RETURN TO THIS SECTION AFTER RECIPE DATA AVAILABLE: Need to add an additional
+# column indicating the proportion of that food item that contains the fortificant.
+# Use this data to calculate the quantity of the fortification vehicle consumed.
+
+# Add a column to indicate if each food item was consumed (in last 7-days): 
+food_consumption$consumed <- ifelse(food_consumption$quantity_100g > 0, "Yes", 
+                                    ifelse(food_consumption$quantity_100g == 0, "No", NA))
+
+# Add a column to indicate if each food item was purchased:
+food_consumption$food_purchased <- ifelse(food_consumption$quantity_purchased > 0, "Yes", 
+                                          ifelse(food_consumption$quantity_purchased == 0, "No", NA))
+
+# Select required columns:
+food_consumption <- food_consumption %>% 
+  dplyr::select("hhid", "food_item", "consumed", "food_purchased", "quantity_100g") %>% 
+  # Remove rows with missing values for food_item:
+  drop_na("food_item")
+
+# If food_consumption$food_purchased is NA, then replace value with "No":
+food_consumption$food_purchased[is.na(food_consumption$food_purchased)] <- "No"
+
+# If a household has both consumed and purchased a particular food item, then
+# combine the rows into one row, and sum the quantities: 
+food_consumption <- food_consumption %>% 
+  group_by(hhid, food_item, consumed, food_purchased) %>% 
+  summarise(quantity_100g = sum(quantity_100g))
+
+
+# Create a data-frame to indicate consumption (including quantities), of each of
+# the fortification vehicles: 
+
+get_vehicle_quantities(base_ai, food_consumption)
+
+# Save this data-frame as a csv file: 
+# write_csv(vehicle_quantities, "fortification_models/data/mwi1516_vehicle_quantities.csv")
+
+# Remove objects no longer required: 
+rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
+
+#-------------------------------------------------------------------------------
+
 
