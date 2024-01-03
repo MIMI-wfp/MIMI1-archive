@@ -233,9 +233,9 @@ rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
 
 #-------------------------------------------------------------------------------
 
-#########################
-#### PART 3: ETHIOPIA ###
-#########################
+###############################
+#### PART 3: ETHIOPIA - ESS ###
+###############################
 
 # READ IN ETHIOPIA DATA (ESS):
 
@@ -245,7 +245,7 @@ base_ai <- apparent_intake("ess1819")
 # Save data-frame for base_ai:
 # write_csv(base_ai, "fortification_models/data/ess1819_base_ai.csv")
 
-# Read in food consumption module from ESS:
+# Read in food consumption data for ESS:
 food_consumption <- read_csv("all_base_models/data/ess1819_food_consumption.csv")
 
 # Select only required columns:
@@ -255,7 +255,7 @@ food_consumption <- food_consumption %>%
 # Keep only required data:
 rm(fct)
 
-# Get data for food purchases:
+# Get data for food purchases from food consumption module:
 food_purchases <- read_csv("MIMI_data/Ethiopia/ETH_2018_ESS_v03_M_CSV/sect6a_hh_w4.csv")
 
 # Select and rename the columns that are required: 
@@ -337,3 +337,107 @@ rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
 
 #-------------------------------------------------------------------------------
 
+###############################
+### PART 4: ETHIOPIA - HICES ##
+###############################
+
+# READ IN ETHIOPIA DATA (HICES):
+
+# Get base case apparent intake data from HICES:
+base_ai <- apparent_intake("hices1516")
+
+# Save data-frame for base_ai:
+# write_csv(base_ai, "fortification_models/data/hices1516_base_ai.csv")
+
+# Select only required columns:
+food_consumption <- food_consumption %>% 
+  dplyr::select("hhid", "item_code", "quantity_100g")
+
+# Note that there are many food items that are duplicated for households, 
+# combine these rows and sum the quantities:
+food_consumption <- food_consumption %>% 
+  group_by(hhid, item_code) %>% 
+  summarise(quantity_100g = sum(quantity_100g))
+
+# Read in food and bevarage data-frame to get purchase info: 
+food_purchases <- read_csv("MIMI_data/Ethiopia/eth_hces1516_foodbev/ETH_HCES1516_foodbev.csv")
+
+# Select relevant variables: 
+food_purchases <- food_purchases %>% 
+  dplyr::select("hhid", "ITEMC", "TYPE") %>% 
+  # And give variables appropriate names:
+  rename("item_code" = "ITEMC",
+         "food_purchased" = "TYPE")
+
+# If the response in food_purchased is "In Cash", then replace with "Yes":
+food_purchases$food_purchased[food_purchases$food_purchased == "In Cash"] <- "Yes"
+# Replace all other responses with "No":
+food_purchases$food_purchased[food_purchases$food_purchased != "Yes"] <- "No"
+
+# Check if there are any duplicate rows by "hhid" and "item_code" in food_purchases:
+food_purchases[duplicated(food_purchases[c("hhid", "item_code")]), ] 
+
+# Since there are duplicates, combine rows that have the same "hhid" and "item_code",
+# if any of the rows have "Yes" in the food_purchased column, keep the value "Yes":
+food_purchases <- food_purchases %>% 
+  group_by(hhid, item_code) %>% 
+  summarise(food_purchased = ifelse(any(food_purchased == "Yes"), "Yes", "No"))
+
+# Left join food_purchases to food_consumption:
+food_consumption <- left_join(food_consumption, food_purchases, by = c("hhid", "item_code"))
+
+# Remove objects that are no longer required:
+rm(food_purchases)
+
+#-------------------------------------------------------------------------------
+
+# FORTIFICATION VEHICLES:
+
+# Add a column called food_item which includes name of food item for all
+# fortification vehicles:
+
+food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
+  item_code == "Wheat white, flour" ~ "Wheat flour",
+  item_code == "Flour, factory product, mainly of wheat" ~ "Wheat flour",
+  # ? Other types of wheat flour - clarify these with kevin
+  item_code == "Maize, flour" ~ "Maize flour",
+  item_code == "Rice" ~ "Rice",
+  item_code == "Rice_duplicated_11202123" ~ "Rice",
+  item_code == "Edible oil, local" ~ "Edible oil",
+  item_code == "Edible oil, imported" ~ "Edible oil",
+  item_code == "Sugar" ~ "Sugar",
+  item_code == "Salt" ~ "Salt"
+  # Other food items to be included once recipe data available, wheat flour products,
+  # Also consider what to do with products that contain SUGAR, e.g. juices, condiments,
+  # sweets.
+))
+
+# TO RETURN TO THIS SECTION AFTER RECIPE DATA AVAILABLE
+
+# Add a column to indicate if each food item was consumed (in last 7-days):
+food_consumption$consumed <- ifelse(food_consumption$quantity_100g > 0, "Yes", 
+                                    ifelse(food_consumption$quantity_100g == 0, "No", NA))
+
+# Select required columns:  
+food_consumption <- food_consumption %>% 
+  dplyr::select("hhid", "food_item", "consumed", "food_purchased", "quantity_100g") %>% 
+  # Remove rows with missing values for food_item:
+  drop_na("food_item")
+
+# If a household has both consumed and purchased a particular food item, then
+# combine the rows into one row, and sum the quantities:
+food_consumption <- food_consumption %>% 
+  group_by(hhid, food_item, consumed, food_purchased) %>% 
+  summarise(quantity_100g = sum(quantity_100g))
+
+# Create a data-frame to indicate consumption (including quantities), of each of
+# the fortification vehicles:
+get_vehicle_quantities(base_ai, food_consumption)
+
+# Save this data-frame as a csv file:
+# write_csv(vehicle_quantities, "fortification_models/data/hices1516_vehicle_quantities.csv")
+
+# Remove objects no longer required:
+rm(list = c("afe", "base_ai", "fct", "food_consumption", "vehicle_quantities"))
+
+#-------------------------------------------------------------------------------
