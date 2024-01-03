@@ -12,7 +12,7 @@
 
 # INSTALL AND LOAD PACKAGES:
 
-rq_packages <- c("readr", "tidyverse", "haven")
+rq_packages <- c("readr", "tidyverse", "haven", "stringr")
 
 installed_packages <- rq_packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -233,4 +233,107 @@ rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
 
 #-------------------------------------------------------------------------------
 
+#########################
+#### PART 3: ETHIOPIA ###
+#########################
+
+# READ IN ETHIOPIA DATA (ESS):
+
+# Get base case apparent intake data from ESS:
+base_ai <- apparent_intake("ess1819")
+
+# Save data-frame for base_ai:
+# write_csv(base_ai, "fortification_models/data/ess1819_base_ai.csv")
+
+# Read in food consumption module from ESS:
+food_consumption <- read_csv("all_base_models/data/ess1819_food_consumption.csv")
+
+# Select only required columns:
+food_consumption <- food_consumption %>% 
+  dplyr::select("hhid", "item_code", "quantity_100g")
+
+# Keep only required data:
+rm(fct)
+
+# Get data for food purchases:
+food_purchases <- read_csv("MIMI_data/Ethiopia/ETH_2018_ESS_v03_M_CSV/sect6a_hh_w4.csv")
+
+# Select and rename the columns that are required: 
+food_purchases <- food_purchases %>% rename("hhid" = "household_id",
+                                 "item_code" = "item_cd",
+                                 "quantity_purchased" = "s6aq03a") %>% 
+  select("hhid", "item_code", "quantity_purchased")
+
+# Keep only complete cases of food_purchases:
+food_purchases <- na.omit(food_purchases)
+
+# Clean item_code column to include only numbers:
+food_purchases$item_code <- str_extract(food_purchases$item_code, "\\d+") %>% 
+  as.numeric()
+
+# Check if there are any duplicate rows by "hhid" and "item_code" in food_purchases:
+food_purchases[duplicated(food_purchases[c("hhid", "item_code")]), ] 
+
+# There are no duplicates, therefore left_join food_purchases to food_consumption:
+food_consumption <- left_join(food_consumption, food_purchases, by = c("hhid", "item_code"))
+
+rm(food_purchases)
+
+#-------------------------------------------------------------------------------
+
+# FORTIFICATION VEHICLES:
+
+# Add a column called food_item which includes name of food item for all 
+# fortification vehicles:
+
+food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
+  item_code == 102 ~ "Wheat flour", # Wheat (Incl. Flour factory product)
+  # item_code == 902 ~ "purchased bread/biscuit",
+  # item_code == 903 ~ "Pasta/Macaroni",
+  item_code == 104 ~ "Maize flour", # Maize (?Including flour)
+  item_code == 107 ~ "Rice", 
+  item_code == 708 ~ "Edible oil", # Oils (processed)
+  item_code == 710 ~ "Sugar", 
+  item_code == 712 ~ "Salt"
+  # Other food items to be included once recipe data available (e.g. bread)
+))
+
+# TO RETURN TO THIS SECTION AFTER RECIPE DATA AVAILABLE: Need to add an additional
+# column indicating the proportion of that food item that contains the fortificant.
+# Use this data to calculate the quantity of the fortification vehicle consumed.
+
+# Add a column to indicate if each food item was consumed (in last 7-days):
+food_consumption$consumed <- ifelse(food_consumption$quantity_100g > 0, "Yes", 
+                                    ifelse(food_consumption$quantity_100g == 0, "No", NA))
+
+# Add a column to indicate if each food item was purchased:
+food_consumption$food_purchased <- ifelse(food_consumption$quantity_purchased > 0, "Yes", 
+                                          ifelse(food_consumption$quantity_purchased == 0, "No", NA))
+
+# Select required columns:
+food_consumption <- food_consumption %>% 
+  dplyr::select("hhid", "food_item", "consumed", "food_purchased", "quantity_100g") %>% 
+  # Remove rows with missing values for food_item:
+  drop_na("food_item")
+
+# If food_consumption$food_purchased is NA, then replace value with "No":
+food_consumption$food_purchased[is.na(food_consumption$food_purchased)] <- "No"
+
+# If a household has both consumed and purchased a particular food item, then
+# combine the rows into one row, and sum the quantities:
+food_consumption <- food_consumption %>% 
+  group_by(hhid, food_item, consumed, food_purchased) %>% 
+  summarise(quantity_100g = sum(quantity_100g))
+
+# Create a data-frame to indicate consumption (including quantities), of each of
+# the fortification vehicles:
+get_vehicle_quantities(base_ai, food_consumption)
+
+# Save this data-frame as a csv file:
+# write_csv(vehicle_quantities, "fortification_models/data/ess1819_vehicle_quantities.csv")
+
+# Remove objects no longer required:
+rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
+
+#-------------------------------------------------------------------------------
 
