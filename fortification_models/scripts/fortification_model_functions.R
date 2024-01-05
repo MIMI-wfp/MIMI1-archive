@@ -31,66 +31,66 @@ get_vehicle_quantities <- function(base_ai, food_consumption) {
     # RICE
     left_join((food_consumption %>%
                  dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                               "quantity_100g") %>%
+                               "purchased_100g") %>%
                  filter(food_item == "Rice",
                         consumed == "Yes",
                         food_purchased == "Yes") %>%
-                 rename("rice_100g" = "quantity_100g") %>%
+                 rename("rice_100g" = "purchased_100g") %>%
                  ungroup() %>% 
                  mutate(rice = "Yes") %>% 
                  dplyr::select("hhid", "rice", "rice_100g")), by = "hhid") %>% 
     # WHEAT FLOUR:
     left_join((food_consumption %>%
                  dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                               "quantity_100g") %>%
+                               "purchased_100g") %>%
                  filter(food_item == "Wheat flour",
                         consumed == "Yes",
                         food_purchased == "Yes") %>%
-                 rename("wheatflour_100g" = "quantity_100g") %>%
+                 rename("wheatflour_100g" = "purchased_100g") %>%
                  ungroup() %>% 
                  mutate(wheatflour = "Yes") %>% 
                  dplyr::select("hhid", "wheatflour", "wheatflour_100g")), by = "hhid") %>% 
     # MAIZE FLOUR:
     left_join((food_consumption %>%
                  dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                               "quantity_100g") %>%
+                               "purchased_100g") %>%
                  filter(food_item == "Maize flour",
                         consumed == "Yes",
                         food_purchased == "Yes") %>%
-                 rename("maizeflour_100g" = "quantity_100g") %>%
+                 rename("maizeflour_100g" = "purchased_100g") %>%
                  ungroup() %>% 
                  mutate(maizeflour = "Yes") %>% 
                  dplyr::select("hhid", "maizeflour", "maizeflour_100g")), by = "hhid") %>%
     # SUGAR:
     left_join((food_consumption %>%
                  dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                               "quantity_100g") %>%
+                               "purchased_100g") %>%
                  filter(food_item == "Sugar",
                         consumed == "Yes",
                         food_purchased == "Yes") %>%
-                 rename("sugar_100g" = "quantity_100g") %>%
+                 rename("sugar_100g" = "purchased_100g") %>%
                  ungroup() %>% 
                  mutate(sugar = "Yes") %>% 
                  dplyr::select("hhid", "sugar", "sugar_100g")), by = "hhid") %>%
     # EDIBLE OIL:
     left_join((food_consumption %>%
                  dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                               "quantity_100g") %>%
+                               "purchased_100g") %>%
                  filter(food_item == "Edible oil",
                         consumed == "Yes",
                         food_purchased == "Yes") %>%
-                 rename("edible_oil_100g" = "quantity_100g") %>%
+                 rename("edible_oil_100g" = "purchased_100g") %>%
                  ungroup() %>% 
                  mutate(edible_oil = "Yes") %>% 
                  dplyr::select("hhid", "edible_oil", "edible_oil_100g")), by = "hhid") %>%
     # SALT:
     left_join((food_consumption %>%
                  dplyr::select("hhid", "food_item", "consumed", "food_purchased",
-                               "quantity_100g") %>%
+                               "purchased_100g") %>%
                  filter(food_item == "Salt",
                         consumed == "Yes",
                         food_purchased == "Yes") %>%
-                 rename("salt_100g" = "quantity_100g") %>%
+                 rename("salt_100g" = "purchased_100g") %>%
                  ungroup() %>% 
                  mutate(salt = "Yes") %>% 
                  dplyr::select("hhid", "salt", "salt_100g")), by = "hhid") %>%
