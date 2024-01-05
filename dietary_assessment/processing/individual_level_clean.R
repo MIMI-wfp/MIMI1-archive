@@ -10,7 +10,8 @@ nnmb_food_list <- nnmb_consumption %>%
 
 nnmb_all_items <- nnmb_consumption %>% 
   distinct(SUBJECT) %>% 
-  cross_join(nnmb_food_list) %>% 
+  cross_join(nnmb_food_list %>%  
+               select(FOODEX2_INGR_CODE)) %>% 
   left_join(nnmb_consumption %>% 
               select(SUBJECT,
                      FOODEX2_INGR_CODE,
@@ -25,11 +26,12 @@ nnmb_all_items <- nnmb_consumption %>%
   mutate(
     across(
       -c(SUBJECT, FOODEX2_INGR_CODE),
-      ~replace_na(0)
+      ~replace_na(.,0)
     )
   )
   
-
+nnmb_all_items %>% 
+  filter(SUBJECT == 1)
 
 
 
@@ -55,7 +57,25 @@ nnmb_al<- nnmb_consumption %>%
   )
   
 
+nnmb_women <- nnmb_al %>% 
+  left_join(nnmb_subject %>% 
+              select(SUBJECT, SEX, AGE_YEAR, PREG_LACT),
+            by = 'SUBJECT') %>% 
+  filter(SEX == 2 &
+           AGE_YEAR <31&
+           PREG_LACT == 1)
+
+
 # ethiopia FSS
 
-fcs11 <- haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/all.dta")
-fcs11_adults <-  haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/men.dta")
+# fcs11 <- haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/all.dta")
+fcs11_women <- haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/women.dta")
+fcs11_men <-  haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/men.dta")
+
+fcs11_women <- fcs11_women %>% 
+  filter(Mother_age<=30)
+
+
+
+
+
