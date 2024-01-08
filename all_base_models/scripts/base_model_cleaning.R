@@ -242,7 +242,7 @@ mwi_food_consumption <- mwi_base_model %>%
   )
 
 
-write_csv(mwi_food_consumption, paste0(path_to_save,"mwi_ihs1516_food_consumption.csv"))
+write_csv(mwi_food_consumption, paste0(path_to_save,"mwi_ihs1617_food_consumption.csv"))
 
 
 mwi_fct <- mwi_base_model %>% 
@@ -291,13 +291,13 @@ names(mwi_fct)
 # fct 
 
 
-write_csv(mwi_fct, paste0(path_to_save,"mwi_ihs1516_fct.csv"))
+write_csv(mwi_fct, paste0(path_to_save,"mwi_ihs1617_fct.csv"))
 
 mwi_afe<- read.csv(paste0(path_to_data, "mwi/mwi_afe.csv"))
 mwi_afe <- mwi_afe %>% 
   rename(hhid = HHID)
 
-write_csv(mwi_afe, paste0(path_to_save,"mwi_ihs1516_afe.csv"))
+write_csv(mwi_afe, paste0(path_to_save,"mwi_ihs1617_afe.csv"))
 
 
 rm(mwi_fct)
@@ -659,7 +659,7 @@ mwi_hh_info <- mwi1_hh %>%
 
 # need sep!
 
-write.csv(mwi_hh_info, paste0(path_to_save, "mwi_ihs1516_hh_info.csv"))
+write.csv(mwi_hh_info, paste0(path_to_save, "mwi_ihs1617_hh_info.csv"))
 rm(mwi_hh_info)
 rm(mwi1_hh)
 rm(mwi2_hh)
