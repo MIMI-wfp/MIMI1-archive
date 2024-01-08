@@ -28,7 +28,7 @@ nsso_food_consumption <- nsso_food_consumption %>%
   mutate(quantity_100g = quantity_g/100)
 
 
-write_csv(nsso_food_consumption, paste0(path_to_save,"nsso1112_food_consumption.csv"))
+write_csv(nsso_food_consumption, paste0(path_to_save,"ind_nss1112_food_consumption.csv"))
 
 
 nsso_fct <- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_matched_fct.csv"))
@@ -50,7 +50,7 @@ nsso_fct <- nsso_fct %>%
   ) 
 
 
-write_csv(nsso_fct, paste0(path_to_save,"nsso1112_fct.csv"))
+write_csv(nsso_fct, paste0(path_to_save,"ind_nss1112_fct.csv"))
 
 nsso_afe<- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_afe.csv")) 
 
@@ -59,9 +59,9 @@ nsso_afe <- nsso_afe %>%
   select(hhid,
          afe)
 
-write.csv(nsso_afe, paste0(path_to_save,"nsso1112_afe.csv" ))
+write.csv(nsso_afe, paste0(path_to_save,"ind_nss1112_afe.csv" ))
 
-rm(nsso_afe)
+# rm(nsso_afe)
 rm(nsso_basics)
 rm(nsso_food_consumption)
 rm(nsso_fct)
@@ -86,7 +86,7 @@ hices_food_consumption <- hices_food_consumption %>%
          value = value/365) %>% 
   mutate(quantity_100g = quantity_g/100)
 
-write_csv(hices_food_consumption, paste0(path_to_save,"hices1516_food_consumption.csv"))
+write_csv(hices_food_consumption, paste0(path_to_save,"eth_hices1516_food_consumption.csv"))
 
 # fct 
 
@@ -131,10 +131,10 @@ hices_fct <- hices_fct %>%
   ) %>% 
   mutate(item_name = item_code)
 
-write_csv(hices_fct, paste0(path_to_save,"hices1516_fct.csv"))
+write_csv(hices_fct, paste0(path_to_save,"eth_hices1516_fct.csv"))
 
 hices_afe <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/eth_hces1516_afe.csv"))
-write_csv(hices_afe, paste0(path_to_save,"hices1516_afe.csv"))
+write_csv(hices_afe, paste0(path_to_save,"eth_hices1516_afe.csv"))
 
 rm(hices_fct)
 rm(hices_food_consumption)
@@ -158,7 +158,7 @@ ess_food_consumption <- ess_food_consumption %>%
   select(hhid, item_code, quantity_g,quantity_100g, food_group) 
 
 
-write_csv(ess_food_consumption, paste0(path_to_save,"ess1819_food_consumption.csv"))
+write_csv(ess_food_consumption, paste0(path_to_save,"eth_ess1819_food_consumption.csv"))
 
 # fct 
 
@@ -204,7 +204,7 @@ ess_fct <- ess_fct %>%
     zn_mg = zn_in_mg
   )
 
-write_csv(ess_fct, paste0(path_to_save,"ess1819_fct.csv"))
+write_csv(ess_fct, paste0(path_to_save,"eth_ess1819_fct.csv"))
 
 
 ess_afe <- read.csv(paste0(path_to_data, "Ethiopia/eth/ess41819/eth_ess4_hme.csv"))
@@ -212,7 +212,7 @@ ess_afe <- ess_afe %>%
   select(HHID,afe) %>% 
   rename(hhid = HHID)
 
-write_csv(ess_afe, paste0(path_to_save,"ess1819_afe.csv"))
+write_csv(ess_afe, paste0(path_to_save,"eth_ess1819_afe.csv"))
 
 rm(ess_fct)
 rm(ess_food_consumption)
@@ -242,7 +242,7 @@ mwi_food_consumption <- mwi_base_model %>%
   )
 
 
-write_csv(mwi_food_consumption, paste0(path_to_save,"mwi1516_food_consumption.csv"))
+write_csv(mwi_food_consumption, paste0(path_to_save,"mwi_ihs1617_food_consumption.csv"))
 
 
 mwi_fct <- mwi_base_model %>% 
@@ -291,13 +291,13 @@ names(mwi_fct)
 # fct 
 
 
-write_csv(mwi_fct, paste0(path_to_save,"mwi1516_fct.csv"))
+write_csv(mwi_fct, paste0(path_to_save,"mwi_ihs1617_fct.csv"))
 
 mwi_afe<- read.csv(paste0(path_to_data, "mwi/mwi_afe.csv"))
 mwi_afe <- mwi_afe %>% 
   rename(hhid = HHID)
 
-write_csv(mwi_afe, paste0(path_to_save,"mwi1516_afe.csv"))
+write_csv(mwi_afe, paste0(path_to_save,"mwi_ihs1617_afe.csv"))
 
 
 rm(mwi_fct)
@@ -326,7 +326,7 @@ nga_food_consumption <- nga_food_consumption %>%
   )
 as_tibble(nga_food_consumption)
 
-write_csv(nga_food_consumption, paste0(path_to_save,"nga1819_food_consumption.csv"))
+write_csv(nga_food_consumption, paste0(path_to_save,"nga_lss1819_food_consumption.csv"))
 
 
 nga_fct <- read.csv(paste0(path_to_data, "nga/fct_nga_v4.0_full.csv"))
@@ -373,7 +373,7 @@ nga_fct <- nga_fct %>%
 # fct 
 
 as_tibble(nga_fct)
-write_csv(nga_fct, paste0(path_to_save,"nga1819_fct.csv"))
+write_csv(nga_fct, paste0(path_to_save,"nga_lss1819_fct.csv"))
 
 nga_lss1_estimates <- haven::read_dta(paste0(path_to_data,"nga/NGA_LSS1819_estimates.dta"))
 
@@ -383,7 +383,7 @@ nga_afe <- nga_lss1_estimates %>%
          hhafe) %>% 
   rename(afe = hhafe)
 
-write_csv(nga_afe, paste0(path_to_save,"nga1819_afe.csv"))
+write_csv(nga_afe, paste0(path_to_save,"nga_lss1819_afe.csv"))
 
 rm(nga_fct)
 rm(nga_food_consumption)
@@ -462,7 +462,7 @@ nsso_household_information <- nsso_household_information %>%
   ungroup() %>% 
   select(-c(Value, expenditure,afe))
 
-write_csv(nsso_household_information, paste0(path_to_save,"nsso1112_hh_info.csv"))
+write_csv(nsso_household_information, paste0(path_to_save,"ind_nss1112_hh_info.csv"))
 
 rm(nsso_household_information)
 rm(nsso_basics)
@@ -504,7 +504,7 @@ hices_hh_info <- hices_food_consumption %>%
   select(-c(UR, EXPCC)) %>% 
   rename(seq_quintile = quintile)
 
-write.csv(hices_hh_info, paste0(path_to_save, "hices1516_hh_info.csv"))      
+write.csv(hices_hh_info, paste0(path_to_save, "eth_hices1516_hh_info.csv"))      
 
 # ESS --------------------------------------------------------------------------
 
@@ -582,7 +582,7 @@ ess_hh_info <- ess1 %>%
   ))
   
 
-write.csv(ess_hh_info, paste0(path_to_save, "ess1819_hh_info.csv"))
+write.csv(ess_hh_info, paste0(path_to_save, "eth_ess1819_hh_info.csv"))
 
 ## need SEP as well
 
@@ -659,7 +659,7 @@ mwi_hh_info <- mwi1_hh %>%
 
 # need sep!
 
-write.csv(mwi_hh_info, paste0(path_to_save, "mwi1516_hh_info.csv"))
+write.csv(mwi_hh_info, paste0(path_to_save, "mwi_ihs1617_hh_info.csv"))
 rm(mwi_hh_info)
 rm(mwi1_hh)
 rm(mwi2_hh)
@@ -733,7 +733,7 @@ nga_hh_info <- nga_hh1 %>%
   ) 
 
 
-write.csv(nga_hh_info, paste0(path_to_save, "nga1819_hh_info.csv"))
+write.csv(nga_hh_info, paste0(path_to_save, "nga_lss1819_hh_info.csv"))
 rm(nga_edu)
 rm(nga_hh1)
 rm(nga_hh_info)

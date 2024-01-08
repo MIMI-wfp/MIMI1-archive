@@ -15,7 +15,7 @@ read_in_survey <- function(name_of_survey){
   
   afe <<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_afe.csv")))
   food_consumption<<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_food_consumption.csv")))
-  fct <<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
+  fc_table <<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
   # fct causes conflict with fct() function in forcats package, reconsider the name of this object
 }
 
@@ -28,11 +28,11 @@ full_item_list <- function(name_of_survey){
 
   afe <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_afe.csv")))
   food_consumption<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_food_consumption.csv")))
-  fct <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
+  fc_table <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
   
   x <- afe %>% 
     select(hhid,afe) %>% 
-    cross_join(fct %>% 
+    cross_join(fc_table %>% 
                  select(item_code)) %>% 
     left_join(food_consumption, 
               by = c("hhid", "item_code")) %>% 
@@ -47,7 +47,11 @@ full_item_list <- function(name_of_survey){
       quantity_100g = quantity_100g/afe, 
       quantity_g = quantity_g/afe
     ) %>% 
-    left_join(fct, by = "item_code")
+    left_join(fc_table, by = "item_code") %>% 
+    inner_join(food_consumption %>% 
+                 select(item_code, food_group) %>% 
+                 distinct(item_code, food_group),
+              by = c('item_code'))
   x
 }
 
@@ -64,7 +68,7 @@ apparent_intake <- function(name_of_survey){
   read_in_survey(name_of_survey)
   
   x <- food_consumption %>% 
-    left_join(fct, by = "item_code") %>% 
+    left_join(fc_table, by = "item_code") %>% 
     mutate(
       across(
         -c(item_code, hhid,item_name ,food_group, quantity_100g, quantity_g),
@@ -88,6 +92,8 @@ apparent_intake <- function(name_of_survey){
 }
 
 
+
+
 household_data <- function(name_of_survey){
   #reads in the household information data
   x <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_hh_info.csv")))
@@ -100,7 +106,7 @@ nutrient_density <- function(name_of_survey){
   # values are given in unit of mn per 1000kcal 
   #
   x <- food_consumption %>% 
-    left_join(fct, by = "item_code") %>% 
+    left_join(fc_table, by = "item_code") %>% 
     mutate(
       across(
         -c(item_code, hhid,item_name ,food_group, quantity_100g, quantity_g),
