@@ -11,7 +11,7 @@ source(here::here("dietary_assessment/processing/individual_level_clean.R"))
 
 #read in base models
 
-nga1819 <- apparent_intake("nga1819")
+nga1819 <- apparent_intake("nga_lss1819")
 nga1819_all_items <- full_item_list("nga1819")
 
 nsso1112<- apparent_intake("nsso1112")
