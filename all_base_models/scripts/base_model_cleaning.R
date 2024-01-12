@@ -596,7 +596,8 @@ mwi_sep_qunit <- read.csv("~/Documents/MIMI/MIMI_data/mwi/MWI_2016_IHS-IV_v04_M_
 
 mwi_hh_info <- mwi1_hh %>% 
   select(
-    case_id, 
+    HHID, 
+    case_id,
     region,
     district,
     reside,
@@ -605,23 +606,23 @@ mwi_hh_info <- mwi1_hh %>%
   left_join(
     mwi2_hh %>% 
       select(
-        case_id,
+        HHID,
         PID,
         hh_b03,#sex
         hh_b04,#relationship
         hh_b06b
         
       ),
-    by = "case_id"
+    by = "HHID"
   ) %>% 
   left_join(mwi3_hh %>% 
-              select(case_id,
+              select(HHID,
                      PID,
                      hh_c09),
-            by = c("case_id", "PID")
+            by = c("HHID", "PID")
             ) %>% 
   rename(
-    hhid = case_id,
+    hhid = HHID,
     adm1 = region,
     adm2 = district,
     urbrur = reside,
@@ -637,8 +638,8 @@ mwi_hh_info <- mwi1_hh %>%
     year = str_sub(interviewDate, 1,4),
     month = str_sub(interviewDate, 6,7)
   ) %>% 
-  left_join(mwi_sep_qunit %>%  rename(hhid =case_id),
-            by = "hhid") %>% 
+  left_join(mwi_sep_qunit,
+            by = "case_id") %>% 
   mutate(sep_quintile = ntile(rexpaggpc, 5)) %>% 
   group_by(urbrur) %>% 
   mutate(ur_quintile = ntile(rexpaggpc, 5)) %>% 
@@ -671,6 +672,8 @@ nga_hh1 <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/s
 nga_roster <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/sect1_roster.csv"))
 nga_edu <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/sect2_education.csv"))
 nga_consumption <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/totcons.csv"))
+
+
 
 nga_hh_info <- nga_hh1 %>% 
   select(hhid,
@@ -731,6 +734,18 @@ nga_hh_info <- nga_hh1 %>%
     month,
     survey_wgt
   ) 
+
+
+nga_hh_info <- nga_hh_info %>% 
+  left_join(nga_hh1 %>% 
+              dplyr::select("hhid", "ea"), by = "hhid")
+
+
+# For each household with a missing survey_wgt, find a household with the same ea
+# that does have a survey_wgt, and use that survey_wgt to fill in the missing value:
+for (i in which(is.na(nga_hh_info$survey_wgt))) {
+  nga_hh_info$survey_wgt[i] <- nga_hh_info$survey_wgt[which(nga_hh_info$ea == nga_hh_info$ea[i] & !is.na(nga_hh_info$survey_wgt))][1]
+}
 
 
 write.csv(nga_hh_info, paste0(path_to_save, "nga_lss1819_hh_info.csv"))
