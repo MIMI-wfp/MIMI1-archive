@@ -5,7 +5,7 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 18-Dec-2023
-# Last edited: 09-Jan-2024
+# Last edited: 11-Jan-2024
 
 # This script is for extracting binarised (Yes/No) consumption of fortification 
 # vehicles for each household, and the quantities consumed (in kg or L). 
@@ -50,7 +50,7 @@ base_ai <- apparent_intake("nga_lss1819")
 # write_csv(base_ai, "fortification_models/data/nga_lss1819_base_ai.csv")
 
 # Remove objects that are no longer required:
-rm(list = c("fct", "afe", "full_item_list"))
+rm(list = c("fc_table", "full_item_list"))
 
 # Read in food consumption module of the NLSS:
 food_purchases <- read_csv("MIMI_data/nga/NGA_2018_LSS_v01_M_CSV/Household/sect6b_food_cons.csv")
@@ -167,13 +167,13 @@ food_consumption <- food_consumption %>%
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles: 
 
-get_vehicle_quantities(base_ai, food_consumption)
+get_vehicle_quantities(base_ai, food_consumption, afe)
 
 # Save this data-frame as a .csv file:
 # write_csv(vehicle_quantities, "fortification_models/data/nga_lss1819_vehicle_quantities.csv")
 
 # Remove objects no longer required: 
-rm(list = c("food_consumption", "vehicle_quantities", "base_ai"))
+rm(list = c("food_consumption", "vehicle_quantities", "base_ai", "afe"))
 
 #-------------------------------------------------------------------------------
 
@@ -194,7 +194,7 @@ food_consumption <- food_consumption %>%
   dplyr::select("hhid", "item_code", "quantity_100g")
 
 # Keep only required data: 
-rm(fct)
+rm(fc_table)
 
 # Get data for food purchases:
 food_purchases <- read_csv("MIMI_data/mwi/MWI_2016_IHS-IV_v04_M_CSV/household/hh_mod_g1.csv")
@@ -214,6 +214,7 @@ summary(food_purchases$proportion_purchased)
 food_purchases$proportion_purchased[food_purchases$proportion_purchased > 1] <- 1
 
 summary(food_purchases$proportion_purchased)
+hist(food_purchases$proportion_purchased)
 
 # Now filter food purchases to include only required variables: 
 food_purchases <- food_purchases %>% 
@@ -297,10 +298,13 @@ food_consumption <- food_consumption %>%
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles: 
 
-get_vehicle_quantities(base_ai, food_consumption)
+get_vehicle_quantities(base_ai, food_consumption, afe)
 
 # Save this data-frame as a csv file: 
 # write_csv(vehicle_quantities, "fortification_models/data/mwi_ihs1617_vehicle_quantities.csv")
+
+# NOTE THAT CONSUMPTION FOR MAIZE FLOUR AND SALT APPEAR SUSPICIOUSLY HIGH, 
+# RETURN TO THIS WHEN PERFORMING ANALYSES FOR MALAWI.
 
 # Remove objects no longer required: 
 rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
@@ -324,7 +328,7 @@ food_consumption <- food_consumption %>%
   dplyr::select("hhid", "item_code", "quantity_100g")
 
 # Keep only required data:
-rm(fct)
+rm(fc_table)
 
 # Get data for food purchases from food consumption module:
 food_purchases <- read_csv("MIMI_data/Ethiopia/ETH_2018_ESS_v03_M_CSV/sect6a_hh_w4.csv")
@@ -426,7 +430,7 @@ food_consumption <- food_consumption %>%
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles:
-get_vehicle_quantities(base_ai, food_consumption)
+get_vehicle_quantities(base_ai, food_consumption, afe)
 
 # Save this data-frame as a csv file:
 # write_csv(vehicle_quantities, "fortification_models/data/eth_ess1819_vehicle_quantities.csv")
@@ -447,6 +451,8 @@ base_ai <- apparent_intake("eth_hices1516")
 
 # Save data-frame for base_ai:
 # write_csv(base_ai, "fortification_models/data/eth_hices1516_base_ai.csv")
+
+rm(fc_table)
 
 # Select only required columns:
 food_consumption <- food_consumption %>% 
@@ -560,7 +566,7 @@ food_consumption <- food_consumption %>%
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles:
-get_vehicle_quantities(base_ai, food_consumption)
+get_vehicle_quantities(base_ai, food_consumption, afe)
 
 # Note that salt consumption not recorded in this survey.
 
@@ -568,7 +574,7 @@ get_vehicle_quantities(base_ai, food_consumption)
 # write_csv(vehicle_quantities, "fortification_models/data/eth_hices1516_vehicle_quantities.csv")
 
 # Remove objects no longer required:
-rm(list = c("afe", "base_ai", "fct", "food_consumption", "vehicle_quantities"))
+rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
 
 #-------------------------------------------------------------------------------
 
@@ -581,8 +587,13 @@ rm(list = c("afe", "base_ai", "fct", "food_consumption", "vehicle_quantities"))
 # Get base case apparent intake data from NSSO:
 base_ai <- apparent_intake("ind_nss1112")
 
+rm(fc_table)
+afe$X <- NULL
+
 # Save data-frame for base_ai:
 # write_csv(base_ai, "fortification_models/data/ind_nss1112_base_ai.csv")
+
+
 
 # Select only required columns:
 food_consumption <- food_consumption %>% 
@@ -688,13 +699,13 @@ food_consumption <- food_consumption %>%
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles:
-get_vehicle_quantities(base_ai, food_consumption)
+get_vehicle_quantities(base_ai, food_consumption, afe)
 
 # Save this data-frame as a csv file:
 # write_csv(vehicle_quantities, "fortification_models/data/ind_nss1112_vehicle_quantities.csv")
 
 # Remove objects no longer required:
-rm(list = c("afe", "base_ai", "fct", "food_consumption", "vehicle_quantities"))
+rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
 
 #-------------------------------------------------------------------------------
 

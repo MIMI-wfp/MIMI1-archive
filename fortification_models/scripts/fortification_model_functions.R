@@ -5,7 +5,7 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 28-Dec-2023
-# Last edited: 28-Dec-2023
+# Last edited: 11-Jan-2024
 
 # This script contains functions required for creating the fortification models.
 
