@@ -5,7 +5,7 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 28-Dec-2023
-# Last edited: 11-Jan-2024
+# Last edited: 23-Jan-2024
 
 # This script contains functions required for creating the fortification models.
 
@@ -26,7 +26,7 @@ rm(list= c("rq_packages", "installed_packages"))
 
 # Function to get access and quantities of each fortrification vehicle: 
 
-get_vehicle_quantities <- function(base_ai, food_consumption, afe) {
+get_vehicle_quantities <- function(base_ai, food_consumption, hh_info) {
   vehicle_quantities <<- base_ai %>% select("hhid") %>% 
     # RICE
     left_join((food_consumption %>%
@@ -101,7 +101,8 @@ get_vehicle_quantities <- function(base_ai, food_consumption, afe) {
     mutate(across(c(rice, wheatflour, maizeflour, sugar, edible_oil, salt), 
                   ~ factor(., levels = c("Yes", "No")))) %>% 
     # Convert quantities to per AFE:
-    left_join(afe, by = "hhid") %>%
+    left_join((hh_info %>% 
+                 dplyr::select("hhid", "afe")), by = "hhid") %>%
     mutate(rice_100g = rice_100g / afe,
            wheatflour_100g = wheatflour_100g / afe,
            maizeflour_100g = maizeflour_100g / afe,
