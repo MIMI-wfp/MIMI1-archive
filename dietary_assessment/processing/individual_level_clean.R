@@ -68,7 +68,7 @@ nnmb_women <- nnmb_al %>%
 
 # ethiopia FSS
 
-# fcs11 <- haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/all.dta")
+fcs11 <- haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/all.dta")
 fcs11_women <- haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/women.dta")
 fcs11_men <-  haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/men.dta")
 

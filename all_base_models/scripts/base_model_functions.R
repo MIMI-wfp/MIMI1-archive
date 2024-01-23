@@ -13,7 +13,7 @@ read_in_survey <- function(name_of_survey){
   # the function reads in each part of the base model into general 
   # object names
   
-  afe <<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_afe.csv")))
+  hh_info <<-  read.csv(paste0(path_to_file, paste0(name_of_survey, "_hh_info.csv")))
   food_consumption<<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_food_consumption.csv")))
   fc_table <<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
   # fct causes conflict with fct() function in forcats package, reconsider the name of this object
@@ -26,15 +26,21 @@ full_item_list <- function(name_of_survey){
   # uesful for food group analyses
   
 
-  afe <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_afe.csv")))
+  hh_info <-  read.csv(paste0(path_to_file, paste0(name_of_survey, "_hh_info.csv")))
   food_consumption<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_food_consumption.csv")))
   fc_table <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
   
-  x <- afe %>% 
+  x <- hh_info %>% 
     select(hhid,afe) %>% 
     cross_join(fc_table %>% 
                  select(item_code)) %>% 
-    left_join(food_consumption, 
+    left_join(food_consumption %>% 
+                group_by(hhid, item_code, food_group) %>% 
+                summarise(across(
+                  everything(),
+                  ~sum(., na.rm = TRUE)
+                )) %>% 
+                ungroup(), 
               by = c("hhid", "item_code")) %>% 
     select(-food_group) %>% 
     mutate(
@@ -55,7 +61,6 @@ full_item_list <- function(name_of_survey){
   x
 }
 
-# afe <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_afe.csv"))))
 # food_consumption<- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_food_consumption.csv"))))
 # fct <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_fct.csv"))))
 
@@ -80,7 +85,7 @@ apparent_intake <- function(name_of_survey){
       across(-c(item_code,item_name,quantity_100g,quantity_g, food_group),
              ~sum(.,na.rm = T))
     ) %>% 
-    left_join(afe, by = "hhid") %>% 
+    left_join(hh_info %>% select(hhid, afe), by = "hhid") %>% 
     mutate(
       across(
         -c(hhid,afe),
@@ -109,7 +114,7 @@ nutrient_density <- function(name_of_survey){
     left_join(fc_table, by = "item_code") %>% 
     mutate(
       across(
-        -c(item_code, hhid,item_name ,food_group, quantity_100g, quantity_g),
+        -c(item_code, hhid, item_name, food_group, quantity_100g, quantity_g),
         ~.x*quantity_100g
       )
     ) %>% 
