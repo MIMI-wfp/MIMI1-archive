@@ -8,6 +8,7 @@ library(dplyr)
 library(stringr)
 library(lubridate)
 library(haven)
+library(ggplot2)
 
 path_to_data <- "~/Documents/MIMI/MIMI_data/"
 path_to_save <- here::here("all_base_models/data/")
@@ -52,14 +53,7 @@ nsso_fct <- nsso_fct %>%
 
 write_csv(nsso_fct, paste0(path_to_save,"ind_nss1112_fct.csv"))
 
-nsso_afe<- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_afe.csv")) 
 
-nsso_afe <- nsso_afe %>% 
-  rename(hhid = HHID) %>% 
-  select(hhid,
-         afe)
-
-write.csv(nsso_afe, paste0(path_to_save,"ind_nss1112_afe.csv" ))
 
 # rm(nsso_afe)
 rm(nsso_basics)
@@ -133,8 +127,7 @@ hices_fct <- hices_fct %>%
 
 write_csv(hices_fct, paste0(path_to_save,"eth_hices1516_fct.csv"))
 
-hices_afe <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/eth_hces1516_afe.csv"))
-write_csv(hices_afe, paste0(path_to_save,"eth_hices1516_afe.csv"))
+
 
 rm(hices_fct)
 rm(hices_food_consumption)
@@ -207,12 +200,6 @@ ess_fct <- ess_fct %>%
 write_csv(ess_fct, paste0(path_to_save,"eth_ess1819_fct.csv"))
 
 
-ess_afe <- read.csv(paste0(path_to_data, "Ethiopia/eth/ess41819/eth_ess4_hme.csv"))
-ess_afe <- ess_afe %>% 
-  select(HHID,afe) %>% 
-  rename(hhid = HHID)
-
-write_csv(ess_afe, paste0(path_to_save,"eth_ess1819_afe.csv"))
 
 rm(ess_fct)
 rm(ess_food_consumption)
@@ -293,12 +280,6 @@ names(mwi_fct)
 
 write_csv(mwi_fct, paste0(path_to_save,"mwi_ihs1617_fct.csv"))
 
-mwi_afe<- read.csv(paste0(path_to_data, "mwi/mwi_afe.csv"))
-mwi_afe <- mwi_afe %>% 
-  rename(hhid = HHID)
-
-write_csv(mwi_afe, paste0(path_to_save,"mwi_ihs1617_afe.csv"))
-
 
 rm(mwi_fct)
 rm(mwi_food_consumption)
@@ -375,15 +356,7 @@ nga_fct <- nga_fct %>%
 as_tibble(nga_fct)
 write_csv(nga_fct, paste0(path_to_save,"nga_lss1819_fct.csv"))
 
-nga_lss1_estimates <- haven::read_dta(paste0(path_to_data,"nga/NGA_LSS1819_estimates.dta"))
 
-
-nga_afe <- nga_lss1_estimates %>% 
-  select(hhid,
-         hhafe) %>% 
-  rename(afe = hhafe)
-
-write_csv(nga_afe, paste0(path_to_save,"nga_lss1819_afe.csv"))
 
 rm(nga_fct)
 rm(nga_food_consumption)
@@ -408,15 +381,23 @@ nsso_household_information <- read.csv("India_analysis/data/processed/household_
 nsso_demographics <- read.csv("India_analysis/data/processed/demographics.csv")
 nsso_expenditure <- read.csv("India_analysis/data/raw/block_12_consumer_expenditure.csv")
 
+nsso_afe<- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_afe.csv")) 
+
+nsso_afe <- nsso_afe %>% 
+  rename(hhid = HHID) %>% 
+  select(hhid,
+         afe)
+
+
 nsso_household_information <- nsso_household_information %>% 
   inner_join(nsso_demographics, by = "HHID") %>% 
   filter(Relation == "Self") %>% 
   mutate(sex_head = Sex,
          age_head = Age,
          educ_head = Education,
-         urbrur = HH_Type_code) %>% 
+         res = HH_Type_code) %>% 
    select(HHID,
-          urbrur,
+          res,
           sex_head,
           age_head,
           educ_head,
@@ -457,10 +438,10 @@ nsso_household_information <- nsso_household_information %>%
   left_join(nsso_basics, by = "hhid") %>% 
   left_join(nsso_expenditure, by = "hhid") %>% 
   mutate(sep_quintile = ntile(expenditure, 5)) %>% 
-  group_by(urbrur) %>%
-  mutate(ur_quintile = ntile(expenditure, 5)) %>%
+  group_by(res) %>%
+  mutate(res_quintile = ntile(expenditure, 5)) %>%
   ungroup() %>% 
-  select(-c(Value, expenditure,afe))
+  select(-c(Value, expenditure))
 
 write_csv(nsso_household_information, paste0(path_to_save,"ind_nss1112_hh_info.csv"))
 
@@ -476,6 +457,9 @@ hices_rur_quintiles <- read.csv(here::here("ethiopia/data/urb_rur_quintiles.csv"
 
 unique(hices_food_consumption$CQ11)
 
+hices_afe <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/eth_hces1516_afe.csv"))
+
+
 hices_hh_info <- hices_food_consumption %>% 
   select(hhid,
          CQ11, 
@@ -490,7 +474,7 @@ hices_hh_info <- hices_food_consumption %>%
     adm1 = CQ11,
     adm2 = CQ12,
     month = MONTH,
-    urbrur = UR,
+    res = UR,
     sex_head = SEX_Head,
     age_head = Age_Head,
     educ_head = EDUC_Head,
@@ -502,7 +486,9 @@ hices_hh_info <- hices_food_consumption %>%
     hices_rur_quintiles, by = "hhid"
   ) %>% 
   select(-c(UR, EXPCC)) %>% 
-  rename(seq_quintile = quintile)
+  rename(sep_quintile = quintile,
+         res_quintile = ur_quintile) %>% 
+  left_join(hices_afe, by = "hhid")
 
 write.csv(hices_hh_info, paste0(path_to_save, "eth_hices1516_hh_info.csv"))      
 
@@ -515,6 +501,11 @@ ess1 <- read.csv(paste0(path_to_data, "Ethiopia/ETH_2018_ESS_v03_M_CSV/sect_cove
 ess2_roster <- read.csv(paste0(path_to_data, "Ethiopia/ETH_2018_ESS_v03_M_CSV/sect1_hh_w4.csv"))
 ess3_educ <- read.csv(paste0(path_to_data, "Ethiopia/ETH_2018_ESS_v03_M_CSV/sect2_hh_w4.csv"))
 ess_qunit<- read.csv(paste0(path_to_data, "Ethiopia/ETH_2018_ESS_v03_M_CSV/cons_agg_w4.csv"))
+
+ess_afe <- read.csv(paste0(path_to_data, "Ethiopia/eth/ess41819/eth_ess4_hme.csv"))
+ess_afe <- ess_afe %>% 
+  select(HHID,afe) %>% 
+  rename(hhid = HHID)
 
 
 ess_hh_info <- ess1 %>% 
@@ -541,7 +532,7 @@ ess_hh_info <- ess1 %>%
   ) %>% 
   rename(
     hhid = household_id,
-    urbrur = saq14,
+    res = saq14,
     adm1 = saq01,
     adm2 = saq02,
     sex_head = s1q02,
@@ -570,8 +561,8 @@ ess_hh_info <- ess1 %>%
               select(hhid, spat_totcons_aeq,cons_quint),
             by = "hhid") %>% 
   mutate(sep_quintile = ntile(spat_totcons_aeq, 5)) %>% 
-  group_by(urbrur) %>% 
-  mutate(ur_quintile = ntile(spat_totcons_aeq, 5)) %>% 
+  group_by(res) %>% 
+  mutate(res_quintile = ntile(spat_totcons_aeq, 5)) %>% 
   ungroup() %>% 
   select(-c(
     individual_id,
@@ -579,7 +570,11 @@ ess_hh_info <- ess1 %>%
     s1q01,
     spat_totcons_aeq,
     cons_quint
-  ))
+  )) %>% 
+  left_join(ess_afe, by = "hhid")
+
+
+
   
 
 write.csv(ess_hh_info, paste0(path_to_save, "eth_ess1819_hh_info.csv"))
@@ -594,9 +589,16 @@ mwi2_hh <- read.csv(paste0(path_to_data, "mwi/MWI_2016_IHS-IV_v04_M_CSV/househol
 mwi3_hh <- read.csv(paste0(path_to_data, "mwi/MWI_2016_IHS-IV_v04_M_CSV/household/hh_mod_c.csv"))
 mwi_sep_qunit <- read.csv("~/Documents/MIMI/MIMI_data/mwi/MWI_2016_IHS-IV_v04_M_CSV/consumption_aggregate/ihs4 consumption aggregate.csv")
 
+mwi_afe<- read.csv(paste0(path_to_data, "mwi/mwi_afe.csv"))
+mwi_afe <- mwi_afe %>% 
+  rename(hhid = HHID)
+
+
+
 mwi_hh_info <- mwi1_hh %>% 
   select(
-    case_id, 
+    HHID, 
+    case_id,
     region,
     district,
     reside,
@@ -605,26 +607,26 @@ mwi_hh_info <- mwi1_hh %>%
   left_join(
     mwi2_hh %>% 
       select(
-        case_id,
+        HHID,
         PID,
         hh_b03,#sex
         hh_b04,#relationship
         hh_b06b
         
       ),
-    by = "case_id"
+    by = "HHID"
   ) %>% 
   left_join(mwi3_hh %>% 
-              select(case_id,
+              select(HHID,
                      PID,
                      hh_c09),
-            by = c("case_id", "PID")
+            by = c("HHID", "PID")
             ) %>% 
   rename(
-    hhid = case_id,
+    hhid = HHID,
     adm1 = region,
     adm2 = district,
-    urbrur = reside,
+    res = reside,
     survey_wgt = hh_wgt
     
   ) %>% 
@@ -633,29 +635,30 @@ mwi_hh_info <- mwi1_hh %>%
     age_head = as.numeric(str_sub(interviewDate, 1,4)) - as.numeric(hh_b06b),
     sex_head = ifelse(hh_b03 == 1, "Male", "Female"),
     educ_head = hh_c09,
-    urbrur = ifelse(urbrur == 1, "Urban", "Rural"),
+    res = ifelse(res == 1, "Urban", "Rural"),
     year = str_sub(interviewDate, 1,4),
     month = str_sub(interviewDate, 6,7)
   ) %>% 
-  left_join(mwi_sep_qunit %>%  rename(hhid =case_id),
-            by = "hhid") %>% 
+  left_join(mwi_sep_qunit,
+            by = "case_id") %>% 
   mutate(sep_quintile = ntile(rexpaggpc, 5)) %>% 
-  group_by(urbrur) %>% 
-  mutate(ur_quintile = ntile(rexpaggpc, 5)) %>% 
+  group_by(res) %>% 
+  mutate(res_quintile = ntile(rexpaggpc, 5)) %>% 
   select(
     hhid,
     adm1,
     adm2,
-    urbrur,
+    res,
     age_head,
     sex_head,
     educ_head,
     sep_quintile,
-    ur_quintile,
+    res_quintile,
     year, 
     month,
     survey_wgt
-  )
+  ) %>% 
+  left_join(mwi_afe, by = "hhid")
 
 # need sep!
 
@@ -671,6 +674,14 @@ nga_hh1 <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/s
 nga_roster <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/sect1_roster.csv"))
 nga_edu <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/sect2_education.csv"))
 nga_consumption <- read.csv(paste0(path_to_data, "nga/NGA_2018_LSS_v01_M_CSV/household/totcons.csv"))
+
+nga_lss1_estimates <- haven::read_dta(paste0(path_to_data,"nga/NGA_LSS1819_estimates.dta"))
+
+
+nga_afe <- nga_lss1_estimates %>% 
+  select(hhid,
+         hhafe) %>% 
+  rename(afe = hhafe)
 
 nga_hh_info <- nga_hh1 %>% 
   select(hhid,
@@ -701,7 +712,7 @@ nga_hh_info <- nga_hh1 %>%
     by = "hhid"
   ) %>% 
   mutate(
-    urbrur = ifelse(sector == 1,"Urban", "Rural"),
+    res = ifelse(sector == 1,"Urban", "Rural"),
     sex_head = ifelse(s01q02 == 1, "Male", "Female"),
   ) %>% 
   rename(age_head = s01q04a,
@@ -714,23 +725,31 @@ nga_hh_info <- nga_hh1 %>%
             by = "hhid")  %>% 
   rename(total_consumption = totcons_adj) %>% 
   mutate(sep_quintile = ntile(total_consumption, 5)) %>% 
-  group_by(urbrur) %>% 
-  mutate(ur_quintile = ntile(total_consumption, 5)) %>% 
+  group_by(res) %>% 
+  mutate(res_quintile = ntile(total_consumption, 5)) %>% 
   ungroup() %>% 
   select(
     hhid,
     adm1,
     adm2,
-    urbrur,
+    res,
     sep_quintile,
-    ur_quintile,
+    res_quintile,
     age_head,
     sex_head,
     educ_head,
     year, 
     month,
     survey_wgt
-  ) 
+  ) %>% 
+  left_join(nga_afe, by = "hhid")
+
+
+# For each household with a missing survey_wgt, find a household with the same ea
+# that does have a survey_wgt, and use that survey_wgt to fill in the missing value:
+for (i in which(is.na(nga_hh_info$survey_wgt))) {
+  nga_hh_info$survey_wgt[i] <- nga_hh_info$survey_wgt[which(nga_hh_info$ea == nga_hh_info$ea[i] & !is.na(nga_hh_info$survey_wgt))][1]
+}
 
 
 write.csv(nga_hh_info, paste0(path_to_save, "nga_lss1819_hh_info.csv"))

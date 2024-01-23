@@ -11,25 +11,24 @@ source(here::here("dietary_assessment/processing/individual_level_clean.R"))
 
 #read in base models
 
-nga1819 <- apparent_intake("nga1819")
-nga1819_all_items <- full_item_list("nga1819")
+nga1819 <- apparent_intake("nga_lss1819")
+nga1819_all_items <- full_item_list("nga_lss1819")
 
-nsso1112<- apparent_intake("nsso1112")
-nsso1112_all_items <- full_item_list("nsso1112")
-nsso1112_hh_info <- household_data("nsso1112")
+nsso1112<- apparent_intake("ind_nss1112")
+nsso1112_all_items <- full_item_list("ind_nss1112")
+nsso1112_hh_info <- household_data("ind_nss1112")
 
-ess1819 <- apparent_intake("ess1819")
-ess1819_all_items <- full_item_list("ess1819")
+ess1819 <- apparent_intake("eth_ess1819")
+ess1819_all_items <- full_item_list("eth_ess1819")
 
-mwi1516 <- apparent_intake("mwi1516")
-nsso1112_all_items <-  full_item_list("nsso1112")
+mwi1617 <- apparent_intake("mwi_ihs1617")
+mwi1617 <- full_item_list("mwi_ihs1617")
 
-hices1516 <- apparent_intake("hices1516")
-hices_hh_info <- household_data("hices1516")
-hices1516 <- hices1516 %>% 
-  left_join(hices_hh_info, by = "hhid")
+hices1516 <- apparent_intake("eth_hices1516")
+hices_hh_info <- household_data("eth_hices1516")
 
-hices1516_all_items <- full_item_list("hices1516")
+
+hices1516_all_items <- full_item_list("eth_hices1516")
 
 #### Overall intake ############################################################
 
@@ -174,10 +173,11 @@ nsso1112_all_items %>%
   ungroup() %>%
   left_join(nsso1112_hh_info, by = "hhid") %>% 
   group_by(hhid) %>% 
-  
+  summarise(consumed_rice = max(consumed_rice)) %>% 
+  ungroup() %>% 
   # summarise(consumed_rice) %>% 
   # srvyr::as_survey_design(weights = survey_wgt) %>% 
-  dplyr::group_by(adm1) %>% 
+  # dplyr::group_by(adm1) %>% 
   dplyr::summarise(consumed_rice = sum(consumed_rice)/n())
 
 nnmb_all_items %>% 
@@ -274,7 +274,11 @@ hices1516_all_items %>%
   summarise(quantity_consumed = sum(quantity_g)) %>% 
   filter(quantity_consumed<1500) %>% 
   ggplot(aes(x = quantity_consumed))+ 
-  geom_histogram()
+  geom_histogram()+
+  ggtitle("HICES leafy greens") +
+  xlab("Quantity (g)")+
+  xlim(-100,1500)
+
 
 fcs11_women %>% 
   mutate(
@@ -292,7 +296,11 @@ fcs11_women %>%
   group_by(hhid) %>% 
   summarise(quantity_consumed = sum(AMOUNT_GRAMS)) %>% 
   ggplot(aes(x = quantity_consumed))+ 
-  geom_histogram()
+  geom_histogram()+
+  ggtitle("FSS leafy greens") +
+  xlab("Quantity (g)") +
+  xlim(-100,1500)
+
 
 
 hices1516_all_items %>% 
@@ -303,7 +311,9 @@ hices1516_all_items %>%
   filter(quantity_consumed<3000) %>%
   ggplot(aes(x = quantity_consumed))+ 
   geom_histogram() +
-  xlim(0,3000)
+  xlim(0,3000)+ 
+  ggtitle("HICES cereals") +
+  xlab("Quantity (g)")
 
 fcs11_women %>% 
   mutate(
@@ -322,7 +332,10 @@ fcs11_women %>%
   summarise(quantity_consumed = sum(AMOUNT_GRAMS)) %>% 
   ggplot(aes(x = quantity_consumed))+ 
   geom_histogram()+
-  xlim(0,3000)
+  xlim(0,3000)+ 
+  ggtitle("FCS cereals") +
+  xlab("Quantity (g)")
+
 
 
   
