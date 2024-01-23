@@ -6,6 +6,7 @@
 # Ignore all fles in the at the following directory:
 data/
 MIMI_data/
+fortification_models/figures/
 
 # Ignore all files with the following extensions: 
 *.csv
