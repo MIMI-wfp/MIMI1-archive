@@ -36,9 +36,10 @@ full_item_list <- function(name_of_survey){
                  select(item_code)) %>% 
     left_join(food_consumption %>% 
                 group_by(hhid, item_code, food_group) %>% 
-                summarise(quantity_g = sum(quantity_g),
-                          quantity_100g = sum(quantity_100g),
-                          value = sum(value)) %>% 
+                summarise(across(
+                  everything(),
+                  ~sum(., na.rm = TRUE)
+                )) %>% 
                 ungroup(), 
               by = c("hhid", "item_code")) %>% 
     select(-food_group) %>% 
