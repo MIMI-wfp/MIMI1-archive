@@ -5,7 +5,7 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 18-Dec-2023
-# Last edited: 11-Jan-2024
+# Last edited: 25-Jan-2024
 
 # This script is for extracting binarised (Yes/No) consumption of fortification 
 # vehicles for each household, and the quantities consumed (in kg or L). 
@@ -167,13 +167,14 @@ food_consumption <- food_consumption %>%
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles: 
 
-get_vehicle_quantities(base_ai, food_consumption, afe)
+get_vehicle_quantities(base_ai, food_consumption, hh_info)
+
 
 # Save this data-frame as a .csv file:
 # write_csv(vehicle_quantities, "fortification_models/data/nga_lss1819_vehicle_quantities.csv")
 
 # Remove objects no longer required: 
-rm(list = c("food_consumption", "vehicle_quantities", "base_ai", "afe"))
+rm(list = c("food_consumption", "vehicle_quantities", "base_ai", "hh_info"))
 
 #-------------------------------------------------------------------------------
 
@@ -298,7 +299,7 @@ food_consumption <- food_consumption %>%
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles: 
 
-get_vehicle_quantities(base_ai, food_consumption, afe)
+get_vehicle_quantities(base_ai, food_consumption, hh_info)
 
 # Save this data-frame as a csv file: 
 # write_csv(vehicle_quantities, "fortification_models/data/mwi_ihs1617_vehicle_quantities.csv")
@@ -307,7 +308,7 @@ get_vehicle_quantities(base_ai, food_consumption, afe)
 # RETURN TO THIS WHEN PERFORMING ANALYSES FOR MALAWI.
 
 # Remove objects no longer required: 
-rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
+rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities"))
 
 #-------------------------------------------------------------------------------
 
@@ -430,13 +431,13 @@ food_consumption <- food_consumption %>%
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles:
-get_vehicle_quantities(base_ai, food_consumption, afe)
+get_vehicle_quantities(base_ai, food_consumption, hh_info)
 
 # Save this data-frame as a csv file:
 # write_csv(vehicle_quantities, "fortification_models/data/eth_ess1819_vehicle_quantities.csv")
 
 # Remove objects no longer required:
-rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
+rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities"))
 
 #-------------------------------------------------------------------------------
 
@@ -448,6 +449,9 @@ rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
 
 # Get base case apparent intake data from HICES:
 base_ai <- apparent_intake("eth_hices1516")
+
+# Note that there are complete duplicates in base_ai, remove these entries: 
+base_ai <- base_ai[!duplicated(base_ai), ]
 
 # Save data-frame for base_ai:
 # write_csv(base_ai, "fortification_models/data/eth_hices1516_base_ai.csv")
@@ -566,7 +570,8 @@ food_consumption <- food_consumption %>%
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles:
-get_vehicle_quantities(base_ai, food_consumption, afe)
+get_vehicle_quantities(base_ai, food_consumption, hh_info)
+
 
 # Note that salt consumption not recorded in this survey.
 
@@ -574,7 +579,7 @@ get_vehicle_quantities(base_ai, food_consumption, afe)
 # write_csv(vehicle_quantities, "fortification_models/data/eth_hices1516_vehicle_quantities.csv")
 
 # Remove objects no longer required:
-rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
+rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities"))
 
 #-------------------------------------------------------------------------------
 
@@ -587,8 +592,6 @@ rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
 # Get base case apparent intake data from NSSO:
 base_ai <- apparent_intake("ind_nss1112")
 
-rm(fc_table)
-afe$X <- NULL
 
 # Save data-frame for base_ai:
 # write_csv(base_ai, "fortification_models/data/ind_nss1112_base_ai.csv")
@@ -699,13 +702,14 @@ food_consumption <- food_consumption %>%
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles:
-get_vehicle_quantities(base_ai, food_consumption, afe)
+get_vehicle_quantities(base_ai, food_consumption, hh_info)
 
 # Save this data-frame as a csv file:
 # write_csv(vehicle_quantities, "fortification_models/data/ind_nss1112_vehicle_quantities.csv")
 
 # Remove objects no longer required:
-rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
+rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities",
+            "fc_table"))
 
 #-------------------------------------------------------------------------------
 
@@ -716,63 +720,4 @@ rm(list = ls())
 ############################## END OF SCRIPT ###################################
 ################################################################################
 
-# Scratch code below, ignore: 
 
-# Code below is for using conversion factors in Malawi
-
-# # Read in region data, as conversion factors are region specific: 
-# household_region <- read_csv("MIMI_data/mwi/MWI_2016_IHS-IV_v04_M_CSV/household/hh_mod_a_filt.csv") %>% 
-#   dplyr::select("HHID", "region") %>% 
-#   rename("hhid" = "HHID")
-# 
-# # Recode regions: 
-# household_region$region[household_region$region == 1] <- "north"
-# household_region$region[household_region$region == 2] <- "central"
-# household_region$region[household_region$region == 3] <- "south"
-# 
-# # Join regions to food_purchases:
-# food_purchases <- left_join(food_purchases, household_region, by = "hhid")
-# 
-# # Remove household_region df:
-# rm(household_region)
-# 
-# # Read in conversion factors:
-# conversion_factors <- read_csv("conversion_factors/mwi_nsu_factors.csv")
-# 
-# # Break the measure_id variable into 2 variables, using the underscore to separate:
-# conversion_factors <- conversion_factors %>% 
-#   separate(measure_id, into = c("item_code", "quantity_unit"), sep = "_")
-# 
-# # All quantity_units in food_purchases are numeric, therefore ignore non-numeric
-# # entries (e.g. "4A") in conversion_factors:
-# conversion_factors$quantity_unit <- as.numeric(conversion_factors$quantity_unit)
-# conversion_factors <- conversion_factors[!is.na(conversion_factors$quantity_unit), ]
-# 
-# # Create an empty column called conversion_factor in food_purchases:
-# food_purchases$conversion_factor <- NA
-# 
-# # Get conversion factors for each region:
-# 
-# # North
-# food_purchases$conversion_factor[food_purchases$region == "north"] <- 
-#   conversion_factors$ihs4factor_n[match(paste(food_purchases$item_code[food_purchases$region == "north"], 
-#                                              food_purchases$quantity_unit[food_purchases$region == "north"]), 
-#                                          paste(conversion_factors$item_code, 
-#                                                conversion_factors$quantity_unit))]
-# 
-# # Central
-# food_purchases$conversion_factor[food_purchases$region == "central"] <- 
-#   conversion_factors$ihs4factor_c[match(paste(food_purchases$item_code[food_purchases$region == "central"], 
-#                                              food_purchases$quantity_unit[food_purchases$region == "central"]), 
-#                                          paste(conversion_factors$item_code, 
-#                                                conversion_factors$quantity_unit))]
-# 
-# # South
-# food_purchases$conversion_factor[food_purchases$region == "south"] <-
-#   conversion_factors$ihs4factor_s[match(paste(food_purchases$item_code[food_purchases$region == "south"], 
-#                                              food_purchases$quantity_unit[food_purchases$region == "south"]), 
-#                                          paste(conversion_factors$item_code, 
-#                                                conversion_factors$quantity_unit))]
-# 
-# # Multiply out the conversion factor by the quantity_purchased: 
-# food_purchases$purchased_kg <- food_purchases$quantity_purchased * food_purchases$conversion_factor

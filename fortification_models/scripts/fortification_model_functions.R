@@ -5,7 +5,7 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 28-Dec-2023
-# Last edited: 11-Jan-2024
+# Last edited: 23-Jan-2024
 
 # This script contains functions required for creating the fortification models.
 
@@ -26,7 +26,7 @@ rm(list= c("rq_packages", "installed_packages"))
 
 # Function to get access and quantities of each fortrification vehicle: 
 
-get_vehicle_quantities <- function(base_ai, food_consumption, afe) {
+get_vehicle_quantities <- function(base_ai, food_consumption, hh_info) {
   vehicle_quantities <<- base_ai %>% select("hhid") %>% 
     # RICE
     left_join((food_consumption %>%
@@ -100,14 +100,22 @@ get_vehicle_quantities <- function(base_ai, food_consumption, afe) {
     # Change food item variables to factor: 
     mutate(across(c(rice, wheatflour, maizeflour, sugar, edible_oil, salt), 
                   ~ factor(., levels = c("Yes", "No")))) %>% 
+    # Create a new variable for overall staple grain consumption:
+    mutate(staple_grain = ifelse(rice == "Yes" | wheatflour == "Yes" |
+                                   maizeflour == "Yes", "Yes", "No")) %>%
+    # Calculate quantity consumed:
+    mutate(staplegrain_100g = rowSums(.[,c("rice_100g", "wheatflour_100g", "maizeflour_100g")], 
+                                      na.rm = TRUE)) %>%
     # Convert quantities to per AFE:
-    left_join(afe, by = "hhid") %>%
+    left_join((hh_info %>% 
+                 dplyr::select("hhid", "afe")), by = "hhid") %>%
     mutate(rice_100g = rice_100g / afe,
            wheatflour_100g = wheatflour_100g / afe,
            maizeflour_100g = maizeflour_100g / afe,
            sugar_100g = sugar_100g / afe,
            edible_oil_100g = edible_oil_100g / afe,
-           salt_100g = salt_100g / afe) %>% 
+           salt_100g = salt_100g / afe,
+           staplegrain_100g = staplegrain_100g / afe) %>% 
     # Remove afe column:
     select(-afe)
   
