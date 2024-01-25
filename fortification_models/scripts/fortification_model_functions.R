@@ -100,6 +100,12 @@ get_vehicle_quantities <- function(base_ai, food_consumption, hh_info) {
     # Change food item variables to factor: 
     mutate(across(c(rice, wheatflour, maizeflour, sugar, edible_oil, salt), 
                   ~ factor(., levels = c("Yes", "No")))) %>% 
+    # Create a new variable for overall staple grain consumption:
+    mutate(staple_grain = ifelse(rice == "Yes" | wheatflour == "Yes" |
+                                   maizeflour == "Yes", "Yes", "No")) %>%
+    # Calculate quantity consumed:
+    mutate(staplegrain_100g = rowSums(.[,c("rice_100g", "wheatflour_100g", "maizeflour_100g")], 
+                                      na.rm = TRUE)) %>%
     # Convert quantities to per AFE:
     left_join((hh_info %>% 
                  dplyr::select("hhid", "afe")), by = "hhid") %>%
@@ -108,7 +114,8 @@ get_vehicle_quantities <- function(base_ai, food_consumption, hh_info) {
            maizeflour_100g = maizeflour_100g / afe,
            sugar_100g = sugar_100g / afe,
            edible_oil_100g = edible_oil_100g / afe,
-           salt_100g = salt_100g / afe) %>% 
+           salt_100g = salt_100g / afe,
+           staplegrain_100g = staplegrain_100g / afe) %>% 
     # Remove afe column:
     select(-afe)
   

@@ -5,7 +5,7 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 18-Dec-2023
-# Last edited: 23-Jan-2024
+# Last edited: 25-Jan-2024
 
 # This script is for extracting binarised (Yes/No) consumption of fortification 
 # vehicles for each household, and the quantities consumed (in kg or L). 
@@ -168,6 +168,7 @@ food_consumption <- food_consumption %>%
 # the fortification vehicles: 
 
 get_vehicle_quantities(base_ai, food_consumption, hh_info)
+
 
 # Save this data-frame as a .csv file:
 # write_csv(vehicle_quantities, "fortification_models/data/nga_lss1819_vehicle_quantities.csv")
@@ -578,7 +579,7 @@ get_vehicle_quantities(base_ai, food_consumption, hh_info)
 # write_csv(vehicle_quantities, "fortification_models/data/eth_hices1516_vehicle_quantities.csv")
 
 # Remove objects no longer required:
-rm(list = c("afe", "base_ai", "food_consumption", "vehicle_quantities"))
+rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities"))
 
 #-------------------------------------------------------------------------------
 
@@ -707,7 +708,8 @@ get_vehicle_quantities(base_ai, food_consumption, hh_info)
 # write_csv(vehicle_quantities, "fortification_models/data/ind_nss1112_vehicle_quantities.csv")
 
 # Remove objects no longer required:
-rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities"))
+rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities",
+            "fc_table"))
 
 #-------------------------------------------------------------------------------
 
