@@ -5,14 +5,14 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 18-Dec-2023
-# Last edited: 25-Jan-2024
+# Last edited: 05-Feb-2024
 
 # This script is for extracting binarised (Yes/No) consumption of fortification 
 # vehicles for each household, and the quantities consumed (in kg or L). 
 
 # INSTALL AND LOAD PACKAGES:
 
-rq_packages <- c("readr", "tidyverse", "haven", "stringr")
+rq_packages <- c("readr", "tidyverse", "haven", "stringr", "readxl")
 
 installed_packages <- rq_packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -96,19 +96,49 @@ rm(food_purchases)
 
 #-------------------------------------------------------------------------------
 
+# FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS:
+
+# Read in data on proportion fortiable for each food item:
+nigeria_proportions <- read_excel("fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx",
+           sheet = "Nigeria food items")
+
+nigeria_proportions <- nigeria_proportions %>% 
+  dplyr::select("item_cd", "prop_fortifiable") %>% 
+  rename("item_code" = "item_cd")
+
+# Left join proportions to food_consumption: 
+food_consumption <- food_consumption %>% left_join(nigeria_proportions, by = "item_code")
+
+# Replace NA's with 1: 
+food_consumption$prop_fortifiable[is.na(food_consumption$prop_fortifiable)] <- 1
+
+# Multiply quantity_100g and purchased_100g by prop_fortifiable:
+food_consumption$quantity_100g <- food_consumption$quantity_100g * food_consumption$prop_fortifiable
+food_consumption$purchased_100g <- food_consumption$purchased_100g * food_consumption$prop_fortifiable
+
+# Remove data that is no longer required: 
+food_consumption$prop_fortifiable <- NULL
+rm(nigeria_proportions)
+
+#-------------------------------------------------------------------------------
+
 # Add a column with name of food item based on "item_cd" for all fortification vehicles:
 food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
   item_code == 13 ~ "Rice", # Locally produced
   item_code == 14 ~ "Rice", # Imported
   item_code == 16 ~ "Maize flour",
   item_code == 19 ~ "Wheat flour",
+  item_code == 25 ~ "Wheat flour", # Bread
+  item_code == 26 ~ "Wheat flour", # Cake
+  item_code == 27 ~ "Wheat flour", # Buns/pofpof/donuts
+  item_code == 28 ~ "Wheat flour", # Biscuits
+  item_code == 29 ~ "Wheat flour", # Meat pie/sausage roll
   item_code == 50 ~ "Edible oil", # Palm oil
   item_code == 52 ~ "Edible oil", # Groundnut oil
   item_code == 53 ~ "Edible oil", # Other oil and fat
   item_code == 130 ~ "Sugar", 
   item_code == 141 ~ "Salt"
-)) # ?To include other food items that include the above as ingredients?????????
-# Need to consult recipe data for this.
+)) 
 
 # Add variable to indicate if the food item has been consumed (in last 7-days): 
 food_consumption$consumed <- ifelse(food_consumption$quantity_100g > 0, 
@@ -162,6 +192,8 @@ food_consumption <- food_consumption %>%
   group_by(hhid, food_item, consumed, food_purchased) %>% 
   summarise(quantity_100g = sum(quantity_100g),
             purchased_100g = sum(purchased_100g))
+
+# write_csv(food_consumption, "fortification_models/data/gabriel/nga_lss1819_vehicle_consumption.csv")
 
 
 # Create a data-frame to indicate consumption (including quantities), of each of
@@ -244,6 +276,37 @@ food_consumption <- dplyr::select(food_consumption, -proportion_purchased)
 
 #-------------------------------------------------------------------------------
 
+# FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS:
+
+# Read in the data for fortifiable proportions:
+malawi_proportions <- read_excel("fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx",
+                                 sheet = "Malawi food items")
+
+# Keep only required columns:
+malawi_proportions <- malawi_proportions %>% 
+  dplyr::select("item_cd", "prop_fortifiable") %>% 
+  rename("item_code" = "item_cd")
+
+# Data-frame full of NA's, keep complete cases: 
+malawi_proportions <- na.omit(malawi_proportions)
+
+# Left join malawi_proportions to food_consumption:
+food_consumption <- left_join(food_consumption, malawi_proportions, by = "item_code")
+
+rm(malawi_proportions)
+
+# Record NA proportions as 1:
+food_consumption$prop_fortifiable[is.na(food_consumption$prop_fortifiable)] <- 1
+
+# Multiply quantity_100g and purchased_100g by prop_fortifiable:
+food_consumption$quantity_100g <- food_consumption$quantity_100g * food_consumption$prop_fortifiable
+food_consumption$purchased_100g <- food_consumption$purchased_100g * food_consumption$prop_fortifiable
+
+# Remove the prop_fortifiable column (no longer required):
+food_consumption$prop_fortifiable <- NULL
+
+#-------------------------------------------------------------------------------
+
 # FORTIFICATION VEHICLES: 
 
 # Add a column called food_item which includes name of food item for all 
@@ -255,21 +318,14 @@ food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
   item_code == 103 ~ "Maize flour", # bran flour
   item_code == 106 ~ "Rice",
   item_code == 110 ~ "Wheat flour",
-  # item_code == 111 ~ "Bread",
-  # item_code == 112 ~ "Buns, scones",
-  # item_code == 113 ~ "Biscuits",
-  # item_code == 114 ~ "Spaghetti, macaroni, pasta",
-  # item_code == 115 ~ "Breakfast cereal",
-  # item_code == 116 ~ "Infant feeding cereals",
+  item_code == 111 ~ "Wheat flour", # Bread
+  item_code == 112 ~ "Wheat flour", # Buns, scones
+  item_code == 827 ~ "Wheat flour", # Mandazi, doughnut (vendor)
   item_code == 801 ~ "Sugar",
   item_code == 803 ~ "Edible oil",
   item_code == 810 ~ "Salt"
-  # Other food items to be included once recipe data available (e.g. bread)
 ))
 
-# TO RETURN TO THIS SECTION AFTER RECIPE DATA AVAILABLE: Need to add an additional
-# column indicating the proportion of that food item that contains the fortificant.
-# Use this data to calculate the quantity of the fortification vehicle consumed.
 
 # Add a column to indicate if each food item was consumed (in last 7-days): 
 food_consumption$consumed <- ifelse(food_consumption$quantity_100g > 0, "Yes", 
@@ -384,6 +440,31 @@ food_consumption <- dplyr::select(food_consumption, -proportion_purchased)
 
 #-------------------------------------------------------------------------------
 
+# FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS: 
+
+ess_proportions <- read_excel("fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
+                              sheet = "Ethiopia (ESS) food items")
+
+ess_proportions <- ess_proportions %>% 
+  dplyr::select("item_cd", "prop_fortifiable")
+
+# Left join proportions to food consumption data: 
+food_consumption <- left_join(food_consumption, ess_proportions, by = c("item_code" = "item_cd"))
+
+rm(ess_proportions)
+
+# Code NA proportions == 1: 
+food_consumption$prop_fortifiable[is.na(food_consumption$prop_fortifiable)] <- 1
+
+# Multiply quantity_100g and purchased_100g by prop_fortifiable:
+food_consumption$quantity_100g <- food_consumption$quantity_100g * food_consumption$prop_fortifiable
+food_consumption$purchased_100g <- food_consumption$purchased_100g * food_consumption$prop_fortifiable
+
+# Remove prop_fortifiable column:
+food_consumption$prop_fortifiable <- NULL
+
+#-------------------------------------------------------------------------------
+
 # FORTIFICATION VEHICLES:
 
 # Add a column called food_item which includes name of food item for all 
@@ -391,19 +472,15 @@ food_consumption <- dplyr::select(food_consumption, -proportion_purchased)
 
 food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
   item_code == 102 ~ "Wheat flour", # Wheat (Incl. Flour factory product)
-  # item_code == 902 ~ "purchased bread/biscuit",
-  # item_code == 903 ~ "Pasta/Macaroni",
+  item_code == 902 ~ "Wheat flour", # Bread/biscuit
   item_code == 104 ~ "Maize flour", # Maize (?Including flour)
   item_code == 107 ~ "Rice", 
   item_code == 708 ~ "Edible oil", # Oils (processed)
   item_code == 710 ~ "Sugar", 
-  item_code == 712 ~ "Salt"
-  # Other food items to be included once recipe data available (e.g. bread)
+  item_code == 712 ~ "Salt",
+  item_code == 902 ~ "Wheat flour" # Purchased bread/biscuit
 ))
 
-# TO RETURN TO THIS SECTION AFTER RECIPE DATA AVAILABLE: Need to add an additional
-# column indicating the proportion of that food item that contains the fortificant.
-# Use this data to calculate the quantity of the fortification vehicle consumed.
 
 # Add a column to indicate if each food item was consumed (in last 7-days):
 food_consumption$consumed <- ifelse(food_consumption$quantity_100g > 0, "Yes", 
@@ -523,6 +600,31 @@ rm(food_purchases)
 
 #-------------------------------------------------------------------------------
 
+# FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS: 
+
+hices_proportions <- read_excel("fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
+                                sheet = "Ethiopia (HICES) food items")
+
+hices_proportions <- hices_proportions %>% 
+  dplyr::select("item_cd", "prop_fortifiable")
+
+# Left join proportions to food consumption data: 
+food_consumption <- left_join(food_consumption, hices_proportions, by = c("item_code" = "item_cd"))
+
+rm(hices_proportions)
+
+# Code NA values == 1: 
+food_consumption$prop_fortifiable[is.na(food_consumption$prop_fortifiable)] <- 1
+
+# Multiply quantity_100g and purchased_100g by prop_fortifiable:
+food_consumption$quantity_100g <- food_consumption$quantity_100g * food_consumption$prop_fortifiable
+food_consumption$purchased_100g <- food_consumption$purchased_100g * food_consumption$prop_fortifiable
+
+# Remove prop_fortifiable:
+food_consumption$prop_fortifiable <- NULL
+
+#-------------------------------------------------------------------------------
+
 # FORTIFICATION VEHICLES:
 
 # Add a column called food_item which includes name of food item for all
@@ -530,21 +632,33 @@ rm(food_purchases)
 
 food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
   item_code == "Wheat white, flour" ~ "Wheat flour",
-  item_code == "Flour, factory product, mainly of wheat" ~ "Wheat flour",
-  # ? Other types of wheat flour - clarify these with kevin
-  item_code == "Maize, flour" ~ "Maize flour",
+  item_code == "Wheat  mixed, flour" ~ "Wheat flour",
+  item_code == "Wheat black, flour" ~ "Wheat bread",
+  item_code == "Wheat & Barley (Duragna), flour" ~ "Wheat flour",
+  item_code == "Wheat & other cereals, flour" ~ "Wheat flour",
+  item_code == "Flour, factory product, mainly of wheat" ~ "Wheat flour",
+  item_code == "Maize, flour" ~ "Maize flour",
   item_code == "Rice" ~ "Rice",
-  item_code == "Rice_duplicated_11202123" ~ "Rice",
-  item_code == "Edible oil, local" ~ "Edible oil",
-  item_code == "Edible oil, imported" ~ "Edible oil",
+  item_code == "Bread (Dufo, Anbasha etc), Wheat - home made" ~ "Wheat flour",
+  item_code == "Bread, wheat - bakery" ~ "Wheat flour",
+  item_code == "Donat / bombolino" ~ "Wheat flour",
+  item_code == "Boresh (Dolchi)" ~ "Wheat flour",
+  item_code == "Pizzas" ~ "Wheat flour",
+  item_code == "Cakes" ~ "Wheat flour",
+  item_code == "Biscuits" ~ "Wheat flour",
+  item_code == "Baqlaba / Mushebek" ~ "Wheat flour",
+  item_code == "Edible oil, local" ~ "Edible oil",
+  item_code == "Edible oil , imported" ~ "Edible oil",
   item_code == "Sugar" ~ "Sugar",
-  item_code == "Salt" ~ "Salt"
-  # Other food items to be included once recipe data available, wheat flour products,
-  # Also consider what to do with products that contain SUGAR, e.g. juices, condiments,
-  # sweets.
+  item_code == "Salt" ~ "Salt",
+  item_code == "Sandwitch, meat/ egg/ vegetable, normal" ~ "Wheat flour",
+  item_code == "Burger / club sandwich" ~ "Wheat flour",
+  item_code == "Bread or any pastry products with hot drinks" ~ "Wheat flour",
+  item_code == "Bread or any pastry products and Juice" ~ "Wheat flour",
+  item_code == "Others n.e.c." ~ "Wheat flour",
+  item_code == "Rice_duplicated_11202123" ~ "Rice"
 ))
 
-# TO RETURN TO THIS SECTION AFTER RECIPE DATA AVAILABLE
 
 # Add a column to indicate if each food item was consumed (in last 7-days):
 food_consumption$consumed <- ifelse(food_consumption$quantity_100g > 0, "Yes", 
@@ -567,6 +681,8 @@ food_consumption <- food_consumption %>%
   group_by(hhid, food_item, consumed, food_purchased) %>% 
   summarise(quantity_100g = sum(quantity_100g),
             purchased_100g = sum(purchased_100g))
+
+# write_csv(food_consumption, "fortification_models/data/gabriel/eth_hices1516_vehicle_consumption.csv")
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles:
@@ -651,6 +767,32 @@ rm(food_purchases)
 
 #-------------------------------------------------------------------------------
 
+# FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS: 
+
+# Read in proportions data: 
+ind_proportions <- read_excel("fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
+                              sheet = "India food items") %>% 
+  dplyr::select("item_cd", "prop_fortifiable")
+
+# Left join proportions to food consumption data: 
+food_consumption <- left_join(food_consumption, ind_proportions, by = c("item_code" = "item_cd"))
+
+rm(ind_proportions)
+
+# Replace NA proportions with 1: 
+food_consumption$prop_fortifiable[is.na(food_consumption$prop_fortifiable)] <- 1
+
+# Use proportion_purchased to calculate quantities that came from purchases: 
+food_consumption$purchased_100g <- food_consumption$quantity_100g * food_consumption$proportion_purchased
+
+# Multiply quantity_100g and purchased_100g by prop_fortifiable:
+food_consumption$quantity_100g <- food_consumption$quantity_100g * food_consumption$prop_fortifiable
+food_consumption$purchased_100g <- food_consumption$purchased_100g * food_consumption$prop_fortifiable
+
+food_consumption$prop_fortifiable <- NULL
+
+#-------------------------------------------------------------------------------
+
 # FORTIFICATION VEHICLES:
 
 # Add a column called food_item which includes name of food item for all
@@ -659,12 +801,10 @@ rm(food_purchases)
 food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
   item_code == 101 ~ "Rice", # Rice - PDS
   item_code == 102 ~ "Rice", # Rice - other sources
-  item_code == 103 ~ "Rice", # Chira (DOUBLE CHECK IF FORTIFIABLE)
-  item_code == 104 ~ "Rice", # Khoi, Iawa (DOUBLE CHECK IF FORTIFIABLE)
-  item_code == 105 ~ "Rice", # Muri (DOUBLE CHECK IF FORTIFIABLE)
   item_code == 107 ~ "Wheat flour", # Wheat/atta - PDS
   item_code == 108 ~ "Wheat flour", # Wheat/atta - other sources
   item_code == 110 ~ "Wheat flour", # Maida
+  item_code == 113 ~ "Wheat flour", # Bread (bakery)
   item_code == 170 ~ "Salt",
   item_code == 171 ~ "Sugar", # Sugar - PDS
   item_code == 172 ~ "Sugar", # Sugar - other sources
@@ -683,9 +823,6 @@ food_consumption$consumed <- ifelse(food_consumption$quantity_100g > 0, "Yes",
 food_consumption$food_purchased <- ifelse(food_consumption$proportion_purchased > 0, "Yes", 
                                           ifelse(food_consumption$proportion_purchased == 0, "No", NA))
 
-# Use proportion_purchased to calculate quantities that came from purchases: 
-food_consumption$purchased_100g <- food_consumption$quantity_100g * food_consumption$proportion_purchased
-
 # Select required columns:
 food_consumption <- food_consumption %>% 
   dplyr::select("hhid", "food_item", "consumed", "food_purchased", "quantity_100g",
@@ -699,6 +836,8 @@ food_consumption <- food_consumption %>%
   group_by(hhid, food_item, consumed, food_purchased) %>% 
   summarise(quantity_100g = sum(quantity_100g),
             purchased_100g = sum(purchased_100g))
+
+# write_csv(food_consumption, "fortification_models/data/gabriel/ind_nss1112_vehicle_consumption.csv")
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles:
