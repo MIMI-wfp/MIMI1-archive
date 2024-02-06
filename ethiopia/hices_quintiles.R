@@ -22,6 +22,30 @@ library(dplyr)
 eth_hces1516 <- as.data.frame(read.spss(here::here("../MIMI_data/Ethiopia/HICES/ETH-HICE-2016/Data/SPSS 16/HCES_2015_2016_Expenditure.sav")))
 eth_hces1516_demography <- as.data.frame(read.spss(here::here("../MIMI_data/Ethiopia/HICES/ETH-HICE-2016/Data/SPSS 16/HCES_2015_2016_DEMOGRAPHY.sav")))
 
+
+unique(eth_hces1516_demography$ur)
+
+eth_hces1516_demography$hhid <-  paste0(as.character(eth_hces1516_demography$CQ11),
+                                "_",
+                                as.character(eth_hces1516_demography$CQ12),
+                                "_",
+                                as.character(eth_hces1516_demography$CQ13),
+                                "_",
+                                as.character(eth_hces1516_demography$CQ14),
+                                "_",
+                                as.character(eth_hces1516_demography$CQ15),
+                                "_",
+                                as.character(eth_hces1516_demography$CQ16),
+                                "_",
+                                as.character(eth_hces1516_demography$CQ17),
+                                "_",
+                                as.character(eth_hces1516_demography$CQ18))
+
+eth_pc <- eth_hces1516_demography %>% 
+  dplyr::select(hhid, CQ1103) %>% 
+  group_by(hhid) %>% 
+  summarise(pc = n())
+
 # create hhid 
 eth_hces1516$hhid <- paste0(as.character(eth_hces1516$CQ11),
                             "_",
@@ -42,10 +66,11 @@ eth_hces1516$hhid <- paste0(as.character(eth_hces1516$CQ11),
 names(eth_hces1516)
 #calculate the total expnediture per hh
 x <- eth_hces1516 %>%
-  select(hhid, VALUE, CQ14, QUANTITY,STPRICE,FOOD,FOODEXP,EXPCC, ADEQUIV) %>%
+  dplyr::select(hhid, VALUE, CQ14, QUANTITY,STPRICE,FOOD,FOODEXP,EXPCC, ADEQUIV) %>%
   group_by(hhid, CQ14,ADEQUIV, EXPCC) %>%
   summarise(tot_val = sum(VALUE)) %>%
-  mutate(total_per_cap = tot_val/round(ADEQUIV)) %>%
+  left_join(eth_pc, by ="hhid") %>% 
+  mutate(total_per_cap = tot_val/pc) %>%
   ungroup() %>%
   mutate(quintile =
            case_when(
@@ -59,7 +84,32 @@ x <- eth_hces1516 %>%
                "4",
              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[6]]~
                "5",
-           ))
+           )) 
+# mutate(quintile =
+#          case_when(
+#            total_per_cap<y[[2]]~
+#              "exp quant 1",
+#            total_per_cap<y[[3]]~
+#              "exp quant 2",
+#            total_per_cap<y[[4]]~
+#              "exp quant 3",
+#            total_per_cap<y[[5]]~
+#              "exp quant 4",
+#            total_per_cap<y[[6]]~
+#              "exp quant 5",
+#          )) %>%
+# group_by(quintile) %>%
+# summarise(n = n(),
+#           max = max(total_per_cap),
+#           min = min(total_per_cap), 
+#           perc = n/30230)
+
+quantile(x$total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)
+
+x %>% 
+  filter(EXPCC == "Expenditure Quantile 3") %>% 
+  summarise(max(tot_val))
+
 # mutate(quintile = 
 #          case_when(
 #            total_per_cap<y[[2]]~
@@ -77,7 +127,10 @@ x <- eth_hces1516 %>%
   # group_by(EXPCC) %>% 
   # summarise(n())
 
-y <- quantile(x$total_per_cap,probs = c(0,.111,.25,0.45,0.67, 1), na.rm = TRUE, type =9)
+y <- quantile(x$total_per_cap,probs = c(0,.111,.248,0.40,0.62, 1), na.rm = TRUE, type =9)
+y 
+max(x$total_per_cap)
+
 c(0,0.2,.4,.6,.8,1)
 unique(eth_hces1516$CQ14)
 

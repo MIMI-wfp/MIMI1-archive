@@ -20,13 +20,17 @@ library(treemapify)
 library(ggridges)
 library(dplyr)
 library(gt)
+library(sjmisc)
 
 source("India_analysis/src/processing/food_matching.R")
 
 # read in cleaned and mathced data
 path_to_data = here::here("India_analysis", "data", "processed/")
 
+# path_to_data = here::here("India_analysis", "data", "processed", "extra_states/")
+
 consumption <- read_csv(paste0(path_to_data, "consumption.csv"))
+unique(consumption$State_code)
 demographics <- read_csv(paste0(path_to_data,"demographics.csv"))
 household_characteristics <- read_csv(paste0(path_to_data, "household_char.csv"))
 
@@ -78,7 +82,8 @@ daily_food_items_consumed <-consumption %>%
     State_name = dplyr::case_when(
       State_code == "09" ~ "Uttar Pradesh", 
       State_code == "10" ~ "Bihar",
-      State_code == "22" ~ "Chhattisgarh"
+      State_code == "22" ~ "Chhattisgarh",
+      State_code == "21" ~ "Orissa"
     )
   ) %>% 
   dplyr::select(
@@ -125,8 +130,14 @@ household_daily <-consumption %>%
     State_name = dplyr::case_when(
       State_code == "09" ~ "Uttar Pradesh",
       State_code == "10" ~ "Bihar",
-      State_code == "22" ~ "Chhattisgarh"
-    )
+      State_code == "22" ~ "Chhattisgarh",
+      State_code == "21" ~ "Orissa",
+      State_code == "20" ~ "Jharkhand",
+      State_code == "23" ~ "Madhya Pradesh",
+      State_code == "02" ~ "Himachal Pradesh",
+      State_code == "19" ~ "West Bengal",
+      State_code == "28" ~ "Andhra Pradesh"
+      )
   ) %>%
   ungroup() %>%
   # dplyr::select(
@@ -151,7 +162,7 @@ household_daily <-consumption %>%
   dplyr::rename(hdds_groups = name)
 
 
-write.csv(household_daily,paste0(path_to_data, "india_daily_consumption.csv"))
+# write.csv(household_daily,paste0(path_to_data, "india_daily_consumption.csv"))
 
 
 
@@ -234,7 +245,7 @@ household_afe <-
       afe = sum(afe)
     )
 
-write.csv(household_afe, paste0(path_to_data, "india_afe.csv"))
+# write.csv(household_afe, paste0(path_to_data, "india_afe.csv"))
 
 # %>% 
   # left_join(household_characteristics %>% select(HHID,HH_Size), by = "HHID")
@@ -258,8 +269,8 @@ consumption %>%
   left_join(household_afe,by = "HHID") %>% 
   mutate(per_capita_consumption = Total_Consumption_Quantity/capita) %>% 
   group_by(State_code, Item_Code) %>% 
-  summarise(mean = mean(per_capita_consumption),
-            median = median(per_capita_consumption))
+  summarise(mean = mean(per_capita_consumption, na.rm = TRUE),
+            median = median(per_capita_consumption, na.rm = TRUE))
 
 #### Distributions #############################################################
 
@@ -350,7 +361,6 @@ food_intake_by_state <- food_item_summary_state %>%
 
 
 # this shows we have the same item intake as TATA-NIN
-
 
 food_item_summary_state %>% 
   dplyr::filter(Item_Code==102 & State_code == "09") %>% 
@@ -499,7 +509,7 @@ groups[[1]] %>%
 
   ggplot(aes(x = quantity_g, y= State_name, fill = State_name)) +
   geom_density_ridges(stat = "binline", show.legend = FALSE) +
-  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
   facet_wrap(facets = vars(item_name)) +
   theme_ridges() +
   labs(title = "Cereals")+
@@ -510,7 +520,7 @@ groups[[3]] %>%
 
   ggplot(aes(x = quantity_g, y= State_name, fill = State_name)) +
   geom_density_ridges(stat = "binline", show.legend = FALSE) +
-  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
   facet_wrap(facets = vars(item_name)) +
   theme_ridges() +
   labs(title = "Vegetables")+
@@ -527,11 +537,11 @@ groups[[5]] %>%
 
   ggplot(aes(x = quantity_g, y= State_name, fill = State_name)) +
   geom_density_ridges(stat = "binline", show.legend = FALSE) +
-  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
   facet_wrap(facets = vars(item_name)) +
   theme_ridges() +
   labs(title = "Animal sourced foods")+
-  ylab("") +
+  ylab("") + 
   xlab("Quantity (g)")
 
 
@@ -588,7 +598,7 @@ daily_food_items_consumed %>%
   ) %>% 
   ggplot(aes(x = name, y = value, group = State_code, fill = State_code)) + 
   geom_bar(position="dodge", stat="identity") + 
-  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
   # facet_wrap(facets = vars(item_name)) +
   theme_ipsum()
 
@@ -620,12 +630,13 @@ micronutrient_distributions <- food_items_grouped %>%
 
   
 summary(micronutrient_distributions)
+unique(micronutrient_distributions$State_code)
 
 x <- food_items_grouped %>% 
   dplyr::filter(HHID == "412001102")
 
 write_csv(micronutrient_distributions, here::here(
-  "India_analysis/data/final/base_model.csv"
+  "India_analysis/data/final/extra_states/base_model.csv"
 ))
 
 micronutrient_distributions %>% 
@@ -637,7 +648,8 @@ micronutrient_distributions %>%
 #look at the distributions of:
 #     # Vit A, B1 2 3 5 6 9 12 Fe Zn Ca kcal
 micronutrients <- colnames(micronutrient_distributions)
-micronutrients <- micronutrients[-c(1:5)]
+micronutrients <- micronutrients[-c(1:5,14)]
+
 
 #create a data frame of adult women EAR values
 nin_ear <- data.frame(
@@ -667,10 +679,11 @@ for(item in micronutrients){
     # geom_density(aes(y = after_stat(density), color = State_name))+
     geom_vline(data = nin_ear, aes(xintercept = !!sym(item)), color = 'red')+
     # stat_count(width = 0.5)+
-    scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
+    scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
     # scale_color_manual(values = wes_palette("GrandBudapest1", n = 3))+
     labs(
-      title = stringr::str_to_title( 
+      title = 
+      stringr::str_to_title(
         stringr::str_split_i(item,
                                     "\\_",
                                     1)
@@ -732,6 +745,9 @@ means_micronutrient_state <- micronutrient_distributions %>%
     srvyr::across(-c(HHID,State_code, District_code,Subsample_multiplier),
                   .fns = list(
                     mean = ~mean(.x, na.rm = TRUE), 
+                    median = ~median(.x, na.rm = TRUE),
+                    q25 = ~quantile(.x, probs = c(0,0.25,0.5,0.75,1))[[2]] ,
+                    q75 = ~quantile(.x, probs = c(0,0.25,0.5,0.75,1))[[4]],
                     sd = ~sd(.x, na.rm = TRUE), 
                     se = ~sd(.x, na.rm = TRUE)/sqrt(length(.x)),
                     n = ~dplyr::n(),
@@ -752,7 +768,60 @@ x <- low_energy %>%
     by = "HHID"
   )
 
-
+ means_micronutrient_state %>%
+  select(energy_kcal_median, energy_kcal_q25,energy_kcal_q75, vita_mg_median, vita_mg_q25,vita_mg_q75,
+         vitb1_mg_median, vitb1_mg_q25, vitb1_mg_q75,vitb2_mg_median, vitb2_mg_q25,vitb2_mg_q75,
+         vitb3_mg_median, vitb3_mg_q25, vitb3_mg_q75, vitb5_mg_median, vitb5_mg_q25,vitb5_mg_q75,
+         vitb6_mg_median, vitb6_mg_q25,vitb6_mg_q75, folate_ug_median, folate_ug_q75, folate_ug_q25,
+         vitaminb12_in_mg_median, vitaminb12_in_mg_q25,vitaminb12_in_mg_q75, iron_mg_median, iron_mg_q25,iron_mg_q75,
+         zinc_mg_median, zinc_mg_q25,zinc_mg_q75, calcium_mg_median, calcium_mg_q25,calcium_mg_q75) %>% 
+  mutate(across(c(energy_kcal_median,
+                  energy_kcal_q25,energy_kcal_q75,
+                  vita_mg_median,vita_mg_q25,vita_mg_q75,
+                  folate_ug_median,folate_ug_q25,folate_ug_q75,
+                  calcium_mg_median,calcium_mg_q25,calcium_mg_q75),
+                  ~round(.))) %>%
+   mutate(
+     across(-c(energy_kcal_median,
+              energy_kcal_q25,energy_kcal_q75,
+              vita_mg_median,vita_mg_q25,vita_mg_q75,
+              folate_ug_median,folate_ug_q25,folate_ug_q75,
+              calcium_mg_median,calcium_mg_q25,calcium_mg_q75),
+            ~round(.,1))
+   ) %>% 
+  mutate("Energy (kcal)" = paste0(energy_kcal_median," (",energy_kcal_q25,",",energy_kcal_q75, ")"),
+         "Vitamin A (RAE mcg)"= paste0(vita_mg_median," (",vita_mg_q25,",",vita_mg_q75,")"),
+         "Thiamin (mg)" = paste0(vitb1_mg_median," (",vitb1_mg_q25,",",vitb1_mg_q75,")"),
+         "Riboflavin (mg)" = paste0(vitb2_mg_median," (",vitb2_mg_q25, ",",vitb2_mg_q75, ")"),
+         "Niacin (mg)" = paste0(vitb3_mg_median," (",vitb3_mg_q25,",",vitb3_mg_q75,")"),
+         "Vitamin B5 (mg)" = paste0(vitb5_mg_median," (",vitb5_mg_q25,",",vitb5_mg_q75,")"),
+         "Vitamin B6 (mg)" = paste0(vitb6_mg_median," (",vitb6_mg_q25,",", vitb6_mg_q75,")"),
+         "Folate (mcg)" = paste0(folate_ug_median," (",folate_ug_q25,",",folate_ug_q75, ")"),
+         "Vitamin B12 (mcg)" = paste0(vitaminb12_in_mg_median," (",vitaminb12_in_mg_q25,",",vitaminb12_in_mg_q75, ")"),
+         "Iron (mg)" = paste0(iron_mg_median," (",iron_mg_q25,",",iron_mg_q75,  ")"),
+         "Zinc (mg)" = paste0(zinc_mg_median," (",zinc_mg_q25,",",zinc_mg_q75,")"),
+         "Calcium (mg)" = paste0(calcium_mg_median," (",calcium_mg_q25,",",calcium_mg_q75, ")")
+         ) %>% 
+  select(-c(energy_kcal_median, energy_kcal_q25,energy_kcal_q75, vita_mg_median, vita_mg_q25,vita_mg_q75,
+            vitb1_mg_median, vitb1_mg_q25, vitb1_mg_q75,vitb2_mg_median, vitb2_mg_q25,vitb2_mg_q75,
+            vitb3_mg_median, vitb3_mg_q25, vitb3_mg_q75, vitb5_mg_median, vitb5_mg_q25,vitb5_mg_q75,
+            vitb6_mg_median, vitb6_mg_q25,vitb6_mg_q75, folate_ug_median, folate_ug_q75, folate_ug_q25,
+            vitaminb12_in_mg_median, vitaminb12_in_mg_q25,vitaminb12_in_mg_q75, iron_mg_median, iron_mg_q25,iron_mg_q75,
+            zinc_mg_median, zinc_mg_q25,zinc_mg_q75, calcium_mg_median, calcium_mg_q25,calcium_mg_q75)) %>% 
+  rotate_df() %>% 
+  rename("Bihar" = V1,
+         "Chhattisgarh" = V2,
+         "Orissa" = V3,
+         "Uttar Pradesh" = V4,) %>% 
+  tibble::rownames_to_column("Nutrient") %>% 
+  gt() %>% 
+  cols_align(
+    align = "center",
+    columns = c("Bihar", "Chhattisgarh","Orissa","Uttar Pradesh" )
+  ) %>% 
+  tab_header(title = "Household nutrient supply estimates by state",
+             subtitle = "Median (Q25,Q75) per Adult Female Equivalent"
+  )
 
 
 mn_fg_plots <- list()
@@ -773,11 +842,11 @@ mn_fg_plots <- list()
         geom_treemap() +
         geom_treemap_text( colour = "darkblue", place = "topleft", alpha = 0.6,
                            grow = FALSE, size = 12)+
-        labs(title = ""
-               # stringr::str_to_title(stringr::str_split_i(item,
-               #                            "\\_",
-               #                            1)),
-             
+        labs(title = 
+               stringr::str_to_title(stringr::str_split_i(item,
+                                          "\\_",
+                                          1)),
+
                                   )+
         scale_fill_brewer(palette = "Set3")+
         # guides(fill=guide_legend())+
@@ -799,7 +868,7 @@ vita_fg <- mn_fg_plots[[2]]
 folate_fg <- mn_fg_plots[[8]]
 vitb12_fg <- mn_fg_plots[[10]]
 fe_fg <- mn_fg_plots[[11]]
-zn_fg <- mn_fg_plots[[13]]
+zn_fg <- mn_fg_plots[[12]]
 
 ggpubr::ggarrange(plotlist = mn_fg_plots, common.legend = TRUE)
 

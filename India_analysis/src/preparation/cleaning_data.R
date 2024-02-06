@@ -8,7 +8,8 @@ library(here)
 
 # Read in files ---------------------------------------------------------------------------
 
-path_to_file <- "./India_analysis/data/raw/"
+# path_to_file <- "./India_analysis/data/raw/"
+path_to_file <- "./India_analysis/data/raw/extra_states/"
 
 block_1_2_identification <- read_csv(paste0(path_to_file, "block_1_2_identification.csv"))
 block_3_level_2_household_char <- read_csv(paste0(path_to_file, "block_3_level_2_household_char.csv"))
@@ -22,7 +23,7 @@ block_12_consumer_expenditure <- read_csv(paste0(path_to_file, "block_12_consume
 block_13_yoga_ayurveda <- read_csv(paste0(path_to_file, "block_13_yoga_ayurveda.csv"))
 
 # Indian food composition table
-ifct <- read_xlsx("~/Documents/MIMI/India/FCT/ifct_noduplicates_sentencecase_20231110.xlsx")
+ifct <- read_xlsx("~/Documents/MIMI/MIMI_data/India/FCT/ifct_noduplicates_sentencecase_20231110.xlsx")
 #read in the conversion from item code to ifct code
 item_code_dict <- read_xlsx(paste0(path_to_file,"food_codes_nsso_to_ifct.xlsx"),sheet = "food_codes")
 item_code_dict %>% dplyr::select(!c(NSS_CES_group)) %>% na.omit()
@@ -31,34 +32,42 @@ item_code_dict %>% dplyr::select(!c(NSS_CES_group)) %>% na.omit()
 #shape files
 district <- st_read("~/Documents/LSHTM/WFP_project/data/shrug-pc11dist-poly-shp/district.shp")
 district <- district %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
+
+x <- district %>% dplyr::select(pc11_s_id, d_name, pc11_d_id) %>% filter(pc11_s_id%in%c("02","19","20","23","28"))
 #state
-state <- st_read(here::here("../gadm41_IND_shp/gadm41_IND_1.shp"))
-state <- state %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
-plot(state$geometry)
+
+# state <- st_read(here::here("../gadm41_IND_shp/gadm41_IND_1.shp"))
+# state <- state %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
+# plot(state$geometry)
 # plot(district$geometry)
 
 
 
 
 # Collecting names of the districts from the NSSO data to match with names of shape file
-# district_names <- block_1_2_identification %>% dplyr::select(State_code, District_code) %>% 
+# district_names <- block_1_2_identification %>% dplyr::select(State_code, District_code) %>%
 #   dplyr::group_by(State_code, District_code) %>%
 #   dplyr::summarise()
-# # write_csv(district_names, paste0(path_to_file, "district_names.csv" ))
+# write_csv(district_names, paste0(path_to_file, "district_names.csv" ))
 # district_dict <- read_csv(paste0(path_to_file, "district_names.csv"))
 
 
 # 
 # bmgf_states <- district_dict %>%
-#   dplyr::left_join(district, by = c("State_code" = "pc11_s_id", "District_name" = "d_name"))
+#   dplyr::left_join(district %>% mutate(pc11_s_id = as.numeric(pc11_s_id)),
+#                    by = c("State_code" = "pc11_s_id", "District_name" = "d_name"))
 # plot(bmgf_states$geometry)
-
+# bmgf_states <- bmgf_states %>% 
+#   dplyr::select(State_code,District_code,District_name,pc11_d_id,geometry) %>% 
+#   filter(!is.na(State_code))
 # x_name$d_name %in% bmgf_states$District_name
 # 
 # x_name <- district %>% dplyr::filter(pc11_s_id %in% c("09","10","22"))
 # # dplyr::anti_join(district %>% dplyr::filter(pc11_s_id == "09"), bmgf_states)
 # # write a shape file
-# # write_sf(bmgf_states, "./India_analysis/data/processed/district_shape.shp")
+
+# bmgf_states <- bmgf_states %>% dplyr::select(State_code,District_code,District_name,pc11_d_id, geometry)
+ # write_sf(bmgf_states, "./India_analysis/data/processed/extra_states/district_shape.shp")
 # write_sf(state, "./India_analysis/data/processed/state_shape.shp")
 
 # household level --------------------------------------------------------------
@@ -95,7 +104,7 @@ household_characteristic_b3 <-
       factor(
          dplyr::case_when(
            Religion == 1 ~ "Hinduism",
-           Religion == 2 ~ "Islan",
+           Religion == 2 ~ "Islam",
            Religion == 3 ~ "Christianity",
            Religion == 4 ~ "Sikhism",
            Religion == 5 ~ "Jainism",
@@ -127,10 +136,15 @@ household_characteristic_b3 <-
   )
 
 
+# readr::write_csv(household_characteristic_b3, here::here("India_analysis",
+#                                                  "data",
+#                                                  "processed",
+#                                                  "household_char.csv"))
 readr::write_csv(household_characteristic_b3, here::here("India_analysis",
-                                                 "data",
-                                                 "processed",
-                                                 "household_char.csv"))
+                                                         "data",
+                                                         "processed",
+                                                         "extra_states",
+                                                         "household_char.csv"))
 
 # Household demographics -------------------------------------------------------
 
@@ -193,10 +207,19 @@ demographics_b4 <-
     )
   )
 
+# readr::write_csv(demographics_b4, here::here("India_analysis",
+#                                              "data",
+#                                              "processed",
+#                                              
+#                                              "demographics.csv"))
+
+
 readr::write_csv(demographics_b4, here::here("India_analysis",
-                                      "data",
-                                      "processed",
-                                      "demographics.csv"))
+                                             "data",
+                                             "processed",
+                                             "extra_states",
+                                             "demographics.csv"))
+
 
 # Food composition -------------------------------------------------------------
 
@@ -214,10 +237,18 @@ consumption_b5 <- block_5_6_food_consumption %>%
                   Total_Consumption_Value)
 
 
+# readr::write_csv(consumption_b5, here::here("India_analysis",
+#                                              "data",
+#                                              "processed",
+#                                             
+#                                              "consumption.csv"))
+
+
 readr::write_csv(consumption_b5, here::here("India_analysis",
-                                             "data",
-                                             "processed",
-                                             "consumption.csv"))
+                                            "data",
+                                            "processed",
+                                            "extra_states",
+                                            "consumption.csv"))
 
 
 rm(list = ls())

@@ -7,6 +7,21 @@ library(ggplot2)
 
 path_to_file <- here::here("all_base_models/data/")
 
+allen_ear <- data.frame(
+  energy_kcal = 2100,#who
+  vita_rae_mcg  = 490, 
+  thia_mg = 0.9,
+  ribo_mg = 1.3, 
+  niac_mg = 11, 
+  vitb6_mg = 1.3, 
+  folate_mcg = 250, 
+  vitb12_mcg = 2, 
+  fe_mg = 22.4, #low absorption
+  ca_mg = 860, 
+  zn_mg = 10.2# unrefined
+)
+
+
 
 read_in_survey <- function(name_of_survey){
   # given the name of the survey of country
@@ -137,6 +152,52 @@ nutrient_density <- function(name_of_survey){
     select(hhid, ends_with("1000kcal")) %>% 
     select(-energy_kcal_1000kcal)
   x
+}
+
+
+apparent_intake("eth_ess1819") %>% 
+  select(hhid)
+
+
+target_creation <- function(){
+  eth_ess1819 <- apparent_intake("eth_ess1819")
+  # eth_hices1516 <- apparent_intake("eth_hices1516")
+  nga_lss1819 <- apparent_intake("nga_lss1819")
+  ind_nss1112 <- apparent_intake("ind_nss1112")
+  
+  select_and_append <- function(survey, survey_id){
+    survey <- survey %>% 
+      select(hhid,vita_rae_mcg,folate_mcg,vitb12_mcg,
+             fe_mg,zn_mg) %>% 
+      rename(
+        va_ai = vita_rae_mcg,
+        fo_ai = folate_mcg,
+        vb12_ai = vitb12_mcg,
+        fe_ai = fe_mg,
+        zn_ai = zn_mg
+      ) %>% 
+      mutate(
+        hhid = as.character(hhid),
+        va_ref = allen_ear$vita_rae_mcg,
+        fo_ref = allen_ear$folate_mcg,
+        vb12_ref = allen_ear$vitb12_mcg,
+        fe_ref = allen_ear$fe_mg,
+        zn_ref = allen_ear$zn_mg,
+        va_nar = ifelse(va_ai<=va_ref, va_ai/va_ref,1),
+        fo_nar = ifelse(fo_ai<=fo_ref, fo_ai/fo_ref,1),
+        vb12_nar = ifelse(vb12_ai<=vb12_ref, vb12_ai/vb12_ref,1),
+        fe_nar = ifelse(fe_ai<=fe_ref, fe_ai/fe_ref,1),
+        zn_nar = ifelse(zn_ai<=zn_ref, zn_ai/zn_ref,1),
+        mimi_simple = (va_nar+fo_nar+vb12_nar+fe_nar+zn_nar)/5,
+        survey_id = survey_id
+      ) %>% 
+      select(-c(va_nar,fo_nar,vb12_nar,zn_nar,fe_nar))
+    survey
+  }
+ x <-  select_and_append(eth_ess1819,"eth_ess1819") %>% 
+    bind_rows(select_and_append(nga_lss1819,"nga_lss1819")) %>% 
+    bind_rows(select_and_append(ind_nss1112,"ind_nss1112"))
+ x
 }
 
 

@@ -4,6 +4,9 @@ library(srvyr)
 library(readr)
 library(dplyr)
 library(ggridges)
+library(treemap)
+library(treemapify)
+library(hrbrthemes)
 
 source(here::here("all_base_models/scripts/base_model_functions.R"))
 source(here::here("dietary_assessment/processing/individual_level_clean.R"))
@@ -11,8 +14,9 @@ source(here::here("dietary_assessment/processing/individual_level_clean.R"))
 
 #read in base models
 
-nga1819 <- apparent_intake("nga_lss1819")
+nga1819 <- apparent_intake("nga_lss1819") 
 nga1819_all_items <- full_item_list("nga_lss1819")
+
 
 nsso1112<- apparent_intake("ind_nss1112")
 nsso1112_all_items <- full_item_list("ind_nss1112")
@@ -65,24 +69,28 @@ ethiopia_energy <- hices1516 %>%
 
 ethiopia_energy %>% 
   ggplot(aes(x = energy_kcal, fill = survey, y = survey))+
-  geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+  geom_density_ridges(alpha=0.6, stat="density_ridges", bins=20,
+                      quantile_lines = T, quantile_fun = median) +
   theme_ridges()
 
 ethiopia_energy %>% 
   filter(vita_rae_mcg<1000) %>% 
   ggplot(aes(x = vita_rae_mcg, fill = survey, y = survey))+
-  geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+  geom_density_ridges(alpha=0.6, stat="density_ridges", bins=20,
+                      quantile_lines = T, quantile_fun = median) +
   theme_ridges()
 
 ethiopia_energy %>% 
   ggplot(aes(x = fe_mg, fill = survey, y = survey))+
-  geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+  geom_density_ridges(alpha=0.6, stat="density_ridges", bins=20,
+                      quantile_lines = T, quantile_fun = median) +
   theme_ridges()
 
 
 ethiopia_energy %>% 
   ggplot(aes(x = zn_mg, fill = survey, y = survey))+
-  geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+  geom_density_ridges(alpha=0.6, stat="density_ridges", bins=20,
+                      quantile_lines = T, quantile_fun = median) +
   theme_ridges()
 
 ### we see some clear lower intake values in ethiopia for the individual level
@@ -121,38 +129,44 @@ india_energy <- nsso1112 %>%
 india_energy %>% 
   filter(energy_kcal<5000) %>% 
   ggplot(aes(x = energy_kcal, fill = survey, y = survey))+
-  geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+  geom_density_ridges(alpha=0.6, stat="density_ridges", bins=20,
+                      quantile_lines = T, quantile_fun = median) +
   theme_ridges()
 
 india_energy %>% 
   filter(vita_rae_mcg<1000) %>% 
   ggplot(aes(x = vita_rae_mcg, fill = survey, y = survey))+
-  geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+  geom_density_ridges(alpha=0.6, stat="density_ridges", bins=20,
+                      quantile_lines = T, quantile_fun = median) +
   theme_ridges()
 
 india_energy %>% 
   filter(fe_mg<50) %>% 
   ggplot(aes(x = fe_mg, fill = survey, y = survey))+
-  geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+  geom_density_ridges(alpha=0.6, stat="density_ridges", bins=20,
+                      quantile_lines = T, quantile_fun = median) +
   theme_ridges()
 
 
 india_energy %>% 
   filter(zn_mg<25) %>% 
   ggplot(aes(x = zn_mg, fill = survey, y = survey))+
-  geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+  geom_density_ridges(alpha=0.6, stat="density_ridges", bins=20,
+                      quantile_lines = T, quantile_fun = median) +
   theme_ridges()
 
 india_energy %>% 
   filter(vitb12_mcg<20) %>%
   ggplot(aes(x = vitb12_mcg, fill = survey, y = survey))+
-  geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+  geom_density_ridges(alpha=0.6, stat="density_ridges", bins=20,
+                      quantile_lines = T, quantile_fun = median) +
   theme_ridges()
 
 india_energy %>% 
   filter(folate_mcg<1000) %>%
   ggplot(aes(x = folate_mcg, fill = survey, y = survey))+
-  geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+  geom_density_ridges(alpha=0.6, stat="density_ridges", bins=20,
+                      quantile_lines = T, quantile_fun = median) +
   theme_ridges()
 
 
@@ -337,9 +351,89 @@ fcs11_women %>%
   xlab("Quantity (g)")
 
 
+#############################
+#
+# Plan
+#
+#############################
+# We need to separate out some variables to look at 
+# - single person recalling consumption for the entire household, (look at hh of house, education level, sex, age (potentially))
+# - limited capture of food consumed outside of the home, 
+# - variance coefficients in 24HR, 
+# - intra household distribution in HCES
 
-  
 
+eth_micronutrient_food_groups <- hices1516_all_items %>% 
+  dplyr::select(-c(food_group)) %>% 
+  left_join(hices_mdd_w %>% 
+              tidyr::pivot_longer(cols = c(cereals,pulses,nuts_seeds,
+                       dairy,asf,eggs,green_veg,vita_fruit_veg,
+                       other_veg,other_fruit)) %>%
+              
+              dplyr::filter(!is.na(value)) %>%
+              dplyr::select(-value) %>%
+              dplyr::rename(food_group = name),by = "item_code") %>% 
+  dplyr::group_by(hhid,food_group) %>% 
+  mutate(across(-c(afe,item_code,item_name,quantity_g,value,quantity_100g),
+                ~.x*quantity_100g/afe)) %>% 
+  dplyr::summarise(
+    dplyr::across(
+      -c(afe,item_code,item_name,quantity_g,value,quantity_100g),
+      ~sum(.x, na.rm = TRUE)
+    )
+  ) %>% 
+  #calculate the per afe consumption to play with the data
+  dplyr::ungroup() %>% 
+  # dplyr::filter(
+  #   energy_kcal<stats::quantile(energy_kcal, 0.99, na.rm = TRUE)[[1]]
+  # ) %>% 
+  dplyr::group_by(
+    food_group
+  ) %>% 
+  dplyr::summarise(
+    dplyr::across(
+      -c(hhid),
+      ~mean(.)
+    )
+  ) 
 
+micronutrients <- colnames(eth_micronutrient_food_groups)
+micronutrients <- micronutrients[c(2:6,8:10,15)]
 
-
+mn_fg_plots <- list()
+for(item in micronutrients){
+  print(item)
+  p1 <-  eth_micronutrient_food_groups %>% 
+    ggplot(aes(area = !!sym(item), 
+               fill = 
+                 stringr::str_to_title(
+                   gsub("_"," ",food_group)),
+                 # stringr::str_split_i(food_group,
+                 #                      "\\_",
+                 #                      1)), 
+               label = stringr::str_to_title(sub("_"," ",food_group)))
+                 # stringr::str_to_title(
+                 #   stringr::str_split_i(food_group,
+                 #                        "\\_",
+                 #                        2)))
+    )+
+    geom_treemap() +
+    geom_treemap_text( colour = "darkblue", place = "topleft", alpha = 0.6,
+                       grow = FALSE, size = 12)+
+    labs(title = gsub("_"," ",item),
+           # stringr::str_to_title(stringr::str_split_i(item,
+                                                      # "\\_",
+                                                      # 1)),
+         
+    )+
+    scale_fill_brewer(palette = "Set3")+
+    # guides(fill=guide_legend())+
+    theme(legend.position="bottom",
+          legend.spacing.x = unit(0, 'cm'))+
+    guides(fill = guide_legend(title="Food group",label.position = "bottom"))
+  # theme(legend.direction = "horizontal", legend.position = "bottom")+
+  # guides(fill = "none")+
+  theme_ipsum()
+  mn_fg_plots[[item]] <- p1
+}
+ggpubr::ggarrange(plotlist = mn_fg_plots, common.legend = TRUE)
