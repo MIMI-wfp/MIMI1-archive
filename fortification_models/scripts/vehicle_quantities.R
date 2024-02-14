@@ -608,6 +608,11 @@ hices_proportions <- read_excel("fortification_models/fortification scenarios/fo
 hices_proportions <- hices_proportions %>% 
   dplyr::select("item_cd", "prop_fortifiable")
 
+# Spacing in item_codes is causing issues when performing joing, remove spaces:
+food_consumption$item_code <- gsub(" ", "", food_consumption$item_code)
+hices_proportions$item_cd <- gsub(" ", "", hices_proportions$item_cd)
+
+
 # Left join proportions to food consumption data: 
 food_consumption <- left_join(food_consumption, hices_proportions, by = c("item_code" = "item_cd"))
 
@@ -631,31 +636,31 @@ food_consumption$prop_fortifiable <- NULL
 # fortification vehicles:
 
 food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
-  item_code == "Wheat white, flour" ~ "Wheat flour",
-  item_code == "Wheat  mixed, flour" ~ "Wheat flour",
-  item_code == "Wheat black, flour" ~ "Wheat bread",
-  item_code == "Wheat & Barley (Duragna), flour" ~ "Wheat flour",
-  item_code == "Wheat & other cereals, flour" ~ "Wheat flour",
-  item_code == "Flour, factory product, mainly of wheat" ~ "Wheat flour",
-  item_code == "Maize, flour" ~ "Maize flour",
+  item_code == "Wheatwhite,flour" ~ "Wheat flour",
+  item_code == "Wheatmixed,flour" ~ "Wheat flour",
+  item_code == "Wheatblack,flour" ~ "Wheat flour",
+  item_code == "Wheat&Barley(Duragna),flour" ~ "Wheat flour",
+  item_code == "Wheat&othercereals,flour" ~ "Wheat flour",
+  item_code == "Flour,factoryproduct,mainlyofwheat" ~ "Wheat flour",
+  item_code == "Maize,flour" ~ "Maizeflour",
   item_code == "Rice" ~ "Rice",
-  item_code == "Bread (Dufo, Anbasha etc), Wheat - home made" ~ "Wheat flour",
-  item_code == "Bread, wheat - bakery" ~ "Wheat flour",
-  item_code == "Donat / bombolino" ~ "Wheat flour",
-  item_code == "Boresh (Dolchi)" ~ "Wheat flour",
+  item_code == "Bread(Dufo,Anbashaetc),Wheat-homemade" ~ "Wheat flour",
+  item_code == "Bread,wheat-bakery" ~ "Wheat flour",
+  item_code == "Donat/bombolino" ~ "Wheat flour",
+  item_code == "Boresh(Dolchi)" ~ "Wheat flour",
   item_code == "Pizzas" ~ "Wheat flour",
   item_code == "Cakes" ~ "Wheat flour",
   item_code == "Biscuits" ~ "Wheat flour",
-  item_code == "Baqlaba / Mushebek" ~ "Wheat flour",
-  item_code == "Edible oil, local" ~ "Edible oil",
-  item_code == "Edible oil , imported" ~ "Edible oil",
+  item_code == "Baqlaba/Mushebek" ~ "Wheat flour",
+  item_code == "Edibleoil,local" ~ "Edible oil",
+  item_code == "Edibleoil,imported" ~ "Edible oil",
   item_code == "Sugar" ~ "Sugar",
   item_code == "Salt" ~ "Salt",
-  item_code == "Sandwitch, meat/ egg/ vegetable, normal" ~ "Wheat flour",
-  item_code == "Burger / club sandwich" ~ "Wheat flour",
-  item_code == "Bread or any pastry products with hot drinks" ~ "Wheat flour",
-  item_code == "Bread or any pastry products and Juice" ~ "Wheat flour",
-  item_code == "Others n.e.c." ~ "Wheat flour",
+  item_code == "Sandwitch,meat/egg/vegetable,normal" ~ "Wheat flour",
+  item_code == "Burger/clubsandwich" ~ "Wheat flour",
+  item_code == "Breadoranypastryproductswithhotdrinks" ~ "Wheat flour",
+  item_code == "BreadoranypastryproductsandJuice" ~ "Wheat flour",
+  item_code == "Othersn.e.c." ~ "Wheat flour",
   item_code == "Rice_duplicated_11202123" ~ "Rice"
 ))
 
