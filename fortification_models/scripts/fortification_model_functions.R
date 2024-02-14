@@ -5,7 +5,7 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 28-Dec-2023
-# Last edited: 23-Jan-2024
+# Last edited: 05-Feb-2024
 
 # This script contains functions required for creating the fortification models.
 
@@ -116,6 +116,8 @@ get_vehicle_quantities <- function(base_ai, food_consumption, hh_info) {
            edible_oil_100g = edible_oil_100g / afe,
            salt_100g = salt_100g / afe,
            staplegrain_100g = staplegrain_100g / afe) %>% 
+    # If staplegrain_100g has a 0 value, replace with NA: 
+    mutate(staplegrain_100g = ifelse(staplegrain_100g == 0, NA, staplegrain_100g)) %>%
     # Remove afe column:
     select(-afe)
   
