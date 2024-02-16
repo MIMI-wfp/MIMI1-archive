@@ -5,7 +5,7 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 08-Feb-2024
-# Last edited: 14-Feb-2024
+# Last edited: 16-Feb-2024
 
 # This script is for developing 3 possible options for a binary LSFF dose indicator.
 
@@ -305,6 +305,10 @@ nga_indicators <- nga_dose %>%
   dplyr::left_join(vehicle_quantities %>% dplyr::select("hhid", "staple_grain"), 
                    by = "hhid")
 
+nga_indicators <- nga_indicators %>% 
+  dplyr::mutate(staple_grain = ifelse(staple_grain == "Yes", 1,
+                                      ifelse(staple_grain == "No", 0, NA)))
+
 # Write to csv:
 # write_csv(nga_indicators, "LSFF_indicators/data/nga_lss1819_indicators.csv")
 
@@ -583,12 +587,19 @@ eth_dose <- eth_dose %>%
   dplyr::mutate(dose1 = ifelse(base_adeq == 0, dose1, NA),
                 dose2 = ifelse(base_adeq == 0, dose2, NA))
 
+
+
 # Export csv file with relevant variables for further analysis: 
 
 eth_indicators <- eth_dose %>% 
   dplyr::select("hhid", "base_adeq", "dose1", "dose2", "dose3") %>% 
   dplyr::left_join(vehicle_quantities %>% dplyr::select("hhid", "staple_grain"), 
                    by = "hhid")
+
+# Binarise staple_grain variable: 
+eth_indicators <- eth_indicators %>% 
+  dplyr::mutate(staple_grain = ifelse(staple_grain == "Yes", 1,
+                                      ifelse(staple_grain == "No", 0, NA)))
 
 # Write to csv:
 # write_csv(eth_indicators, "LSFF_indicators/data/eth_hices1516_indicators.csv")
