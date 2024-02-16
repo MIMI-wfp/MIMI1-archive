@@ -14,3 +14,5 @@ Thank you for contributing to the MIMI project!
 If you would like to contribute to the MIMI project, please reach out to one of us (contact details above) to discuss your proposeed contribution, and to arrange access to the repository.
 
 ### Your first contribution
+
+To start making contributions to the repository, please create your own [branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches) to begin working on, 
