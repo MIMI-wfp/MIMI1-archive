@@ -9,3 +9,6 @@ Whilst every effort has been made to ensure that these guidelines are as exhaust
 
 Thank you for contributing to the MIMI project!
 
+### Contributing permissions
+
+If you would like to contribute to the MIMI project, please reach out to one of us (emails above) to discuss your proposeed contribution, and to arrange access to the repository.
