@@ -11,9 +11,13 @@ Whilst every effort has been made to ensure that these guidelines are as exhaust
 
 If you would like to contribute to the MIMI project, please reach out to one of us (contact details above) to discuss your proposeed contribution, and to arrange contributor access to the repository.
 
-### Your first contribution
+### Branches
 
-To start making contributions to the repository, please create your own [branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches) to begin working on, please refrain from committing changes directly to the main branch! 
+The main branch in this repository should only contain finalised and clean code, therefore please do not commit your changes directly to the main branch!
+
+Therefore if you would...
+
+If you would like to learn more about branches, please read the following [documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches)
 
 
 Thank you for contributing to the MIMI project! 
