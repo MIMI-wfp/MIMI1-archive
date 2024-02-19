@@ -96,6 +96,7 @@ Once all changes are approved, you may now merge the pull request into the main 
 
 ![merge](https://github.com/kmtang/MIMI/assets/90572354/7b31efca-f708-48fb-a3a9-04dcc1bf20b4)
 
+If you would like to learn more about pull requests, please read the following [documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests)
 
 ### Summary
 
