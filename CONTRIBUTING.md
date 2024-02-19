@@ -19,6 +19,8 @@ The main branch in this repository should only contain finalised and clean code,
 
 Therefore please create a new branch for any code that is a work in progress, and name your branch according to the following naming convention: `author_keyword1_keyword2`
 
+* `author`: Please include your name so that it is clear who is responsible for this branch
+
 If you would like to learn more about branches, please read the following [documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches)
 
 ### Submitting pull requests
