@@ -23,6 +23,8 @@ Therefore please create a new branch for any code that is a work in progress, an
 * `keyword1`: A first keyword that relates to the project or analysis that you are working on
 * `keyword2`: A second keyword that relates to the project or analysis that you are working on
 
+For example, if Mo Osman is working on modelling fortification scenarios in Nigeria, he may choose to name his branch: `mo_fortification_nigeria`
+
 If you would like to learn more about branches, please read the following [documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches)
 
 ### Submitting pull requests
