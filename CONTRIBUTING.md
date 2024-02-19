@@ -2,7 +2,7 @@
 
 Welcome to the contributing guidelines for the MIMI project. This documentation will outline some basic principles and best practices to follow when making contributions to the project. 
 
-Whilst every effort has been made to ensure that these guidelines are as detailed as possible, it's likely that not everything has been covered. Therefore if you do have any questions regarding anything that is not covered in this documentation, please contact one of us: <br>
+Whilst every effort has been made to ensure that these guidelines are as detailed as possible, it's likely that not everything has been covered. Therefore if you do have any questions about contributing to the repository, please contact one of us: <br>
 * Mohammed Osman: [mohammedaheed.osman@wfp.org](mohammedaheed.osman@wfp.org) <br>
 * Gabriel Battcock: [gabriel.battcock@wfp.org](gabriel.battcock@wfp.org) <br>
 * Kevin Tang: [kevin.tang@wfp.org](keving.tang@wfp.org) <br>
