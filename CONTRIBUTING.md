@@ -82,7 +82,7 @@ If you are a reviewer, you will find your review requests in the "pull requests"
 
 <img width="1238" alt="pull_request" src="https://github.com/kmtang/MIMI/assets/90572354/edb614d9-d047-4c6f-9716-f48311f3c01d">
 
-
+<br>
 You will then be taken to a page where you are able to review the changes made, if you are happy with the changes made, you can click "Approve" and "Submit review". Otherwise you can submit feedback or request changes from your collaborator if required.
 
 ![code_review](https://github.com/kmtang/MIMI/assets/90572354/dfc752dc-3745-4b27-b64b-4294023d5a40)
