@@ -87,7 +87,7 @@ You will then be taken to a page where you are able to review the changes made, 
 
 ![code_review](https://github.com/kmtang/MIMI/assets/90572354/dfc752dc-3745-4b27-b64b-4294023d5a40)
 
-If any merge conflicts do arise, it is advised that you arrange a meeting or short video call with to resolve conflicts with your collaborator (unless the conflicts are due to inconsequential differences such as empty spaces or comments).
+If any merge conflicts do arise, it is advised that you arrange a meeting or short video call to resolve conflicts with your collaborator (unless the conflicts are due to inconsequential differences such as empty spaces or comments).
 
 Once all changes are approved, you may now merge the pull request into the main branch!
 
@@ -96,4 +96,6 @@ Once all changes are approved, you may now merge the pull request into the main 
 
 ### Summary
 
-Thank you for contributing to the MIMI project! 
+These guidelines have outlined a standardised workflow for contributing to the MIMI repository. By following these guidelines, we can ensure that our repository remains tidy and functional, whilst also ensuring that collaboration with other team members is as smooth and streamlined as possible.
+
+If you have any suggestions for how we can improve our workflow, we would love to hear them! Thank you for your contributions! 
