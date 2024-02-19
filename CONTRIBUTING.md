@@ -82,6 +82,16 @@ If you are a reviewer, you will find your review requests in the "pull requests"
 
 <img width="1238" alt="pull_request" src="https://github.com/kmtang/MIMI/assets/90572354/edb614d9-d047-4c6f-9716-f48311f3c01d">
 
+You will then be taken to a page where you are able to review the changes made, if you are happy with the changes made, you can click "Approve" and "Submit review". Otherwise you can submit feedback or request changes from your collaborator if required.
+
+![code_review](https://github.com/kmtang/MIMI/assets/90572354/dfc752dc-3745-4b27-b64b-4294023d5a40)
+
+If any merge conflicts do arise, it is advised that you arrange a meeting or short video call with to resolve conflicts with your collaborator (unless the conflicts are due to inconsequential differences such as empty spaces or comments).
+
+Once all changes are approved, you may now merge the pull request into the main branch!
+
+![merge](https://github.com/kmtang/MIMI/assets/90572354/7b31efca-f708-48fb-a3a9-04dcc1bf20b4)
+
 
 ### Summary
 
