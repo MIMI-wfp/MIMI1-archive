@@ -13,8 +13,8 @@
 # source(here::here("functions.R")) # Loading nutrition functions
 
 # read in the NSSO food data
-# path_to_file <- "./India_analysis/data/raw/"
-path_to_file <- "./India_analysis/data/raw/extra_states/"
+path_to_file <- "./India_analysis/data/raw/"
+# path_to_file <- "./India_analysis/data/raw/extra_states/"
 block_5_6_food_consumption <- read_csv(paste0(path_to_file, "block_5_6_food_consumption.csv"))
 
 #read in xlsx spreadsheet previously matched by hand
@@ -87,7 +87,7 @@ non_standard_units <- food_item_names %>%
         Item_Code == 224 ~ 980, #dry coconuts - Varghese et al., "A Study of Physical 
                                 #and Mechanical Properties of the Indian Coconut for Efficient Dehusking"
         Item_Code == 225 ~ 1300, # green coconuts
-        Item_Code == 280 ~ 300,
+        Item_Code == 280 ~ 300,# bought meals outside of the house
         Item_Code == 281 ~ 300,
         Item_Code == 282 ~ 300,
         Item_Code == 284 ~ 300
@@ -519,25 +519,25 @@ mixed_items <- unmatched_items%>%
                             R005
                             R006
                             R007",#fish and prawn
-Item_Code == 196 ~ "N011
-N012
-N013
-N014
-N015
-N016
-N017
-N018
-N019
-N022
-N023
-N024
-N025
-N026
-N027
-N028
-N029
-N030
-N031",#other meats
+        Item_Code == 196 ~ "N011
+                            N012
+                            N013
+                            N014
+                            N015
+                            N016
+                            N017
+                            N018
+                            N019
+                            N022
+                            N023
+                            N024
+                            N025
+                            N026
+                            N027
+                            N028
+                            N029
+                            N030
+                            N031",#other meats
         Item_Code == 217 ~ "D001
                             D002
                             D003
@@ -911,4 +911,4 @@ write_csv(final_fct, paste0(path_to_save,"matched_fct.csv"))
 # )
 
 
-rm(list= ls())
+# rm(list= ls())

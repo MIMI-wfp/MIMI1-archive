@@ -194,9 +194,9 @@ target_creation <- function(){
       select(-c(va_nar,fo_nar,vb12_nar,zn_nar,fe_nar))
     survey
   }
- x <-  select_and_append(eth_ess1819,"eth_ess1819") %>% 
-    bind_rows(select_and_append(nga_lss1819,"nga_lss1819")) %>% 
-    bind_rows(select_and_append(ind_nss1112,"ind_nss1112"))
+ x <-  select_and_append(eth_ess1819,"ETH_2018_ESS_v03_M") %>% 
+    bind_rows(select_and_append(nga_lss1819,"NGA_2018_LSS_v01_M")) %>% 
+    bind_rows(select_and_append(ind_nss1112,"DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012"))
  x
 }
 

@@ -65,6 +65,9 @@ eth_hces1516$hhid <- paste0(as.character(eth_hces1516$CQ11),
 
 names(eth_hces1516)
 #calculate the total expnediture per hh
+
+
+
 x <- eth_hces1516 %>%
   dplyr::select(hhid, VALUE, CQ14, QUANTITY,STPRICE,FOOD,FOODEXP,EXPCC, ADEQUIV) %>%
   group_by(hhid, CQ14,ADEQUIV, EXPCC) %>%
@@ -151,15 +154,16 @@ CPI_eth <- data.frame(
             "January",
             "February",
             "March",
+            "Paquma",
             "April",
             "May",
             "June"
             ),
   year = c(2015,2015,2015,2015,2015,2015,
-           2016,2016,2016,2016,2016,2016
+           2016,2016,2016,2016,2016,2016,2016
            ),
   CPI = c(146.0,146.7,148.4,148.8,145.8,145.9,
-          147.6,147.4,148.3,150.5,152.5,154.0
+          147.6,147.4,148.3,148.3,150.5,152.5,154.0
           )
 )
 
@@ -175,10 +179,11 @@ eth_hces1516 %>%
 
 
 unique(eth_hces1516$hhid[eth_hces1516$MONTH=="Paquma"])
-
+unique(eth_hces1516$MONTH)
 
 eth_hces_urbrur_quint <- eth_hces1516 %>% 
   select(hhid, VALUE, UR, QUANTITY,STPRICE,FOOD,FOODEXP,EXPCC, ADEQUIV, MONTH) %>% 
+  dplyr::mutate(ADEQUIV = ifelse(is.na(ADEQUIV),1,ADEQUIV)) %>% 
   group_by(hhid, UR,ADEQUIV, EXPCC, MONTH) %>% 
   summarise(tot_val = sum(VALUE)) %>% 
   left_join(CPI_eth, by = c("MONTH" = "month")) %>%
@@ -187,7 +192,7 @@ eth_hces_urbrur_quint <- eth_hces1516 %>%
   mutate(tot_val = ref_july_2015*tot_val) %>%
   ungroup() %>%
   # adjust for inflation
-  mutate(total_per_cap = tot_val/round(ADEQUIV)) %>% 
+  mutate(total_per_cap = tot_val/ADEQUIV) %>% 
   ungroup() %>% 
   mutate(quintile =
            case_when(
@@ -199,7 +204,7 @@ eth_hces_urbrur_quint <- eth_hces1516 %>%
                "3",
              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[5]]~
                "4",
-             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[6]]~
+             total_per_cap<=quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[6]]~
                "5",
            )) %>% 
   group_by(UR) %>% 
@@ -213,16 +218,21 @@ eth_hces_urbrur_quint <- eth_hces1516 %>%
                "3",
              total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[5]]~
                "4",
-             total_per_cap<quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[6]]~
+             total_per_cap<=quantile(total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)[[6]]~
                "5",
            )) %>% 
-  select(hhid, UR, quintile, ur_quintile, EXPCC)
+  select(hhid, UR, quintile,total_per_cap, ur_quintile, EXPCC) 
+ 
+  # filter(!is.na(ur_quintile))#only 2 hosueholds, random
 
 ## summarise the number in each quintile
 
+quantile(eth_hces_urbrur_quint$total_per_cap,probs = seq(0,1,0.2), na.rm = TRUE)
+summary(eth_hces_urbrur_quint$UR)
+
 eth_hces_urbrur_quint %>%
   ungroup() %>% 
-  group_by(UR, quintile) %>% 
+  group_by(UR, ur_quintile) %>% 
   summarise(n())#split into quintiles, but need to know what "Paquma" is 
 
 

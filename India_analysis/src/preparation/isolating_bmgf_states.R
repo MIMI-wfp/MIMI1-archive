@@ -70,4 +70,18 @@ write_csv(block_12_consumer_expenditure, paste0(path_to_save, "block_12_consumer
 write_csv(block_13_yoga_ayurveda, paste0(path_to_save, "block_13_yoga_ayurveda.csv"))
 
 
+path_to_save2 <- "~/Documents/MIMI/data_science_code/nss68_consumer_expenditure_type_1_1/"
+
+write_csv(block_1_2_identification,paste0(path_to_save2, "Identification of Sample Household - Block 1 and 2 - Level 1 -  68.csv"))
+write_csv(block_3_level_2_household_char,paste0(path_to_save2, "Household Characteristics - Block 3 -  Level 2 -  68.csv"))
+write_csv(block_3_level_3_household_char,paste0(path_to_save2, "Household characteristics - Block 3 - Level 3.csv"))
+write_csv(block_4_demog,paste0(path_to_save2, "Demographic and other particulars of household members - Block 4  - Level 4 - 68.csv"))
+write_csv(block_5_6_food_consumption,paste0(path_to_save2, "Consumption of cereals-pulses- milk and milk products  during the last 30 days  - Block 5.1- 5.2- 6 - Level 5 - 68.csv"))
+write_csv(block_7_8_clothing_consumption,paste0(path_to_save2, "Consumption of clothing, bedding and footwear during last 30 and 365 days - Block 7 and 8  - Level 6 -  68.csv"))
+write_csv(block_9_edu_expenditure,paste0(path_to_save2,"Expenditure on Education and Medical (institutional) goods and services -  Block 9 - Level 7 -  68.csv"))
+write_csv(block_10_misc_expenditure,paste0(path_to_save2,"Expenditure on miscellaneous goods and services including medical(non-institutional), rents and taxes during the last 30 days. Block 10 - Level 8 -68.csv"))
+write_csv(block_11_construction_expenditure,paste0(path_to_save2, "Expenditure for purchase and construction (including repair and maintenance) of durable goods for domestic use-  Block 11 - Level 9 -  68.csv"))
+write_csv(block_12_consumer_expenditure,paste0(path_to_save2, "Summary of Consumer Expenditure - Block 12 - Level 11 - 68.csv"))
+write_csv(block_13_yoga_ayurveda,paste0(path_to_save2, "Information on Ayurveda, Yoga, Naturopathy, Unani, Siddha, Homeopathy(ASYUSH) - Block 13 - Level 10 - 68.csv"))
+
 rm(list = ls())

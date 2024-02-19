@@ -207,7 +207,7 @@ write_csv(ess_fct, paste0(path_to_save,"eth_ess1819_fct.csv"))
 
 rm(ess_fct)
 rm(ess_food_consumption)
-rm(ess_afe)
+# rm(ess_afe)
 
 # MWI ##########################################################################
 
@@ -468,7 +468,8 @@ rm(nsso_demographics)
 hices_food_consumption <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/eth_hces1516_foodbev.csv"))
 hices_rur_quintiles <- read.csv(here::here("ethiopia/data/urb_rur_quintiles.csv"))
 
-unique(hices_food_consumption$CQ11)
+
+
 
 hices_afe <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/eth_hces1516_afe.csv"))
 
@@ -493,10 +494,11 @@ hices_hh_info <- hices_food_consumption %>%
     educ_head = EDUC_Head,
     survey_wgt = WGT
   ) %>% 
+  mutate(adm2 = paste0(adm1,"_",adm2)) %>% 
   group_by(hhid) %>% 
   slice(1) %>% 
   left_join(
-    hices_rur_quintiles, by = "hhid"
+    distinct(hices_rur_quintiles,.keep_all = T), by = "hhid"
   ) %>% 
   select(-c(UR, EXPCC)) %>% 
   rename(sep_quintile = quintile,
@@ -757,7 +759,7 @@ nga_hh_info <- nga_hh1 %>%
   ) %>% 
   left_join(nga_afe, by = "hhid")
 
-
+å
 
 
 # Add in enumeration areas for Nigeria LSS from the "cover" module: 
@@ -783,6 +785,8 @@ rm(nga_roster)
 
 ### create machine learning targets as one file
 mimi_targets <- target_creation()
-write.csv(mimi_targets, paste0(path_to_save, "mimi_targets.csv"))
+
+
+write_csv(mimi_targets, paste0(path_to_save, "mimi_targets.csv"))
 
 rm(list = ls())
