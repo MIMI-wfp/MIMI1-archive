@@ -26,8 +26,10 @@ MIMI/
 │  ├─ dietary_assessment/
 │  └─ ...
 ├─ data_constrained/
-│  └─ LSFF_indicators/
+│  ├─ LSFF_indicators/
+│  └─ ...
 ├─ universal_functions/
+│  ├─ iron_full_probability/
 │  └─ ...                                
 ├─ MIMI.Rproj
 └─ .gitignore
