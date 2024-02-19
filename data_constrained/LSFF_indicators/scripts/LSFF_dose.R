@@ -31,8 +31,8 @@ rm(list= c("rq_packages", "installed_packages"))
 # In the first instance, I will develop this indicator using data from the 
 # NGA_LSS 2018-19 survey. Read in data:
 
-vehicle_quantities <- read_csv("fortification_models/data/nga_lss1819_vehicle_quantities.csv")
-base_ai <- read_csv("fortification_models/data/nga_lss1819_base_ai.csv")
+vehicle_quantities <- read_csv("data_rich/fortification_models/data/nga_lss1819_vehicle_quantities.csv")
+base_ai <- read_csv("data_rich/fortification_models/data/nga_lss1819_base_ai.csv")
 
 #-------------------------------------------------------------------------------
 
@@ -138,7 +138,7 @@ rm(list = c("rice_contribution", "wheatflour_contribution", "maizeflour_contribu
 
 # Re-read the vehicle quantities data:
 
-vehicle_quantities <- read_csv("fortification_models/data/nga_lss1819_vehicle_quantities.csv")
+vehicle_quantities <- read_csv("data_rich/fortification_models/data/nga_lss1819_vehicle_quantities.csv")
 
 # The first option is to create a binary indicator for LSFF dose based on:
 # (quantity consumed of each vehicle * Theoretical intake under a fortification scenario) + base_ai
@@ -310,7 +310,7 @@ nga_indicators <- nga_indicators %>%
                                       ifelse(staple_grain == "No", 0, NA)))
 
 # Write to csv:
-# write_csv(nga_indicators, "LSFF_indicators/data/nga_lss1819_indicators.csv")
+# write_csv(nga_indicators, "data_constrained/LSFF_indicators/data/nga_lss1819_indicators.csv")
 
 rm(list = ls())
 
@@ -320,8 +320,8 @@ rm(list = ls())
 
 # READ DATA: 
 
-vehicle_quantities <- read_csv("fortification_models/data/eth_hices1516_vehicle_quantities.csv")
-base_ai <- read_csv("fortification_models/data/eth_hices1516_base_ai.csv")
+vehicle_quantities <- read_csv("data_rich/fortification_models/data/eth_hices1516_vehicle_quantities.csv")
+base_ai <- read_csv("data_rich/fortification_models/data/eth_hices1516_base_ai.csv")
 
 #-------------------------------------------------------------------------------
 
@@ -427,7 +427,7 @@ rm(list = c("rice_contribution", "wheatflour_contribution", "maizeflour_contribu
 
 # Re-read the vehicle quantities data:
 
-vehicle_quantities <- read_csv("fortification_models/data/eth_hices1516_vehicle_quantities.csv")
+vehicle_quantities <- read_csv("data_rich/fortification_models/data/eth_hices1516_vehicle_quantities.csv")
 
 # The first option is to create a binary indicator for LSFF dose based on:
 # (quantity consumed of each vehicle * Theoretical intake under a fortification scenario) + base_ai
@@ -602,7 +602,7 @@ eth_indicators <- eth_indicators %>%
                                       ifelse(staple_grain == "No", 0, NA)))
 
 # Write to csv:
-# write_csv(eth_indicators, "LSFF_indicators/data/eth_hices1516_indicators.csv")
+# write_csv(eth_indicators, "data_constrained/LSFF_indicators/data/eth_hices1516_indicators.csv")
 
 rm(list = ls())
 

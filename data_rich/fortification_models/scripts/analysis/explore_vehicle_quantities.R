@@ -27,27 +27,27 @@ rm(list= c("rq_packages", "installed_packages"))
 #-------------------------------------------------------------------------------
 
 # READ IN FUNCTIONS:
-source("fortification_models/scripts/analysis/eda_functions.R")
+source("data_rich/fortification_models/scripts/analysis/eda_functions.R")
 
 #-------------------------------------------------------------------------------
 
 # READ IN DATA: 
 
 # Nigeria LSS:
-nga_lss <- read_csv("fortification_models/data/nga_lss1819_vehicle_quantities.csv")
+nga_lss <- read_csv("data_rich/fortification_models/data/nga_lss1819_vehicle_quantities.csv")
 
 # India NSS:
-ind_nss <- read_csv("fortification_models/data/ind_nss1112_vehicle_quantities.csv")
+ind_nss <- read_csv("data_rich/fortification_models/data/ind_nss1112_vehicle_quantities.csv")
 
 # Currently, not working with the Ethiopia ESS data - therefore comment this out
 # for now (also for the rest of the script)
 
 # # Ethiopia ESS:
 # 
-# eth_ess <- read_csv("fortification_models/data/eth_ess1819_vehicle_quantities.csv")
+# eth_ess <- read_csv("data_rich/fortification_models/data/eth_ess1819_vehicle_quantities.csv")
 
 # Ethiopia HICES: 
-eth_hices <- read_csv("fortification_models/data/eth_hices1516_vehicle_quantities.csv")
+eth_hices <- read_csv("data_rich/fortification_models/data/eth_hices1516_vehicle_quantities.csv")
 
 #-------------------------------------------------------------------------------
 
@@ -55,25 +55,25 @@ eth_hices <- read_csv("fortification_models/data/eth_hices1516_vehicle_quantitie
 
 # Nigeria LSS:
 nga_lss <- nga_lss %>% 
-  left_join(read_csv("all_base_models/data/current/nga_lss1819_hh_info.csv") %>% 
+  left_join(read_csv("data_rich/all_base_models/data/current/nga_lss1819_hh_info.csv") %>% 
               dplyr::select("hhid", "res", "adm1", "adm2", "sep_quintile", 
                             "res_quintile", "survey_wgt"), by = "hhid")
 
 # India NSS:
 ind_nss <- ind_nss %>% 
-  left_join(read_csv("all_base_models/data/current/ind_nss1112_hh_info.csv") %>% 
+  left_join(read_csv("data_rich/all_base_models/data/current/ind_nss1112_hh_info.csv") %>% 
               dplyr::select("hhid", "res", "adm1", "adm2", "sep_quintile", 
                             "res_quintile", "survey_wgt"), by = "hhid")
 
 # # Ethiopia ESS:
 # eth_ess <- eth_ess %>% 
-#   left_join(read_csv("all_base_models/data/current/eth_ess1819_hh_info.csv") %>% 
+#   left_join(read_csv("data_rich/all_base_models/data/current/eth_ess1819_hh_info.csv") %>% 
 #               dplyr::select("hhid", "res", "adm1", "adm2", "sep_quintile", 
 #                             "res_quintile", "survey_wgt"), by = "hhid")
 
 # Ethiopia HICES:
 eth_hices <- eth_hices %>% 
-  left_join(read_csv("all_base_models/data/current/eth_hices1516_hh_info.csv") %>% 
+  left_join(read_csv("data_rich/all_base_models/data/current/eth_hices1516_hh_info.csv") %>% 
               dplyr::select("hhid", "res", "adm1", "adm2", "sep_quintile", 
                             "res_quintile", "survey_wgt"), by = "hhid")
 
@@ -103,21 +103,21 @@ svy_eth_hices <- eth_hices %>%
 # REACH PLOTS:
 
 plot_reach(svy_nga_lss) + labs(title = "Nigeria (LSS)")
-# ggsave("fortification_models/figures/exploratory/nga_lss1819_reach.png",
+# ggsave("data_rich/fortification_models/figures/exploratory/nga_lss1819_reach.png",
 #        width = 8, height = 6)
 
 plot_reach(svy_ind_nss) + labs(title = "India (NSS)") + 
   scale_x_discrete(labels = c("Rice", "Wheat flour \n(Atta & Maida)",
                               "Staple grains \n(combined)"))
-# ggsave("fortification_models/figures/exploratory/ind_nss1112_reach.png",
+# ggsave("data_rich/fortification_models/figures/exploratory/ind_nss1112_reach.png",
 #        width = 8, height = 6)
 
 # plot_reach(svy_eth_ess) + labs(title = "Ethiopia (ESS)")
-# ggsave("fortification_models/figures/exploratory/eth_ess1819_reach.png",
+# ggsave("data_rich/fortification_models/figures/exploratory/eth_ess1819_reach.png",
 #        width = 8, height = 6)
 
 plot_reach(svy_eth_hices) + labs(title = "Ethiopia (HICES)")
-# ggsave("fortification_models/figures/exploratory/eth_hices1516_reach.png",
+# ggsave("data_rich/fortification_models/figures/exploratory/eth_hices1516_reach.png",
 #        width = 8, height = 6)
 
 #-------------------------------------------------------------------------------
@@ -125,21 +125,21 @@ plot_reach(svy_eth_hices) + labs(title = "Ethiopia (HICES)")
 # QUANTITY OF CONSUMPTION DENSITY RIDGES (ALL HOUSEHOLDS):
 
 # plot_quantites(nga_lss) + labs(title = "Nigeria (LSS)") + xlim(0, 250)
-# # ggsave("fortification_models/figures/exploratory/nga_lss1819_quantity_density.png",
+# # ggsave("data_rich/fortification_models/figures/exploratory/nga_lss1819_quantity_density.png",
 # #        width = 8, height = 6)
 # 
 # plot_quantites(ind_nss) + labs(title = "India (NSS)") + xlim(0, 600) +
 #   scale_y_discrete(labels = c("Staple grains \n(combined)", "Wheat flour \n(Atta & Maida)",
 #                               "Rice"))
-# # ggsave("fortification_models/figures/exploratory/ind_nss1112_quantity_density.png",
+# # ggsave("data_rich/fortification_models/figures/exploratory/ind_nss1112_quantity_density.png",
 # #        width = 8, height = 6)
 # 
 # plot_quantites(eth_ess) + labs(title = "Ethiopia (ESS)") + xlim(0, 500)
-# # ggsave("fortification_models/figures/exploratory/eth_ess1819_quantity_density.png",
+# # ggsave("data_rich/fortification_models/figures/exploratory/eth_ess1819_quantity_density.png",
 # #        width = 8, height = 6)
 # 
 # plot_quantites(eth_hices) + labs(title = "Ethiopia (HICES)") + xlim(0, 500)
-# # ggsave("fortification_models/figures/exploratory/eth_hices1516_quantity_density.png",
+# # ggsave("data_rich/fortification_models/figures/exploratory/eth_hices1516_quantity_density.png",
 # #        width = 8, height = 6)
 
 #-------------------------------------------------------------------------------
@@ -166,15 +166,15 @@ stratified_table(eth_hices)
 # Present survey weighted reach stratified by urban/rural and sep quintile:
 
 stratified_plot(svy_nga_lss) + labs(title = "Nigeria (LSS)")
-# ggsave("fortification_models/figures/exploratory/nga_lss1819_stratified_reach.png",
+# ggsave("data_rich/fortification_models/figures/exploratory/nga_lss1819_stratified_reach.png",
 #        width = 10, height = 6.5)
 
 stratified_plot(svy_ind_nss) + labs(title = "India (NSS)")
-# ggsave("fortification_models/figures/exploratory/ind_nss1112_stratified_reach.png",
+# ggsave("data_rich/fortification_models/figures/exploratory/ind_nss1112_stratified_reach.png",
 #        width = 10, height = 6.5)
 
 stratified_plot(svy_eth_hices) + labs(title = "Ethiopia (HICES)")
-# ggsave("fortification_models/figures/exploratory/eth_hices1516_stratified_reach.png",
+# ggsave("data_rich/fortification_models/figures/exploratory/eth_hices1516_stratified_reach.png",
 #        width = 10, height = 6.5)
 
 
@@ -182,18 +182,18 @@ stratified_plot(svy_eth_hices) + labs(title = "Ethiopia (HICES)")
 
 # Stratified quantities:
 stratified_quantities(nga_lss) + xlim(0,400) + labs(title = "Nigeria (LSS)")
-# ggsave("fortification_models/figures/exploratory/nga_lss1819_stratified_quantity.png",
+# ggsave("data_rich/fortification_models/figures/exploratory/nga_lss1819_stratified_quantity.png",
 #        width = 10, height = 6.5)
 
 stratified_quantities(ind_nss) + xlim(0,600) + labs(title = "India (NSS)") + 
   scale_y_discrete(labels = c("Potentially \nfortifiable \nstaple grains \n(combined)", 
                               "Wheat flour \n(Atta & Maida)",
                               "Rice"))
-# ggsave("fortification_models/figures/exploratory/ind_nss1112_stratified_quantity.png",
+# ggsave("data_rich/fortification_models/figures/exploratory/ind_nss1112_stratified_quantity.png",
 #        width = 10, height = 6.5)
 
 stratified_quantities(eth_hices) + xlim(0,500) + labs(title = "Ethiopia (HICES)")
-# ggsave("fortification_models/figures/exploratory/eth_hices1516_stratified_quantity.png",
+# ggsave("data_rich/fortification_models/figures/exploratory/eth_hices1516_stratified_quantity.png",
 #        width = 10, height = 6.5)
 
 ################################################################################

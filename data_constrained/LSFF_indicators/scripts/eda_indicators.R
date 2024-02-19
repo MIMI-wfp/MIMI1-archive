@@ -30,10 +30,10 @@ rm(list= c("rq_packages", "installed_packages"))
 
 # Load in required data: 
 
-nga_lss1819_indicators <- read_csv("LSFF_indicators/data/nga_lss1819_indicators.csv")
-nga_lss1819_food_consumption <- read_csv("all_base_models/data/current/nga_lss1819_food_consumption.csv")
-nga_lss1819_vehicle_quantities <- read_csv("fortification_models/data/nga_lss1819_vehicle_quantities.csv")
-nga_lss1819_hh_info <- read_csv("all_base_models/data/current/nga_lss1819_hh_info.csv")
+nga_lss1819_indicators <- read_csv("data_constrained/LSFF_indicators/data/nga_lss1819_indicators.csv")
+nga_lss1819_food_consumption <- read_csv("data_rich/all_base_models/data/current/nga_lss1819_food_consumption.csv")
+nga_lss1819_vehicle_quantities <- read_csv("data_rich/fortification_models/data/nga_lss1819_vehicle_quantities.csv")
+nga_lss1819_hh_info <- read_csv("data_rich/all_base_models/data/current/nga_lss1819_hh_info.csv")
 
 #-------------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ nga_lss1819_vehicle_quantities %>%
   # Add median line: 
   geom_vline(aes(xintercept = mean(staplegrain_100g, na.rm = T)), color = "red", linetype = "dashed")
 
-# ggsave("LSFF_indicators/figures/staplegrains_hist.png", width = 6.83, height = 5.78,
+# ggsave("data_constrained/LSFF_indicators/figures/staplegrains_hist.png", width = 6.83, height = 5.78,
 #        dpi = 600)
 
 #-------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ nga_lss1819_food_consumption %>%
   geom_vline(aes(xintercept = mean(staplegrain_100g + quantity_100g, na.rm = T)), 
              color = "blue", linetype = "dashed")
 
-# ggsave("LSFF_indicators/figures/grains_roots_hist.png", width = 6.83, height = 5.78,
+# ggsave("data_constrained/LSFF_indicators/figures/grains_roots_hist.png", width = 6.83, height = 5.78,
 #        dpi = 600)
 
 #-------------------------------------------------------------------------------
@@ -141,10 +141,10 @@ rm(list = c("nga_lss1819_food_consumption", "nga_lss1819_hh_info",
 # ETHIOPIA: 
 
 # Load in Ethiopia data:
-eth_hices1516_indicators <- read_csv("LSFF_indicators/data/eth_hices1516_indicators.csv")
-eth_hices1516_food_consumption <- read_csv("all_base_models/data/current/eth_hices1516_food_consumption.csv")
-eth_hices1516_vehicle_quantities <- read_csv("fortification_models/data/eth_hices1516_vehicle_quantities.csv")
-eth_hices1516_hh_info <- read_csv("all_base_models/data/current/eth_hices1516_hh_info.csv")
+eth_hices1516_indicators <- read_csv("data_constrained/LSFF_indicators/data/eth_hices1516_indicators.csv")
+eth_hices1516_food_consumption <- read_csv("data_rich/all_base_models/data/current/eth_hices1516_food_consumption.csv")
+eth_hices1516_vehicle_quantities <- read_csv("data_rich/fortification_models/data/eth_hices1516_vehicle_quantities.csv")
+eth_hices1516_hh_info <- read_csv("data_rich/all_base_models/data/current/eth_hices1516_hh_info.csv")
 
 # Join popilation data to indicators data, ready for comparison with indicators
 # from other countries:
@@ -186,7 +186,7 @@ svy_eth_indicators <- eth_indicators %>%
 
 
 # Source script required to create plots:
-source("LSFF_indicators/scripts/eda_indicators_functions.R")
+source("data_constrained/LSFF_indicators/scripts/eda_indicators_functions.R")
 
 # Nigeria:
 stratified_plots(svy_nga_indicators)

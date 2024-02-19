@@ -21,8 +21,8 @@ rm(list= c("rq_packages", "installed_packages"))
 #-------------------------------------------------------------------------------
 
 # Read in relevant data:
-vehicle_quantities <- read_csv("fortification_models/data/eth_ess1819_vehicle_quantities.csv")
-nut_adequacy <- read_csv("fortification_models/scripts/analysis/fraym_data_request/ess_binary.csv")
+vehicle_quantities <- read_csv("data_rich/fortification_models/data/eth_ess1819_vehicle_quantities.csv")
+nut_adequacy <- read_csv("data_rich/data_requests/fraym20240202/ess_binary.csv")
 
 #-------------------------------------------------------------------------------
 
@@ -42,12 +42,12 @@ nut_adequacy <- nut_adequacy %>% dplyr::select("hhid", "vita", "folate", "vitb12
 ess1819_fraym <- nut_adequacy %>% left_join(vehicle_quantities, by = "hhid")
 
 # Write csv file:
-# write_csv(ess1819_fraym, "fortification_models/scripts/analysis/fraym_data_request/ess1819_fraym.csv")
+# write_csv(ess1819_fraym, "data_rich/data_requests/fraym20240202/ess1819_fraym.csv")
 
 #-------------------------------------------------------------------------------
 
 # 2nd data request - Reach of edible oil for each hhid:
-vehicle_quantities <- read_csv("fortification_models/data/eth_ess1819_vehicle_quantities.csv")
+vehicle_quantities <- read_csv("data_rich/fortification_models/data/eth_ess1819_vehicle_quantities.csv")
 
 # Select relevant variables from vehicle_quantities: 
 vehicle_quantities <- vehicle_quantities %>% dplyr::select("hhid", "edible_oil")
@@ -56,7 +56,7 @@ vehicle_quantities <- vehicle_quantities %>% dplyr::select("hhid", "edible_oil")
 vehicle_quantities$edible_oil <- ifelse(vehicle_quantities$edible_oil == "Yes", 1, 0)
 
 # Write csv: 
-# write_csv(vehicle_quantities, "fortification_models/scripts/analysis/fraym_data_request/ess1819_edible_oil.csv")
+# write_csv(vehicle_quantities, "data_rich/data_requests/fraym20240202/ess1819_edible_oil.csv")
 
 
 rm(list = ls())

@@ -28,10 +28,10 @@ rm(list= c("rq_packages", "installed_packages"))
 # READ IN FUNCTIONS:
 
 # Source script required to create base models: 
-source("all_base_models/scripts/base_model_functions.R")
+source("data_rich/all_base_models/scripts/base_model_functions.R")
 
 # Source script required to get quantities of each fortification vehicle: 
-source("fortification_models/scripts/fortification_model_functions.R")
+source("data_rich/fortification_models/scripts/fortification_model_functions.R")
 
 #-------------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ base_ai <- apparent_intake("nga_lss1819")
 # Note that the base_ai is based on MN values from UNFORTIFIED foods.
 
 # Write csv to data folder:
-# write_csv(base_ai, "fortification_models/data/nga_lss1819_base_ai.csv")
+# write_csv(base_ai, "data_rich/fortification_models/data/nga_lss1819_base_ai.csv")
 
 # Remove objects that are no longer required:
 rm(list = c("fc_table", "full_item_list"))
@@ -99,7 +99,7 @@ rm(food_purchases)
 # FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS:
 
 # Read in data on proportion fortiable for each food item:
-nigeria_proportions <- read_excel("fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx",
+nigeria_proportions <- read_excel("data_rich/fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx",
            sheet = "Nigeria food items")
 
 nigeria_proportions <- nigeria_proportions %>% 
@@ -193,7 +193,7 @@ food_consumption <- food_consumption %>%
   summarise(quantity_100g = sum(quantity_100g),
             purchased_100g = sum(purchased_100g))
 
-# write_csv(food_consumption, "fortification_models/data/gabriel/nga_lss1819_vehicle_consumption.csv")
+# write_csv(food_consumption, "data_rich/fortification_models/data/gabriel/nga_lss1819_vehicle_consumption.csv")
 
 
 # Create a data-frame to indicate consumption (including quantities), of each of
@@ -203,7 +203,7 @@ get_vehicle_quantities(base_ai, food_consumption, hh_info)
 
 
 # Save this data-frame as a .csv file:
-# write_csv(vehicle_quantities, "fortification_models/data/nga_lss1819_vehicle_quantities.csv")
+# write_csv(vehicle_quantities, "data_rich/fortification_models/data/nga_lss1819_vehicle_quantities.csv")
 
 # Remove objects no longer required: 
 rm(list = c("food_consumption", "vehicle_quantities", "base_ai", "hh_info"))
@@ -220,7 +220,7 @@ rm(list = c("food_consumption", "vehicle_quantities", "base_ai", "hh_info"))
 base_ai <- apparent_intake("mwi_ihs1617")
 
 # Save data-frame for base_ai:
-# write_csv(base_ai, "fortification_models/data/mwi_ihs1617_base_ai.csv")
+# write_csv(base_ai, "data_rich/fortification_models/data/mwi_ihs1617_base_ai.csv")
 
 # Select only required columns:
 food_consumption <- food_consumption %>% 
@@ -279,7 +279,7 @@ food_consumption <- dplyr::select(food_consumption, -proportion_purchased)
 # FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS:
 
 # Read in the data for fortifiable proportions:
-malawi_proportions <- read_excel("fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx",
+malawi_proportions <- read_excel("data_rich/fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx",
                                  sheet = "Malawi food items")
 
 # Keep only required columns:
@@ -358,7 +358,7 @@ food_consumption <- food_consumption %>%
 get_vehicle_quantities(base_ai, food_consumption, hh_info)
 
 # Save this data-frame as a csv file: 
-# write_csv(vehicle_quantities, "fortification_models/data/mwi_ihs1617_vehicle_quantities.csv")
+# write_csv(vehicle_quantities, "data_rich/fortification_models/data/mwi_ihs1617_vehicle_quantities.csv")
 
 # NOTE THAT CONSUMPTION FOR MAIZE FLOUR AND SALT APPEAR SUSPICIOUSLY HIGH, 
 # RETURN TO THIS WHEN PERFORMING ANALYSES FOR MALAWI.
@@ -378,7 +378,7 @@ rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities"))
 base_ai <- apparent_intake("eth_ess1819")
 
 # Save data-frame for base_ai:
-# write_csv(base_ai, "fortification_models/data/eth_ess1819_base_ai.csv")
+# write_csv(base_ai, "data_rich/fortification_models/data/eth_ess1819_base_ai.csv")
 
 # Select only required columns from food_consumption:
 food_consumption <- food_consumption %>% 
@@ -442,7 +442,7 @@ food_consumption <- dplyr::select(food_consumption, -proportion_purchased)
 
 # FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS: 
 
-ess_proportions <- read_excel("fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
+ess_proportions <- read_excel("data_rich/fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
                               sheet = "Ethiopia (ESS) food items")
 
 ess_proportions <- ess_proportions %>% 
@@ -511,7 +511,7 @@ food_consumption <- food_consumption %>%
 get_vehicle_quantities(base_ai, food_consumption, hh_info)
 
 # Save this data-frame as a csv file:
-# write_csv(vehicle_quantities, "fortification_models/data/eth_ess1819_vehicle_quantities.csv")
+# write_csv(vehicle_quantities, "data_rich/fortification_models/data/eth_ess1819_vehicle_quantities.csv")
 
 # Remove objects no longer required:
 rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities"))
@@ -531,7 +531,7 @@ base_ai <- apparent_intake("eth_hices1516")
 base_ai <- base_ai[!duplicated(base_ai), ]
 
 # Save data-frame for base_ai:
-# write_csv(base_ai, "fortification_models/data/eth_hices1516_base_ai.csv")
+# write_csv(base_ai, "data_rich/fortification_models/data/eth_hices1516_base_ai.csv")
 
 rm(fc_table)
 
@@ -602,7 +602,7 @@ rm(food_purchases)
 
 # FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS: 
 
-hices_proportions <- read_excel("fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
+hices_proportions <- read_excel("data_rich/fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
                                 sheet = "Ethiopia (HICES) food items")
 
 hices_proportions <- hices_proportions %>% 
@@ -687,7 +687,7 @@ food_consumption <- food_consumption %>%
   summarise(quantity_100g = sum(quantity_100g),
             purchased_100g = sum(purchased_100g))
 
-# write_csv(food_consumption, "fortification_models/data/gabriel/eth_hices1516_vehicle_consumption.csv")
+# write_csv(food_consumption, "data_rich/fortification_models/data/gabriel/eth_hices1516_vehicle_consumption.csv")
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles:
@@ -697,7 +697,7 @@ get_vehicle_quantities(base_ai, food_consumption, hh_info)
 # Note that salt consumption not recorded in this survey.
 
 # Save this data-frame as a csv file:
-# write_csv(vehicle_quantities, "fortification_models/data/eth_hices1516_vehicle_quantities.csv")
+# write_csv(vehicle_quantities, "data_rich/fortification_models/data/eth_hices1516_vehicle_quantities.csv")
 
 # Remove objects no longer required:
 rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities"))
@@ -715,7 +715,7 @@ base_ai <- apparent_intake("ind_nss1112")
 
 
 # Save data-frame for base_ai:
-# write_csv(base_ai, "fortification_models/data/ind_nss1112_base_ai.csv")
+# write_csv(base_ai, "data_rich/fortification_models/data/ind_nss1112_base_ai.csv")
 
 
 
@@ -775,7 +775,7 @@ rm(food_purchases)
 # FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS: 
 
 # Read in proportions data: 
-ind_proportions <- read_excel("fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
+ind_proportions <- read_excel("data_rich/fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
                               sheet = "India food items") %>% 
   dplyr::select("item_cd", "prop_fortifiable")
 
@@ -842,14 +842,14 @@ food_consumption <- food_consumption %>%
   summarise(quantity_100g = sum(quantity_100g),
             purchased_100g = sum(purchased_100g))
 
-# write_csv(food_consumption, "fortification_models/data/gabriel/ind_nss1112_vehicle_consumption.csv")
+# write_csv(food_consumption, "data_rich/fortification_models/data/gabriel/ind_nss1112_vehicle_consumption.csv")
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles:
 get_vehicle_quantities(base_ai, food_consumption, hh_info)
 
 # Save this data-frame as a csv file:
-# write_csv(vehicle_quantities, "fortification_models/data/ind_nss1112_vehicle_quantities.csv")
+# write_csv(vehicle_quantities, "data_rich/fortification_models/data/ind_nss1112_vehicle_quantities.csv")
 
 # Remove objects no longer required:
 rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities",
