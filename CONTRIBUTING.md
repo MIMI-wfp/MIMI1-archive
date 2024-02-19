@@ -14,9 +14,9 @@ If you would like to contribute to the MIMI project, please reach out to one of 
 ### Repository structure
 
 ```
-data_challenge/
-├─ README.md    <<<<<<<<<<<<<<<<<<<<<<<<<< YOU ARE HERE
-├─ allData/                              * all data, in various formats
+MIMI/
+├─ CONTRIBUTING.md    <<<<<<<<<<<<<<<<<<<<<<<<<< YOU ARE HERE
+├─ data_rich/                              * editable and executable code for all projects/analysis relating to data-rich contexts
 │  ├─ gp/
 │  ├─ hospitalisation/
 │  ├─ mortality/
