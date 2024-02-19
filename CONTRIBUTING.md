@@ -13,6 +13,7 @@ If you would like to contribute to the MIMI project, please reach out to one of 
 
 ### Repository structure
 
+`
 data_challenge/
 ├─ README.md    <<<<<<<<<<<<<<<<<<<<<<<<<< YOU ARE HERE
 ├─ allData/                              * all data, in various formats
@@ -54,7 +55,7 @@ data_challenge/
 │  └─ new_folder/
 ├─ data_challenge.Rproj
 └─ .gitignore
-
+`
 
 ### Branches
 
