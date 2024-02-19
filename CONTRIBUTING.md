@@ -19,5 +19,9 @@ Therefore if you would...
 
 If you would like to learn more about branches, please read the following [documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches)
 
+### Submitting pull requests
+
+
+### Merging pull requests
 
 Thank you for contributing to the MIMI project! 
