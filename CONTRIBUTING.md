@@ -51,8 +51,8 @@ The main branch in this repository should only contain finalised and clean code,
 Therefore please create a new branch for any code that is a work in progress, and name your branch according to the following naming convention: `author_keyword1_keyword2`
 
 * `author`: Please include your initials so that it is clear who is responsible for this branch
-* `keyword1`: A first keyword that relates to the project or analysis that you are working on
-* `keyword2`: A second keyword that relates to the project or analysis that you are working on
+* `keyword1`: A first keyword that relates to the project or feature that you are working on
+* `keyword2`: A second keyword that relates to the project or feature that you are working on
 
 For example, if Mohammed Osman is working on modelling fortification scenarios in Nigeria, he may choose to name his branch: `MO_fortification_nigeria`
 
