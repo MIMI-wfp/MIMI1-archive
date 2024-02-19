@@ -80,8 +80,9 @@ If you are the sole contributor to the project you have submitted the pull reque
 
 If you are a reviewer, you will find your review requests in the "pull requests" tab in the repository. Click on the request, and click "add your review".
 
-<img width="1238" alt="pull_request" src="https://github.com/kmtang/MIMI/assets/90572354/edb614d9-d047-4c6f-9716-f48311f3c01d">
-
+<p align="center">
+<img width="850" alt="pull_request" src="https://github.com/kmtang/MIMI/assets/90572354/edb614d9-d047-4c6f-9716-f48311f3c01d">
+</p>
 <br>
 You will then be taken to a page where you are able to review the changes made, if you are happy with the changes made, you can click "Approve" and "Submit review". Otherwise you can submit feedback or request changes from your collaborator if required.
 
