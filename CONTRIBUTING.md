@@ -13,6 +13,8 @@ If you would like to contribute to the MIMI project, please reach out to one of 
 
 ### Repository structure
 
+The MIMI repository has 3 main folders to categorise all projects: `data_rich`, `data_constrained` and `universal_functions`
+
 ```
 MIMI/
 ├─ CONTRIBUTING.md    <<<<<<<<<<<<<<<<<<<<<<<<<< YOU ARE HERE
