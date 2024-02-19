@@ -1,128 +1,164 @@
-State_code,District_code,District_name
-09,0901,Saharanpur
-09,0902,Muzaffarnagar
-09,0903,Bijnor
-09,0904,Moradabad
-09,0905,Rampur
-09,0906,Jyotiba Phule Nagar
-09,0907,Meerut
-09,0908,Baghpat
-09,0909,Ghaziabad
-09,0910,Gautam Buddha Nagar
-09,0911,Bulandshahr
-09,0912,Aligarh
-09,0913,Mahamaya Nagar
-09,0914,Mathura
-09,0915,Agra
-09,0916,Firozabad
-09,0917,Etah
-09,0918,Mainpuri
-09,0919,Budaun
-09,0920,Bareilly
-09,0921,Pilibhit
-09,0922,Shahjahanpur
-09,0923,Kheri
-09,0924,Sitapur
-09,0925,Hardoi
-09,0926,Unnao
-09,0927,Lucknow
-09,0928,Rae Bareli
-09,0929,Farrukhabad
-09,0930,Kannauj
-09,0931,Etawah
-09,0932,Auraiya
-09,0933,Kanpur Dehat
-09,0934,Kanpur Nagar
-09,0935,Jalaun
-09,0936,Jhansi
-09,0937,Lalitpur
-09,0938,Hamirpur
-09,0939,Mahoba
-09,0940,Banda
-09,0941,Chitrakoot
-09,0942,Fatehpur
-09,0943,Pratapgarh
-09,0944,Kaushambi
-09,0945,Allahabad
-09,0946,Bara Banki
-09,0947,Faizabad
-09,0948,Ambedkar Nagar
-09,0949,Sultanpur
-09,0950,Bahraich
-09,0951,Shrawasti
-09,0952,Balrampur
-09,0953,Gonda
-09,0954,Siddharthnagar
-09,0955,Basti
-09,0956,Sant Kabir Nagar
-09,0957,Mahrajganj
-09,0958,Gorakhpur
-09,0959,Kushinagar
-09,0960,Deoria
-09,0961,Azamgarh
-09,0962,Mau
-09,0963,Ballia
-09,0964,Jaunpur
-09,0965,Ghazipur
-09,0966,Chandauli
-09,0967,Varanasi
-09,0968,Sant Ravidas Nagar (Bhadohi)
-09,0969,Mirzapur
-09,0970,Sonbhadra
-09,0971,Kanshiram Nagar
-10,1001,Pashchim Champaran
-10,1002,Purba Champaran
-10,1003,Sheohar
-10,1004,Sitamarhi
-10,1005,Madhubani
-10,1006,Supaul
-10,1007,Araria
-10,1008,Kishanganj
-10,1009,Purnia
-10,1010,Katihar
-10,1011,Madhepura
-10,1012,Saharsa
-10,1013,Darbhanga
-10,1014,Muzaffarpur
-10,1015,Gopalganj
-10,1016,Siwan
-10,1017,Saran
-10,1018,Vaishali
-10,1019,Samastipur
-10,1020,Begusarai
-10,1021,Khagaria
-10,1022,Bhagalpur
-10,1023,Banka
-10,1024,Munger
-10,1025,Lakhisarai
-10,1026,Sheikhpura
-10,1027,Nalanda
-10,1028,Patna
-10,1029,Bhojpur
-10,1030,Buxar
-10,1031,Kaimur (Bhabua)
-10,1032,Rohtas
-10,1033,Jehanabad
-10,1034,Aurangabad
-10,1035,Gaya
-10,1036,Nawada
-10,1037,Jamui
-10,1038,Arwal
-22,2201,Koriya
-22,2202,Surguja
-22,2203,Jashpur
-22,2204,Raigarh
-22,2205,Korba
-22,2206,Janjgir - Champa
-22,2207,Bilaspur
-22,2208,Kabeerdham
-22,2209,Rajnandgaon
-22,2210,Durg
-22,2211,Raipur
-22,2212,Mahasamund
-22,2213,Dhamtari
-22,2214,Uttar Bastar Kanker
-22,2215,Bastar
-22,2216,Dakshin Bastar Dantewada
-22,2217,Narayanpur
-22,2218,Bijapur
+State_code,District_code,District_name,,,,,,,,,,,,
+9,901,Saharanpur,,,,,,,,,,,,
+9,902,Muzaffarnagar,,,,,,,,,,,,
+9,903,Bijnor,,,,,,,,,,,,
+9,904,Moradabad,,,,,,,,,,,,
+9,905,Rampur,,,,,,,,,,,,
+9,906,Jyotiba Phule Nagar,,,,,,,,,,,,
+9,907,Meerut,,,,,,,,,,,,
+9,908,Baghpat,,,,,,,,,,,,
+9,909,Ghaziabad,,,,,,,,,,,,
+9,910,Gautam Buddha Nagar,,,,,,,,,,,,
+9,911,Bulandshahr,,,,,,,,,,,,
+9,912,Aligarh,,,,,,,,,,,,
+9,913,Mahamaya Nagar,,,,,,,,,,,,
+9,914,Mathura,,,,,,,,,,,,
+9,915,Agra,,,,,,,,,,,,
+9,916,Firozabad,,,,,,,,,,,,
+9,917,Etah,,,,,,,,,,,,
+9,918,Mainpuri,,,,,,,,,,,,
+9,919,Budaun,,,,,,,,,,,,
+9,920,Bareilly,,,,,,,,,,,,
+9,921,Pilibhit,,,,,,,,,,,,
+9,922,Shahjahanpur,,,,,,,,,,,,
+9,923,Kheri,,,,,,,,,,,,
+9,924,Sitapur,,,,,,,,,,,,
+9,925,Hardoi,,,,,,,,,,,,
+9,926,Unnao,,,,,,,,,,,,
+9,927,Lucknow,,,,,,,,,,,,
+9,928,Rae Bareli,,,,,,,,,,,,
+9,929,Farrukhabad,,,,,,,,,,,,
+9,930,Kannauj,,,,,,,,,,,,
+9,931,Etawah,,,,,,,,,,,,
+9,932,Auraiya,,,,,,,,,,,,
+9,933,Kanpur Dehat,,,,,,,,,,,,
+9,934,Kanpur Nagar,,,,,,,,,,,,
+9,935,Jalaun,,,,,,,,,,,,
+9,936,Jhansi,,,,,,,,,,,,
+9,937,Lalitpur,,,,,,,,,,,,
+9,938,Hamirpur,,,,,,,,,,,,
+9,939,Mahoba,,,,,,,,,,,,
+9,940,Banda,,,,,,,,,,,,
+9,941,Chitrakoot,,,,,,,,,,,,
+9,942,Fatehpur,,,,,,,,,,,,
+9,943,Pratapgarh,,,,,,,,,,,,
+9,944,Kaushambi,,,,,,,,,,,,
+9,945,Allahabad,,,,,,,,,,,,
+9,946,Bara Banki,,,,,,,,,,,,
+9,947,Faizabad,,,,,,,,,,,,
+9,948,Ambedkar Nagar,,,,,,,,,,,,
+9,949,Sultanpur,,,,,,,,,,,,
+9,950,Bahraich,,,,,,,,,,,,
+9,951,Shrawasti,,,,,,,,,,,,
+9,952,Balrampur,,,,,,,,,,,,
+9,953,Gonda,,,,,,,,,,,,
+9,954,Siddharthnagar,,,,,,,,,,,,
+9,955,Basti,,,,,,,,,,,,
+9,956,Sant Kabir Nagar,,,,,,,,,,,,
+9,957,Mahrajganj,,,,,,,,,,,,
+9,958,Gorakhpur,,,,,,,,,,,,
+9,959,Kushinagar,,,,,,,,,,,,
+9,960,Deoria,,,,,,,,,,,,
+9,961,Azamgarh,,,,,,,,,,,,
+9,962,Mau,,,,,,,,,,,,
+9,963,Ballia,,,,,,,,,,,,
+9,964,Jaunpur,,,,,,,,,,,,
+9,965,Ghazipur,,,,,,,,,,,,
+9,966,Chandauli,,,,,,,,,,,,
+9,967,Varanasi,,,,,,,,,,,,
+9,968,Sant Ravidas Nagar (Bhadohi),,,,,,,,,,,,
+9,969,Mirzapur,,,,,,,,,,,,
+9,970,Sonbhadra,,,,,,,,,,,,
+9,971,Kanshiram Nagar,,,,,,,,,,,,
+10,1001,Pashchim Champaran,,,,,,,,,,,,
+10,1002,Purba Champaran,,,,,,,,,,,,
+10,1003,Sheohar,,,,,,,,,,,,
+10,1004,Sitamarhi,,,,,,,,,,,,
+10,1005,Madhubani,,,,,,,,,,,,
+10,1006,Supaul,,,,,,,,,,,,
+10,1007,Araria,,,,,,,,,,,,
+10,1008,Kishanganj,,,,,,,,,,,,
+10,1009,Purnia,,,,,,,,,,,,
+10,1010,Katihar,,,,,,,,,,,,
+10,1011,Madhepura,,,,,,,,,,,,
+10,1012,Saharsa,,,,,,,,,,,,
+10,1013,Darbhanga,,,,,,,,,,,,
+10,1014,Muzaffarpur,,,,,,,,,,,,
+10,1015,Gopalganj,,,,,,,,,,,,
+10,1016,Siwan,,,,,,,,,,,,
+10,1017,Saran,,,,,,,,,,,,
+10,1018,Vaishali,,,,,,,,,,,,
+10,1019,Samastipur,,,,,,,,,,,,
+10,1020,Begusarai,,,,,,,,,,,,
+10,1021,Khagaria,,,,,,,,,,,,
+10,1022,Bhagalpur,,,,,,,,,,,,
+10,1023,Banka,,,,,,,,,,,,
+10,1024,Munger,,,,,,,,,,,,
+10,1025,Lakhisarai,,,,,,,,,,,,
+10,1026,Sheikhpura,,,,,,,,,,,,
+10,1027,Nalanda,,,,,,,,,,,,
+10,1028,Patna,,,,,,,,,,,,
+10,1029,Bhojpur,,,,,,,,,,,,
+10,1030,Buxar,,,,,,,,,,,,
+10,1031,Kaimur (Bhabua),,,,,,,,,,,,
+10,1032,Rohtas,,,,,,,,,,,,
+10,1033,Jehanabad,,,,,,,,,,,,
+10,1034,Aurangabad,,,,,,,,,,,,
+10,1035,Gaya,,,,,,,,,,,,
+10,1036,Nawada,,,,,,,,,,,,
+10,1037,Jamui,,,,,,,,,,,,
+10,1038,Arwal,,,,,,,,,,,,
+22,2201,Koriya,,,,,,,,,,,,
+22,2202,Surguja,,,,,,,,,,,,
+22,2203,Jashpur,,,,,,,,,,,,
+22,2204,Raigarh,,,,,,,,,,,,
+22,2205,Korba,,,,,,,,,,,,
+22,2206,Janjgir - Champa,,,,,,,,,,,,
+22,2207,Bilaspur,,,,,,,,,,,,
+22,2208,Kabeerdham,,,,,,,,,,,,
+22,2209,Rajnandgaon,,,,,,,,,,,,
+22,2210,Durg,,,,,,,,,,,,
+22,2211,Raipur,,,,,,,,,,,,
+22,2212,Mahasamund,,,,,,,,,,,,
+22,2213,Dhamtari,,,,,,,,,,,,
+22,2214,Uttar Bastar Kanker,,,,,,,,,,,,
+22,2215,Bastar,,,,,,,,,,,,
+22,2216,Dakshin Bastar Dantewada,,,,,,,,,,,,
+22,2217,Narayanpur,,,,,,,,,,,,
+22,2218,Bijapur,,,,,,,,,,,,
+21,2101,Bargarh,,,,,,,,,,,,
+21,2102,Jharsuguda,,,,,,,,,,,,
+21,2103,Sambalpur,,,,,,,,,,,,
+21,2104,Debagarh,,,,,,,,,,,,
+21,2105,Sundargarh,,,,,,,,,,,,
+21,2106,Kendujhar,,,,,,,,,,,,
+21,2107,Mayurbhanj,,,,,,,,,,,,
+21,2108,Baleshwar,,,,,,,,,,,,
+21,2109,Bhadrak,,,,,,,,,,,,
+21,2110,Kendrapara,,,,,,,,,,,,
+21,2111,Jagatsinghapur,,,,,,,,,,,,
+21,2112,Cuttack,,,,,,,,,,,,
+21,2113,Jajapur,,,,,,,,,,,,
+21,2114,Dhenkanal,,,,,,,,,,,,
+21,2115,Anugul,,,,,,,,,,,,
+21,2116,Nayagarh,,,,,,,,,,,,
+21,2117,Khordha,,,,,,,,,,,,
+21,2118,Puri,,,,,,,,,,,,
+21,2119,Ganjam,,,,,,,,,,,,
+21,2120,Gajapati,,,,,,,,,,,,
+21,2121,Kandhamal,,,,,,,,,,,,
+21,2122,Baudh,,,,,,,,,,,,
+21,2123,Subarnapur,,,,,,,,,,,,
+21,2124,Balangir,,,,,,,,,,,,
+21,2125,Nuapada,,,,,,,,,,,,
+21,2126,Kalahandi,,,,,,,,,,,,
+21,2127,Rayagada,,,,,,,,,,,,
+21,2128,Nabarangapur,,,,,,,,,,,,
+21,2129,Koraput,,,,,,,,,,,,
+21,2130,Malkangiri,,,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,

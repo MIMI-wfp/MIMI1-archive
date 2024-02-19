@@ -14,6 +14,7 @@
 
 # read in the NSSO food data
 path_to_file <- "./India_analysis/data/raw/"
+# path_to_file <- "./India_analysis/data/raw/extra_states/"
 block_5_6_food_consumption <- read_csv(paste0(path_to_file, "block_5_6_food_consumption.csv"))
 
 #read in xlsx spreadsheet previously matched by hand
@@ -21,7 +22,7 @@ food_item_names <- readxl::read_xlsx(paste0(path_to_file, "food_codes_nsso_to_if
   dplyr::rename(Item_Code = `unique(Item_Code)`) %>% 
   dplyr::select(Item_Code,item_name, IFCT_code, ifct_name)
 
-IN17 <- readxl::read_xlsx("~/Documents/MIMI/India/FCT/ifct_gabriel_20231030.xlsx")
+IN17 <- readxl::read_xlsx("~/Documents/MIMI/MIMI_data/India/FCT/ifct_gabriel_20231030.xlsx")
 head(IN17)
 
 vb12_fct <- read_csv(
@@ -86,7 +87,7 @@ non_standard_units <- food_item_names %>%
         Item_Code == 224 ~ 980, #dry coconuts - Varghese et al., "A Study of Physical 
                                 #and Mechanical Properties of the Indian Coconut for Efficient Dehusking"
         Item_Code == 225 ~ 1300, # green coconuts
-        Item_Code == 280 ~ 300,
+        Item_Code == 280 ~ 300,# bought meals outside of the house
         Item_Code == 281 ~ 300,
         Item_Code == 282 ~ 300,
         Item_Code == 284 ~ 300
@@ -910,4 +911,4 @@ write_csv(final_fct, paste0(path_to_save,"matched_fct.csv"))
 # )
 
 
-rm(list= ls())
+# rm(list= ls())
