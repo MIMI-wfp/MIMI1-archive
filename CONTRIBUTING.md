@@ -26,4 +26,6 @@ If you would like to learn more about branches, please read the following [docum
 
 ### Merging pull requests
 
+### Summary
+
 Thank you for contributing to the MIMI project! 
