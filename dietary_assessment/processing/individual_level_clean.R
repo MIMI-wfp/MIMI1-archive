@@ -56,6 +56,7 @@ nnmb_al<- nnmb_consumption %>%
     )
   )
   
+max(nnmb_al$date)
 
 nnmb_women <- nnmb_al %>% 
   left_join(nnmb_subject %>% 
@@ -68,11 +69,21 @@ nnmb_women <- nnmb_al %>%
 
 # ethiopia FSS
 
-fcs11 <- haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/all.dta")
+fcs11_adults <-haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/all.dta")
 fcs11_women <- haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/women.dta")
-fcs11_men <-  haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/men.dta")
+fcs11_women_rur <- read.csv("~/Documents/MIMI/MIMI_data/Ethiopia/eth_fcs12_simplemacro_v2/eth_fcs12_women_nofort_rural_v2.csv")
+fcs11_women_urb <- read.csv("~/Documents/MIMI/MIMI_data/Ethiopia/eth_fcs12_simplemacro_v2/eth_fcs12_women_nofort_urban_v2.csv")
 
-fcs11_women <- fcs11_women %>% 
+fcs11_men <-  haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/men.dta")
+fcs11_child <-  haven::read_dta("/Users/gabrielbattcock/Documents/MIMI/MIMI_data/Ethiopia/eth/fcs12/child.dta")
+
+fcs11_women <- 
+  fcs11_women %>% 
+  mutate(id = paste0(CLUSTER,"_",HHNO,"_",SUBJECT)) %>% 
+  left_join(fcs11_women_rur %>% 
+              select(id, CLUSTER,HHNO,SUBJECT,FOL_sum,VITB12_sum) %>% 
+              bind_rows(fcs11_women_urb %>% 
+                          select(id, CLUSTER,HHNO,SUBJECT,FOL_sum,VITB12_sum))) %>% 
   filter(Mother_age<=30)
 
 

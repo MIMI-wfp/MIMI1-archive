@@ -13,6 +13,10 @@ library(ggplot2)
 path_to_data <- "~/Documents/MIMI/MIMI_data/"
 path_to_save <- here::here("all_base_models/data/")
 
+setwd(here::here())
+
+source("all_base_models/scripts/base_model_functions.R")
+
 # nsso #########################################################################
 
 nsso_food_consumption <- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_daily_consumption.csv"))
@@ -67,7 +71,7 @@ rm(nsso_fct)
 
 hices_food_consumption <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/eth_hces1516_foodbev.csv"))
 
-hices_food_consumption
+
 hices_food_consumption <- hices_food_consumption %>% 
   rename(
     item_code = ITEMC,
@@ -203,7 +207,7 @@ write_csv(ess_fct, paste0(path_to_save,"eth_ess1819_fct.csv"))
 
 rm(ess_fct)
 rm(ess_food_consumption)
-rm(ess_afe)
+# rm(ess_afe)
 
 # MWI ##########################################################################
 
@@ -288,6 +292,15 @@ rm(mwi_food_consumption)
 
 nga_food_consumption<- read.csv(paste0(path_to_data, "nga/sect6b_food_cons_final.csv"))
 
+nga_lss1_estimates <- haven::read_dta(paste0(path_to_data,"nga/NGA_LSS1819_estimates.dta"))
+
+
+nga_afe <- nga_lss1_estimates %>% 
+  dplyr::select(hhid,
+         hhafe) %>% 
+  rename(afe = hhafe)
+
+
 nga_food_consumption <- nga_food_consumption %>% 
   select(
     hhid,
@@ -305,7 +318,7 @@ nga_food_consumption <- nga_food_consumption %>%
   filter(
     quantity_g>0
   )
-as_tibble(nga_food_consumption)
+
 
 write_csv(nga_food_consumption, paste0(path_to_save,"nga_lss1819_food_consumption.csv"))
 
@@ -455,7 +468,8 @@ rm(nsso_demographics)
 hices_food_consumption <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/eth_hces1516_foodbev.csv"))
 hices_rur_quintiles <- read.csv(here::here("ethiopia/data/urb_rur_quintiles.csv"))
 
-unique(hices_food_consumption$CQ11)
+
+
 
 hices_afe <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/eth_hces1516_afe.csv"))
 
@@ -480,10 +494,11 @@ hices_hh_info <- hices_food_consumption %>%
     educ_head = EDUC_Head,
     survey_wgt = WGT
   ) %>% 
+  mutate(adm2 = paste0(adm1,"_",adm2)) %>% 
   group_by(hhid) %>% 
   slice(1) %>% 
   left_join(
-    hices_rur_quintiles, by = "hhid"
+    distinct(hices_rur_quintiles,.keep_all = T), by = "hhid"
   ) %>% 
   select(-c(UR, EXPCC)) %>% 
   rename(sep_quintile = quintile,
@@ -744,6 +759,14 @@ nga_hh_info <- nga_hh1 %>%
   ) %>% 
   left_join(nga_afe, by = "hhid")
 
+å
+
+
+# Add in enumeration areas for Nigeria LSS from the "cover" module: 
+nga_hh_info <- nga_hh_info %>% 
+  left_join(read_csv("../MIMI_data/nga/NGA_2018_LSS_v01_M_CSV/Household/secta_cover.csv") %>% 
+              dplyr::select("hhid", "ea"), by = "hhid")
+
 
 # For each household with a missing survey_wgt, find a household with the same ea
 # that does have a survey_wgt, and use that survey_wgt to fill in the missing value:
@@ -751,6 +774,7 @@ for (i in which(is.na(nga_hh_info$survey_wgt))) {
   nga_hh_info$survey_wgt[i] <- nga_hh_info$survey_wgt[which(nga_hh_info$ea == nga_hh_info$ea[i] & !is.na(nga_hh_info$survey_wgt))][1]
 }
 
+is.na(nga_hh_info$survey_wgt) == TRUE
 
 write.csv(nga_hh_info, paste0(path_to_save, "nga_lss1819_hh_info.csv"))
 rm(nga_edu)
@@ -759,3 +783,10 @@ rm(nga_hh_info)
 rm(nga_roster)
 
 
+### create machine learning targets as one file
+mimi_targets <- target_creation()
+
+
+write_csv(mimi_targets, paste0(path_to_save, "mimi_targets.csv"))
+
+rm(list = ls())
