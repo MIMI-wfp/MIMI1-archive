@@ -17,7 +17,7 @@ If you would like to contribute to the MIMI project, please reach out to one of 
 
 The main branch in this repository should only contain finalised and clean code, therefore please do not commit your changes directly to the main branch!
 
-Therefore if you would...
+Therefore please create a new branch for any code that is a work in progress, and name your branch according to the following naming convention: author_keyword1_keyword2
 
 If you would like to learn more about branches, please read the following [documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches)
 
