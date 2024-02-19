@@ -16,7 +16,7 @@ If you would like to contribute to the MIMI project, please reach out to one of 
 ```
 MIMI/
 ├─ CONTRIBUTING.md    <<<<<<<<<<<<<<<<<<<<<<<<<< YOU ARE HERE
-├─ data_rich/                              * code for all projects/analysis relating to data-rich contexts
+├─ data_rich/                              
 │  ├─ all_base_models/
 │  ├─ fortification_models/
 │  ├─ data_requests/
@@ -26,7 +26,7 @@ MIMI/
 │  ├─ dietary_assessment/
 │  └─ ...
 ├─ data_constrained/
-│  └─ UKHSA_bibliography.bib
+│  └─ LSFF_indicators/
 ├─ universal_functions/
 │  └─ ...                                
 ├─ MIMI.Rproj
