@@ -17,8 +17,7 @@ The MIMI repository has 3 main folders to categorise all projects (`data_rich`, 
 
 Below is a directory tree to demonstrate how projects should be organised:
 
-```
-MIMI/
+```MIMI/
 ├─ CONTRIBUTING.md    <<<<<<<<<<<<<<<<<<<<<<<<<< YOU ARE HERE
 ├─ data_rich/                              
 │  ├─ all_base_models/
@@ -37,7 +36,6 @@ MIMI/
 │  └─ ...                                
 ├─ MIMI.Rproj
 └─ .gitignore
-
 ```
 
 
