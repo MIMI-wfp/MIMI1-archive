@@ -13,6 +13,49 @@ If you would like to contribute to the MIMI project, please reach out to one of 
 
 ### Repository structure
 
+data_challenge/
+├─ README.md    <<<<<<<<<<<<<<<<<<<<<<<<<< YOU ARE HERE
+├─ allData/                              * all data, in various formats
+│  ├─ gp/
+│  ├─ hospitalisation/
+│  ├─ mortality/
+│  ├─ swab/
+│  ├─ vaccine/
+│  └─ ...
+├─ bibliography/
+│  └─ UKHSA_bibliography.bib
+├─ images/
+│  └─ ...                                * full-resolution copy of all plots and infographic
+├─ Meeting_notes
+│  └─ ...
+├─ Presentation
+│  ├─ images/
+│  ├─ Presentation_files/
+│  ├─ Presentation.html
+│  └─ Presentation.qmd                   * the presentation, with editable and executable code
+├─ Presentation_files
+│  └─ ...
+├─ R_scripts
+│  ├─ Season_data/
+│  ├─ source/
+│  ├─ corr.R
+│  ├─ source_data_entry.R
+│  └─ web_scraping_all_flu_subtypes.R
+├─ report/
+│  ├─ images/
+│  ├─ UKHSA_report_files/
+│  ├─ method_notes.R
+│  ├─ UKHSA_report.html
+│  ├─ UKHSA_report.pdf                   * the report rendered into pdf
+│  └─ UKHSA_report.qmd                   * the report, with editable and executable code
+├─ new_folder/
+│  ├─ new_folder/
+│  ├─ new_folder/
+│  └─ new_folder/
+├─ data_challenge.Rproj
+└─ .gitignore
+
+
 ### Branches
 
 The main branch in this repository should only contain finalised and clean code, therefore please do not commit your changes directly to the main branch!
