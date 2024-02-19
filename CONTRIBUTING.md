@@ -28,7 +28,7 @@ MIMI/
 │  ├─ all_base_models/
 │  ├─ fortification_models/
 │  ├─ data_requests/
-│  ├─ India/
+│  ├─ india/
 │  ├─ ethiopia/
 │  ├─ individual_level_india/
 │  ├─ dietary_assessment/
