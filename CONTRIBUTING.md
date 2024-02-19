@@ -11,6 +11,8 @@ Whilst every effort has been made to ensure that these guidelines are as exhaust
 
 If you would like to contribute to the MIMI project, please reach out to one of us (contact details above) to discuss your proposeed contribution, and to arrange contributor access to the repository.
 
+### Repository structure
+
 ### Branches
 
 The main branch in this repository should only contain finalised and clean code, therefore please do not commit your changes directly to the main branch!
