@@ -64,7 +64,7 @@ Once you are happy that the code in your branch is ready to be merged into the m
 
 To start a pull request. Firstly "push" the branch that you have been working on. Now go to the MIMI GitHub repository, you should see your branch appear at the top of the page next to a green button labelled "Compare & pull request".
 
-<img width="1014" alt="Screenshot 2024-02-19 at 15 11 33" src="https://github.com/kmtang/MIMI/assets/90572354/3790d37e-21ff-4126-aa3b-44609b028937">
+<img width="700" alt="Screenshot 2024-02-19 at 15 11 33" src="https://github.com/kmtang/MIMI/assets/90572354/3790d37e-21ff-4126-aa3b-44609b028937">
 
 
 
