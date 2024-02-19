@@ -17,43 +17,19 @@ If you would like to contribute to the MIMI project, please reach out to one of 
 MIMI/
 ├─ CONTRIBUTING.md    <<<<<<<<<<<<<<<<<<<<<<<<<< YOU ARE HERE
 ├─ data_rich/                              * code for all projects/analysis relating to data-rich contexts
-│  ├─ gp/
-│  ├─ hospitalisation/
-│  ├─ mortality/
-│  ├─ swab/
-│  ├─ vaccine/
+│  ├─ all_base_models/
+│  ├─ fortification_models/
+│  ├─ data_requests/
+│  ├─ India/
+│  ├─ ethiopia/
+│  ├─ individual_level_india/
+│  ├─ dietary_assessment/
 │  └─ ...
-├─ bibliography/
+├─ data_constrained/
 │  └─ UKHSA_bibliography.bib
-├─ images/
-│  └─ ...                                * full-resolution copy of all plots and infographic
-├─ Meeting_notes
-│  └─ ...
-├─ Presentation
-│  ├─ images/
-│  ├─ Presentation_files/
-│  ├─ Presentation.html
-│  └─ Presentation.qmd                   * the presentation, with editable and executable code
-├─ Presentation_files
-│  └─ ...
-├─ R_scripts
-│  ├─ Season_data/
-│  ├─ source/
-│  ├─ corr.R
-│  ├─ source_data_entry.R
-│  └─ web_scraping_all_flu_subtypes.R
-├─ report/
-│  ├─ images/
-│  ├─ UKHSA_report_files/
-│  ├─ method_notes.R
-│  ├─ UKHSA_report.html
-│  ├─ UKHSA_report.pdf                   * the report rendered into pdf
-│  └─ UKHSA_report.qmd                   * the report, with editable and executable code
-├─ new_folder/
-│  ├─ new_folder/
-│  ├─ new_folder/
-│  └─ new_folder/
-├─ data_challenge.Rproj
+├─ universal_functions/
+│  └─ ...                                
+├─ MIMI.Rproj
 └─ .gitignore
 
 ```
