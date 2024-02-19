@@ -15,9 +15,9 @@ If you would like to contribute to the MIMI project, please reach out to one of 
 
 The MIMI repository has 3 main folders to categorise all projects (`data_rich`, `data_constrained` and `universal_functions`). Any new project should be created as a sub-folder within one of these categories:
 
-*`data_rich` - Projects relating to MIMI data-rich contexts<br>
-*`data_constrained` - Projects relating to MIMI data-constrained contexts<br>
-*`universal_functions` - A place to store any functions that may be used across all projects, regardless of context
+* `data_rich` - Projects relating to MIMI data-rich contexts<br>
+* `data_constrained` - Projects relating to MIMI data-constrained contexts<br>
+* `universal_functions` - A place to store any functions that may be used across all projects, regardless of context
 
 Below is a directory tree that outlines the structure of the MIMI repository:
 
