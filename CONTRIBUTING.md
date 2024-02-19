@@ -27,6 +27,8 @@ For example, if Mohammed Osman is working on modelling fortification scenarios i
 
 If you would like to learn more about branches, please read the following [documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches)
 
+Once you are happy that the code in your branch is ready to be merged into the main branch, please submit a pull request.
+
 ### Submitting pull requests
 
 
