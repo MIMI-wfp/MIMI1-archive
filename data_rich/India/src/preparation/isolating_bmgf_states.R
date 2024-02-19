@@ -29,11 +29,11 @@ dim(block_3_level_3_household_char)
 names(block_4_demog)
 
 dim(block_4_demog)
-
+# 
 isolate_states <- function(block){
-  
-  block <- block %>% 
-    {if('State_Code'%in% names(.)) rename(., "State_code" = "State_Code") else .} %>% 
+
+  block <- block %>%
+    {if('State_Code'%in% names(.)) rename(., "State_code" = "State_Code") else .} %>%
     filter(State_code == "09" |State_code == "10" | State_code == "22")
   # | State_code == "21" )
              # State_code == "19" |State_code == "20" | State_code == "23" |State_code == "28" | State_code == "02")
@@ -51,23 +51,23 @@ block_11_construction_expenditure <- isolate_states(block_11_construction_expend
 block_12_consumer_expenditure <- isolate_states(block_12_consumer_expenditure)
 block_13_yoga_ayurveda <- isolate_states(block_13_yoga_ayurveda)
 
-
-unique(block_5_6_food_consumption$Item_Code)
-
-#save isolated states for analysis
-path_to_save <- "~/Documents/MIMI/code/India_analysis/data/raw/"
-# path_to_save <- "~/Documents/MIMI/code/India_analysis/data/raw/extra_states/"
-
-write_csv(block_1_2_identification, paste0(path_to_save, "block_1_2_identification.csv"))
-write_csv(block_3_level_2_household_char,paste0(path_to_save, "block_3_level_2_household_char.csv"))
-write_csv(block_4_demog,paste0(path_to_save, "block_4_demog.csv"))
-write_csv(block_5_6_food_consumption,paste0(path_to_save, "block_5_6_food_consumption.csv"))
-write_csv(block_7_8_clothing_consumption,paste0(path_to_save, "block_7_8_clothing_consumption.csv"))
-write_csv(block_9_edu_expenditure, paste0(path_to_save, "block_9_edu_expenditure.csv"))
-write_csv(block_10_misc_expenditure, paste0(path_to_save, "block_10_misc_expenditure.csv"))
-write_csv(block_11_construction_expenditure, paste0(path_to_save, "block_11_construction_expenditure.csv"))
-write_csv(block_12_consumer_expenditure, paste0(path_to_save, "block_12_consumer_expenditure.csv"))
-write_csv(block_13_yoga_ayurveda, paste0(path_to_save, "block_13_yoga_ayurveda.csv"))
+# 
+# unique(block_5_6_food_consumption$Item_Code)
+# 
+# #save isolated states for analysis
+# path_to_save <- "~/Documents/MIMI/code/India_analysis/data/raw/"
+# # path_to_save <- "~/Documents/MIMI/code/India_analysis/data/raw/extra_states/"
+# 
+# write_csv(block_1_2_identification, paste0(path_to_save, "block_1_2_identification.csv"))
+# write_csv(block_3_level_2_household_char,paste0(path_to_save, "block_3_level_2_household_char.csv"))
+# write_csv(block_4_demog,paste0(path_to_save, "block_4_demog.csv"))
+# write_csv(block_5_6_food_consumption,paste0(path_to_save, "block_5_6_food_consumption.csv"))
+# write_csv(block_7_8_clothing_consumption,paste0(path_to_save, "block_7_8_clothing_consumption.csv"))
+# write_csv(block_9_edu_expenditure, paste0(path_to_save, "block_9_edu_expenditure.csv"))
+# write_csv(block_10_misc_expenditure, paste0(path_to_save, "block_10_misc_expenditure.csv"))
+# write_csv(block_11_construction_expenditure, paste0(path_to_save, "block_11_construction_expenditure.csv"))
+# write_csv(block_12_consumer_expenditure, paste0(path_to_save, "block_12_consumer_expenditure.csv"))
+# write_csv(block_13_yoga_ayurveda, paste0(path_to_save, "block_13_yoga_ayurveda.csv"))
 
 
 path_to_save2 <- "~/Documents/MIMI/data_science_code/nss68_consumer_expenditure_type_1_1/"
