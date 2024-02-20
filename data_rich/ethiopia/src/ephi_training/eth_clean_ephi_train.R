@@ -3,7 +3,7 @@
 
 
 rq_packages <- c("tidyverse","srvyr","readr","dplyr",
-                 "ggridges", "gt", "haven")
+                 "ggridges", "gt", "haven","foreign")
 installed_packages <- rq_packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
   install.packages(rq_packages[!installed_packages])
@@ -11,7 +11,7 @@ if (any(installed_packages == FALSE)) {
 lapply(rq_packages, require, character.only = T)
 rm(list= c("rq_packages", "installed_packages"))
 
-source(here::here("all_base_models/scripts/base_model_functions.R"))
+source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
 
 # read in the data 
 
@@ -21,8 +21,8 @@ eth_hices1516_all_items <- full_item_list("eth_hices1516")
 
 path_to_vehilces <- "/Users/gabrielbattcock/Library/CloudStorage/OneDrive-WorldFoodProgramme/General - MIMI Project/Nutrition analysis/fortification scenarios/data/current/"
 eth_hices1516_vehicles <- read.csv(paste0(path_to_vehilces,"eth_hices1516_vehicle_quantities.csv"))
-hices_food_consumption <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/eth_hces1516_foodbev.csv"))
-rm(path_to_consumed)
+hices_food_consumption <- read.csv("~/Documents/MIMI/MIMI_data/Ethiopia/eth/hices1516/eth_hces1516_foodbev.csv")
+
 
 eth_hces1516_demography <- as.data.frame(read.spss(here::here("../MIMI_data/Ethiopia/HICES/ETH-HICE-2016/Data/SPSS 16/HCES_2015_2016_DEMOGRAPHY.sav")))
 eth_hces1516_demography$hhid <-  paste0(as.character(eth_hces1516_demography$CQ11),
@@ -88,3 +88,4 @@ summary(eth_analysis)
 
 haven::write_dta(eth_analysis, "ethiopia/src/ephi_training/data/hices1516.dta")
 
+names(eth_analysis)
