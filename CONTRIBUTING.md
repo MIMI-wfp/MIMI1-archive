@@ -11,6 +11,10 @@ Whilst every effort has been made to ensure that these guidelines are as detaile
 
 If you would like to contribute to the MIMI project, please reach out to one of us (contact details above) to discuss your proposeed contribution, and to arrange contributor access to the repository.
 
+### Cloning the MIMI repository
+
+So that you can start contributing to the MIMI repository, you may wish to clone the reposiotory to your local machine or cloud hosted development environment. To do so, please follow the following [instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository). If you use the GitHub Desktop app, you can alternatively follow the following [instructions](https://docs.github.com/en/desktop/adding-and-cloning-repositories/cloning-a-repository-from-github-to-github-desktop).
+
 ### Repository structure
 
 The MIMI repository has 3 main folders to categorise all projects (`data_rich`, `data_constrained` and `universal_functions`). Any new project should be created as a sub-folder within one of these categories:
