@@ -60,7 +60,7 @@ Therefore please create a new branch for any code that is a work in progress, an
 
 For example, if Mohammed Osman is working on modelling fortification scenarios in Nigeria, he may choose to name his branch: `MO_fortification_nigeria`
 
-If you would like to learn more about branches, please read the following [documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches)
+If you would like to learn more about branches, please read the following [documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches).
 
 Once you are happy that the code in your branch is ready to be merged into the main branch, please submit a pull request.
 
@@ -102,7 +102,7 @@ Once all changes are approved, you may now merge the pull request into the main 
 
 ![merge](https://github.com/kmtang/MIMI/assets/90572354/7b31efca-f708-48fb-a3a9-04dcc1bf20b4)
 
-If you would like to learn more about pull requests, please read the following [documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests)
+If you would like to learn more about pull requests, please read the following [documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests).
 
 ### Summary
 
