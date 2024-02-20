@@ -13,7 +13,7 @@ If you would like to contribute to the MIMI project, please reach out to one of 
 
 ### Cloning the MIMI repository
 
-So that you can start contributing to the MIMI repository, you may wish to clone the reposiotory to your local machine or cloud hosted development environment. To do so, please follow the these [instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository). If you use the GitHub Desktop app, you can alternatively follow these [instructions](https://docs.github.com/en/desktop/adding-and-cloning-repositories/cloning-a-repository-from-github-to-github-desktop).
+So that you can start contributing to the MIMI repository, you may wish to clone the repository to your local machine or cloud hosted development environment. To do so, please follow the these [instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository). If you use the GitHub Desktop app, you can alternatively follow these [instructions](https://docs.github.com/en/desktop/adding-and-cloning-repositories/cloning-a-repository-from-github-to-github-desktop).
 
 ### Repository structure
 
