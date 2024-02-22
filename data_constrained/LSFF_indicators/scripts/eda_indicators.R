@@ -192,16 +192,23 @@ source("data_constrained/LSFF_indicators/scripts/eda_indicators_functions.R")
 stratified_plots(svy_nga_indicators)
 nga_reach_plot <- reach_plot + theme(legend.position = "none") + labs(title = "Nigeria")
 nga_dose_plot <- dose_plot + theme(legend.position = "none") + labs(title = "Nigeria")
+nga_reach_dose <- reach_dose_plot + theme(legend.position = "none") + 
+  labs(caption = "Potentially fortifiable staple grains: Rice, Wheat flour, Maize flour",
+       title = "Nigeria")
 
-rm(list = c("reach_plot", "dose_plot"))
+rm(list = c("reach_plot", "dose_plot", "reach_dose_plot"))
 
 
 # Ethiopia:
 stratified_plots(svy_eth_indicators)
 eth_reach_plot <- reach_plot + labs(y = NULL) + labs(title = "Ethiopia")
 eth_dose_plot <- dose_plot + labs(y = NULL) + labs(title = "Ethiopia")
+eth_reach_dose <- reach_dose_plot + 
+  labs(y = NULL,
+       caption = "Potentially fortifiable staple grains: Rice, Wheat flour, Maize flour", 
+       title = "Ethiopia")
 
-rm(list = c("reach_plot", "dose_plot"))
+rm(list = c("reach_plot", "dose_plot", "reach_dose_plot"))
 
 # Combine reach plots from multiple countries: 
 grid.arrange(nga_reach_plot, eth_reach_plot, ncol = 2)
@@ -210,6 +217,10 @@ grid.arrange(nga_reach_plot, eth_reach_plot, ncol = 2)
 
 # Combine dose plots from multiple countries:
 grid.arrange(nga_dose_plot, eth_dose_plot, ncol = 2)
+
+# combine reach and dose plots from multiple countries:
+grid.arrange(nga_reach_dose, eth_reach_dose, ncol = 2, 
+             bottom = "* Percentage of households consuming sufficient quantity (dose) of potentially fortifiable staple grains to meet MN needs (survey weighted)")
 
 rm(list = c("nga_reach_plot", "eth_reach_plot", "nga_dose_plot", "eth_dose_plot"))
 
