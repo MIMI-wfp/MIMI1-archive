@@ -173,10 +173,28 @@ food_consumption <- food_consumption %>%
 food_consumption <- food_consumption %>% 
   dplyr::select("hhid", "item_code", "vehicle", "quantity_100g", "prop_fortifiable")
 
-# Write csv: 
-write_csv(food_consumption, "training/ethiopia/data/eth_hices1516_fortifiable_foods.csv")
+#-------------------------------------------------------------------------------
 
-rm(list = ls()
+# Read in data on AFE: 
+hh_info <- read_csv("data_rich/all_base_models/data/current/eth_hices1516_hh_info.csv")
+
+# Add AFE to food_consumption:
+food_consumption <- food_consumption %>% 
+  dplyr::left_join(hh_info %>% dplyr::select("hhid", "afe"), by = "hhid")
+
+rm(hh_info)
+
+# Divide quantity_100g by AFE to get quantity_100g per adult equivalent:
+food_consumption$quantity_100g <- food_consumption$quantity_100g / food_consumption$afe
+
+food_consumption$afe <- NULL
+
+#-------------------------------------------------------------------------------
+
+# Write csv: 
+# write_csv(food_consumption, "training/ethiopia/data/eth_hices1516_fortifiable_foods.csv")
+
+rm(list = ls())
 
 ################################################################################
 ############################### END OF SCRIPT ##################################
