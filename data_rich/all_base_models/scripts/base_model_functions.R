@@ -5,7 +5,7 @@
 
 library(ggplot2)
 
-path_to_file <- here::here("all_base_models/data/current/")
+path_to_file <- here::here("data_rich/all_base_models/data/")
 
 allen_ear <- data.frame(
   energy_kcal = 2100,#who
