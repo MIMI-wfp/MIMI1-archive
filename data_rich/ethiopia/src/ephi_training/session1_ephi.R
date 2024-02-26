@@ -8,7 +8,7 @@
 # install.packages("pacman")
 
 rq_packages <- c("tidyverse","srvyr","readr","dplyr",
-                 "ggridges", "gt", "haven","foreign")
+                 "ggridges", "gt", "haven","foreign", "survey")
 installed_packages <- rq_packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
   install.packages(rq_packages[!installed_packages])
@@ -41,25 +41,74 @@ summary(hices1516$folate_mcg)
 hices1516 %>% 
   ggplot(aes(x = folate_mcg, fill = res)) + 
   geom_histogram(position = 'dodge') +
-  xlim(0,2000)
+  xlim(0,2000) + 
+  labe
 
-
+# split into urban and rural
 urban <- hices1516 %>% 
   filter(res == "Urban")
 
 rural <- hices1516 %>% 
   filter(res == " Rural")
 
-## look at the quintiles, is there a large distribution, which are higher and lower
+## look at the quartiles, is there a large distribution, which are higher and lower
 
-folate_har <- 250
-
-quantile(hices1516$folate_mcg)
+quantile(hices1516$folate_mcg, probs = seq(0,1,0.25))
 quantile(urban$folate_mcg)
 quantile(rural$folate_mcg)
 
-#prevalence
-sum(urban$folate_mcg<=folate_har)/nrow(urban)
-sum(rural$folate_mcg<=folate_har)/nrow(rural)
+# we see a right skew for the intake distributions 
+
+summary.table(hices1516)
 
 
+### Agregating the data --------------------------------------------------------
+# aggregating the data requires the use of survey weights
+
+
+# look at the means in regions
+hices1516 %>% 
+  srvyr::as_survey_design(id = hhid, strata = adm1,
+                          weights = survey_wgt, nest=T) %>% 
+  srvyr::group_by(adm1) %>% 
+  srvyr::summarise(
+     survey_mean(folate_mcg, vartype = "ci"))
+
+hices1516%>% 
+  srvyr::as_survey_design(id = hhid, strata = res,
+                          weights = survey_wgt, nest=T) %>% 
+  srvyr::group_by(res) %>% 
+  srvyr::summarise(
+    survey_mean(folate_mcg, vartype = "ci"))
+
+hices1516%>% 
+  srvyr::as_survey_design(id = hhid, strata = ,
+                          weights = survey_wgt, nest=T) %>% 
+  srvyr::group_by(adm1,res) %>% 
+  srvyr::summarise(
+    survey_mean(folate_mcg, vartype = "ci")
+    )
+    
+
+# look at socio-economic position
+
+
+# education head
+
+# children under 5
+
+
+
+
+
+# introducing the distribution in relation to the H-AR
+# not yet calculating prevalence 
+
+
+hices1516 %>% 
+  ggplot(aes(x = folate_mcg, fill = res)) + 
+  geom_histogram(position = 'dodge') +
+  geom_vline(xintercept = folate_har)+
+  xlim(0,2000) 
+
+# compare 
