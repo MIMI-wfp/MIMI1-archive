@@ -26,7 +26,7 @@ nga_lss1819 <- apparent_intake("nga_lss1819")
 
 eth_hices1516_hh_info <- household_data("eth_hices1516") 
 nga_lss1819_hh_info <- household_data("nga_lss1819")
-
+unique(nga_lss1819_hh_info$adm2)
 #harmonised average requirements
 allen_har <- data.frame(
   energy_kcal = 2200,#who
@@ -203,11 +203,16 @@ nga_lga_dict <- read.csv("../nigeria_mapping/data_dictionary/lga.csv")
 hh_to_lga <-as_tibble(read.csv("../nigeria_mapping/hh_to_lga.csv"))
 nga_ram <- read_xlsx(here::here("data_rich/data_requests/ram_mimi20240226/wfp_ram.xlsx"), sheet= "nga")
 
-sum((nga_ai$adm2 %in% nga_ram$lga) == TRUE)
+sum((nga_ram$lga%in%nga_ai$adm2  ) == TRUE)
 
-nga_ai %>% 
+nga_final <- nga_ai %>% 
   left_join(nga_ram, 
             by = c("adm2" = "lga")
             )%>% 
-  select(-c(adm2,Category,comments,))
+  select(-c(adm2,Category,comments)) %>% 
+  rename(admin2 = wfp_admin2)
+
+
+write_csv(nga_final, here::here("data_rich/data_requests/ram_mimi20240226/nga_mimi_20240227.csv"))
+
               
