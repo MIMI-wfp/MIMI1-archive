@@ -4,8 +4,8 @@ library(dplyr)
 library(tidyr)
 
 here::here()
-eth_18_nd_fe <- read_csv(here::here("iron_full_probability/data/eth_18_nd_fe.csv"))
-head(eth_18_nd_fe)
+# eth_18_nd_fe <- read_csv(here::here("iron_full_probability/data/eth_18_nd_fe.csv"))
+# head(eth_18_nd_fe)
 
 #Probabistic apparent intake inadequacy
 
@@ -149,11 +149,9 @@ fe_full_prob <- function(data, group1 = NULL, group2 = NULL, bio_avail = 5){
         )%>%
         ungroup() %>%
         pivot_wider(names_from = c({{group1}},{{group2}}), names_prefix = "fe_prop_", #this can be the name of the 'group by" group
-                values_from = fe_prop) 
-        %>%
+                values_from = fe_prop)         %>%
         mutate(across(everything(),
-              ~replace_na(.,0)))
-        %>%
+              ~replace_na(.,0)))        %>%
         summarise(
           across(-prob_inad,
                ~sum(.x*as.numeric(prob_inad))/sum(.x)*100
@@ -168,18 +166,18 @@ fe_full_prob <- function(data, group1 = NULL, group2 = NULL, bio_avail = 5){
     
 }
 
-eth_18_nd_fe %>% 
-  fe_full_prob(bio_avail = 15)
-
-eth_18_nd_fe %>% 
-  fe_full_prob(hh_res,bio_avail = 10)
-
-eth_18_nd_fe %>% 
-  fe_full_prob(hh_res_sep,bio_avail = 10)
-
-
-eth_18_nd_fe %>% 
-  fe_full_prob(hh_res,hh_res_sep,bio_avail = 15)
-
+# eth_18_nd_fe %>% 
+#   fe_full_prob(bio_avail = 15)
+# 
+# eth_18_nd_fe %>% 
+#   fe_full_prob(hh_res,bio_avail = 10)
+# 
+# eth_18_nd_fe %>% 
+#   fe_full_prob(hh_res_sep,bio_avail = 10)
+# 
+# 
+# eth_18_nd_fe %>% 
+#   fe_full_prob(hh_res,hh_res_sep,bio_avail = 15)
+# 
 
 

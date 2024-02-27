@@ -1,3 +1,8 @@
+# Author: Gabriel Battcock
+# Collaborators: Mo Osman & Kevin Tang
+# Date created: 14-Feb-2024
+# Last edited: 26-Feb-2024
+
 # File to make sure we have clean data for
 # EPHI training to be delivered March 2024
 
@@ -13,7 +18,7 @@ rm(list= c("rq_packages", "installed_packages"))
 
 source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
 
-# read in the data 
+# read in the data ------------------------------------------------------------
 
 eth_hices1516_hh_info <- household_data("eth_hices1516")
 eth_hices1516 <- apparent_intake("eth_hices1516") 
@@ -63,7 +68,7 @@ hices_food_consumption <- read.csv(paste0("~/Documents/MIMI/MIMI_data/", "Ethiop
 
 # food composition table
 
-hices_fct <- read.csv(paste0(path_to_data, "Ethiopia/eth/hices1516/ETH_HCES1516_fctmatch.csv"))
+hices_fct <- read.csv(paste0("~/Documents/MIMI/MIMI_data/Ethiopia/eth/hices1516/ETH_HCES1516_fctmatch.csv"))
 
 names(hices_fct)
 

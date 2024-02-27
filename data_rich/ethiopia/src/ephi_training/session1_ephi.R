@@ -42,7 +42,7 @@ hices1516 %>%
   ggplot(aes(x = folate_mcg, fill = res)) + 
   geom_histogram(position = 'dodge') +
   xlim(0,2000) + 
-  labe
+  
 
 # split into urban and rural
 urban <- hices1516 %>% 
@@ -112,3 +112,8 @@ hices1516 %>%
   xlim(0,2000) 
 
 # compare 
+
+egen mean_folate_mcg_adm1_res = mean(folate_mcg), by(adm1 res)
+svyset hhid [pw=survey_wgt], strata(adm1 res)
+svy: mean mean_folate_mcg_adm1_res
+
