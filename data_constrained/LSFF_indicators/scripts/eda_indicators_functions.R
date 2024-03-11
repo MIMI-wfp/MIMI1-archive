@@ -172,5 +172,28 @@ stratified_plots <- function(svy_indicators) {
     theme(legend.position = "bottom") +
     ylim(0,100) + theme_bw()
   
+  # Create an additional plot to show both reach and dose3 on the same plot
+  # (reach on the y-axis and increased bubble size for dose3): 
+  reach_dose_plot <<- ggplot(df_indicators, aes (x = res_quintile, y = reach)) +
+    geom_point(aes(colour = res, size = dose3), alpha = 0.7) +
+    # geom_errorbar(aes(ymin = reach_low, ymax = reach_upp), width = 0.05) +
+    ylab("Survey weighted reach (%) of potentially \n fortifiable staple grains (combined)") +
+    xlab("Socio-economic quintile") +
+    # Specify bubble sizes:
+    scale_size_area(breaks = c(20, 40, 60, 80),
+                    labels = c(20, 40, 60, 80),
+                    max_size = 10,
+                    limits = c(0,100)) +
+    # Change colours using wesanderson package:
+    scale_colour_manual(values = point_colours) +
+    # remove legend title:
+    guides(colour = guide_legend(title = NULL)) +
+    # Edit legend: 
+    guides(size = guide_legend(title = "Dose* %",
+                               reverse = TRUE)) +
+    ylim(0,100) + theme_bw() +
+    theme(plot.caption = element_text(hjust = 0, 
+                                      margin = margin(t = 15, r = 0, b = 0, l = 0)))
+  
 }
 
