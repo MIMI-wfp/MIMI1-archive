@@ -3,3 +3,4 @@
 </p>
 
 # Introduction
+(Insert a paragraph here to introduce the MIMI project)
