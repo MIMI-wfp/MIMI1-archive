@@ -11,8 +11,8 @@ This code repository has been created for collaborative coding and version contr
 
 * `data_constrained` - Projects relating to MIMI data-constrained contexts<br>
 * `data_rich` - Projects relating to MIMI data-rich contexts<br>
-* `training` - A place to store code and materials used for training and workshops<br>
-* `universal_functions` - A place to store any code applicable across all projects, regardless of context
+* `training` - Code and materials used for training and workshops<br>
+* `universal_functions` - Code and functions applicable across all projects, regardless of context
 
 Below is a directory tree that outlines the structure of the MIMI repository:
 ```
