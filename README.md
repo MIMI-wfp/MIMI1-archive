@@ -14,6 +14,7 @@ This code repository has been created for collaborative coding and version contr
 * `training` - A place to store code and materials used for training and workshops<br>
 * `universal_functions` - A place to store any code applicable across all projects, regardless of context
 
+Below is a directory tree that outlines the structure of the MIMI repository:
 ```
 MIMI/
 ├─ README.md    <<<<<<<<<<<<<<<<<<<<<<<<<< YOU ARE HERE
