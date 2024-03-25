@@ -42,3 +42,5 @@ MIMI/
 │  └─ ...                                
 └─ .gitignore
 ```
+
+## How to contribute to MIMI
