@@ -2,10 +2,10 @@
 <img width=400 alt="mimi logo" src="https://github.com/kmtang/MIMI/assets/90572354/ca7e5489-a584-4721-b583-26e31e1789b0">
 </p>
 
-# Introducing the MIMI project
+## Introducing the MIMI project
 (Insert a paragraph here to introduce the MIMI project)
 
-# Introducing the MIMI GitHub repository
+## Introducing the MIMI GitHub repository
 
 ```
 MIMI/
