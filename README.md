@@ -7,7 +7,7 @@
 
 ## Introducing the MIMI GitHub repository
 
-This code repository has been created for collaborative coding and version control on MIMI projects both internally, and with external partners. The repository is subdivided into 4 sections:
+This code repository has been created for collaborative coding and version control of MIMI projects both internally, and in collaboration with external partners. The repository is subdivided into 4 sections:
 
 * `data_constrained` - Projects relating to MIMI data-constrained contexts<br>
 * `data_rich` - Projects relating to MIMI data-rich contexts<br>
