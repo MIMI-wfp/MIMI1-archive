@@ -25,6 +25,10 @@ MIMI/
 ├─ data_constrained/
 │  ├─ LSFF_indicators/
 │  └─ ...
+├─ training/
+│  ├─ ethiopia/
+│  ├─ nigeria/
+│  └─ ...
 ├─ universal_functions/
 │  ├─ iron_full_probability/
 │  └─ ...                                
