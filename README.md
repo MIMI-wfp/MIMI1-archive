@@ -47,7 +47,10 @@ MIMI/
 ## Data-sources
 
 Currently ongoing MIMI projects utilise publicly available Household Consumption and Expenditure Surveys (HCES), and Living Standards Measurements Surveys (LSMS) from Nigeria, India and Ethiopia. Access to this data can be requested using the links provided below: <br>
-* [Nigeria Living Standards Survey 2018-2019](https://microdata.worldbank.org/index.php/catalog/3827/get-microdata) 
+* [Nigeria Living Standards Survey 2018-2019](https://microdata.worldbank.org/index.php/catalog/3827/get-microdata) <br>
+* [India National Sample Survey 2011-2012](http://www.icssrdataservice.in/datarepository/index.php/catalog/135/related_materials) <br>
+* [Ethiopia Socioeconomic Survey 2018-2019](https://microdata.worldbank.org/index.php/catalog/3823/get-microdata) <br>
+* [Ethiopia Household Income, Consumption and Expenditure Survey 2015-2016](http://www.csa.gov.et/data-access-polices)
 
 ## How to contribute to MIMI
 
