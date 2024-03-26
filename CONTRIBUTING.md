@@ -14,7 +14,7 @@ So that you can start contributing to the MIMI repository, you may wish to clone
 
 ### Repository structure
 
-The structure of this repository is outlined in the [README.md](https://github.com/kmtang/MIMI/blob/main/README.md#introducing-the-mimi-github-repository) file. As explained, the MIMI repository is organised into 4 sub-sections: 
+The structure of this repository is outlined in the [README.md](https://github.com/kmtang/MIMI/blob/main/README.md#introducing-the-mimi-github-repository) file. As explained, it's organised into 4 sub-sections: 
 
 * `data_constrained` - Projects relating to MIMI data-constrained contexts<br>
 * `data_rich` - Projects relating to MIMI data-rich contexts<br>
