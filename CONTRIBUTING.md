@@ -1,15 +1,12 @@
-# Introduction
+# Contributing Guidelines for the MIMI project
 
 Welcome to the contributing guidelines for the MIMI project. This documentation will outline some basic principles and best practices to follow when making contributions to the project. 
 
-Whilst every effort has been made to ensure that these guidelines are as detailed as possible, it's likely that not everything has been covered. Therefore if you do have any questions about contributing to the repository, please contact one of us: <br>
-* Mohammed Osman: [mohammedaheed.osman@wfp.org](mohammedaheed.osman@wfp.org) <br>
-* Gabriel Battcock: [gabriel.battcock@wfp.org](gabriel.battcock@wfp.org) <br>
-* Kevin Tang: [kevin.tang@wfp.org](keving.tang@wfp.org) <br>
+Whilst every effort has been made to ensure that these guidelines are as detailed as possible, it's likely that some aspects of contributing are not covered. Therefore if you do have any questions about contributing to the repository, please contact a member of our [team](https://github.com/kmtang/MIMI/blob/mo/README.md#team).
 
 ### Contributing permissions
 
-If you would like to contribute to the MIMI project, please reach out to one of us (contact details above) to discuss your proposeed contribution, and to arrange contributor access to the repository.
+If you would like to contribute to the MIMI project, please reach out to a member of our [team](https://github.com/kmtang/MIMI/blob/mo/README.md#team) to discuss your proposeed contribution, and to arrange contributor access to the repository.
 
 ### Cloning the MIMI repository
 
