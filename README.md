@@ -1,3 +1,4 @@
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 <p align="center">
 <img width=400 alt="mimi logo" src="https://github.com/kmtang/MIMI/assets/90572354/ca7e5489-a584-4721-b583-26e31e1789b0">
 </p>
@@ -43,4 +44,18 @@ MIMI/
 └─ .gitignore
 ```
 
+## Data-sources
+
+Currently ongoing MIMI projects utilise publicly available Household Consumption and Expenditure Surveys (HCES), and Living Standards Measurements Surveys (LSMS) from Nigeria, India and Ethiopia. Access to this data can be requested using the links provided below: <br>
+* [Nigeria Living Standards Survey 2018-2019](https://microdata.worldbank.org/index.php/catalog/3827/get-microdata) <br>
+* [India National Sample Survey 2011-2012](http://www.icssrdataservice.in/datarepository/index.php/catalog/135/related_materials) <br>
+* [Ethiopia Socioeconomic Survey 2018-2019](https://microdata.worldbank.org/index.php/catalog/3823/get-microdata) <br>
+* [Ethiopia Household Income, Consumption and Expenditure Survey 2015-2016](http://www.csa.gov.et/data-access-polices)
+
 ## How to contribute to MIMI
+
+If you would like gain contributor access to the MIMI repository, please contact one of our [team](https://github.com/kmtang/MIMI/blob/mo/README.md#team) members to discuss your proposed contribution. Once you have been granted contributor access, please follow our [contributor guidelines](https://github.com/kmtang/MIMI/blob/main/CONTRIBUTING.md) when making contributions.
+
+## Team
+
+(list team members and contact details here? - could also include photos if we wanted)

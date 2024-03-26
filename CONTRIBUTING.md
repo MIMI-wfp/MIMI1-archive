@@ -1,15 +1,12 @@
-# Introduction
+# Contributing guidelines for the MIMI project
 
 Welcome to the contributing guidelines for the MIMI project. This documentation will outline some basic principles and best practices to follow when making contributions to the project. 
 
-Whilst every effort has been made to ensure that these guidelines are as detailed as possible, it's likely that not everything has been covered. Therefore if you do have any questions about contributing to the repository, please contact one of us: <br>
-* Mohammed Osman: [mohammedaheed.osman@wfp.org](mohammedaheed.osman@wfp.org) <br>
-* Gabriel Battcock: [gabriel.battcock@wfp.org](gabriel.battcock@wfp.org) <br>
-* Kevin Tang: [kevin.tang@wfp.org](keving.tang@wfp.org) <br>
+Whilst every effort has been made to ensure that these guidelines are as detailed as possible, it's likely that some aspects of contributing are not covered. Therefore if you do have any questions, please contact a member of our [team](https://github.com/kmtang/MIMI/blob/mo/README.md#team).
 
-### Contributing permissions
+### Permissions
 
-If you would like to contribute to the MIMI project, please reach out to one of us (contact details above) to discuss your proposeed contribution, and to arrange contributor access to the repository.
+If you would like to contribute to the MIMI project, please reach out to a member of our [team](https://github.com/kmtang/MIMI/blob/mo/README.md#team) to discuss your proposeed contribution, and to arrange contributor access to the repository.
 
 ### Cloning the MIMI repository
 
@@ -17,36 +14,14 @@ So that you can start contributing to the MIMI repository, you may wish to clone
 
 ### Repository structure
 
-The MIMI repository has 3 main folders to categorise all projects (`data_rich`, `data_constrained` and `universal_functions`). Any new project should be created as a sub-folder within one of these categories:
+The structure of this repository is outlined in the [README.md](https://github.com/kmtang/MIMI/blob/main/README.md#introducing-the-mimi-github-repository) file. As explained, it's organised into 4 sub-sections: 
 
-* `data_rich` - Projects relating to MIMI data-rich contexts<br>
 * `data_constrained` - Projects relating to MIMI data-constrained contexts<br>
-* `universal_functions` - A place to store any functions that may be used across all projects, regardless of context
+* `data_rich` - Projects relating to MIMI data-rich contexts<br>
+* `training` - Code and materials used for training and workshops<br>
+* `universal_functions` - Code and functions applicable across all projects, regardless of context
 
-Below is a directory tree that outlines the structure of the MIMI repository:
-
-```
-MIMI/
-├─ CONTRIBUTING.md    <<<<<<<<<<<<<<<<<<<<<<<<<< YOU ARE HERE
-├─ data_rich/                              
-│  ├─ all_base_models/
-│  ├─ fortification_models/
-│  ├─ data_requests/
-│  ├─ india/
-│  ├─ ethiopia/
-│  ├─ individual_level_india/
-│  ├─ dietary_assessment/
-│  └─ ...
-├─ data_constrained/
-│  ├─ LSFF_indicators/
-│  └─ ...
-├─ universal_functions/
-│  ├─ iron_full_probability/
-│  └─ ...                                
-├─ MIMI.Rproj
-└─ .gitignore
-```
-
+Please ensure that your contributions are pushed to most relevant section of the repository, if you are unsure, please discuss with the MIMI team.
 
 ### Branches
 
