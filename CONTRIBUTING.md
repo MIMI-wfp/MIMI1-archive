@@ -1,4 +1,4 @@
-# Contributing Guidelines for the MIMI project
+# Contributing guidelines for the MIMI project
 
 Welcome to the contributing guidelines for the MIMI project. This documentation will outline some basic principles and best practices to follow when making contributions to the project. 
 
