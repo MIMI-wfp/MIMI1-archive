@@ -54,6 +54,8 @@ Currently ongoing MIMI projects utilise publicly available Household Consumption
 
 ## How to contribute to MIMI
 
-If you would like gain contributor access to the MIMI repository, please contact one of our team members to discuss your proposed contribution. Once you have been granted contributor access, please follow our [contributor guidelines](https://github.com/kmtang/MIMI/blob/main/CONTRIBUTING.md).
+If you would like gain contributor access to the MIMI repository, please contact one of our team members to discuss your proposed contribution. Once you have been granted contributor access, please follow our [contributor guidelines](https://github.com/kmtang/MIMI/blob/main/CONTRIBUTING.md) when making contributions.
 
 ## Team
+
+(list team members and contact details here? - could also include photos if we wanted)
