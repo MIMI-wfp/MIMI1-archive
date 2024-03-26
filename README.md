@@ -59,3 +59,5 @@ If you would like gain contributor access to the MIMI repository, please contact
 ## Team
 
 (list team members and contact details here? - could also include photos if we wanted)
+
+<p align="left">(<a href="#readme-top">back to top</a>)</p>
