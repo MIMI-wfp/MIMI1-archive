@@ -58,4 +58,4 @@ If you would like gain contributor access to the MIMI repository, please contact
 
 ## Team
 
-(list team members and contact details here?)
+(Add team contact details here?)
