@@ -2,6 +2,8 @@
 
 Welcome to the contributing guidelines for the MIMI project. This documentation will outline some basic principles and best practices to follow when making contributions to the project. 
 
+These guidelines assume that you have prior experience of using GitHub, therefore if you are completely new to GitHub, it's recommended that you read the following [introductory documentation](https://docs.github.com/en/get-started/start-your-journey) and access this [introductory course](https://skills.github.com/).
+
 Whilst every effort has been made to ensure that these guidelines are as detailed as possible, it's likely that some aspects of contributing are not covered. Therefore if you do have any questions, please contact a member of our [team](https://github.com/kmtang/MIMI/blob/mo/README.md#team).
 
 ### Permissions
