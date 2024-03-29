@@ -7,6 +7,8 @@
 data/
 MIMI_data/
 fortification_models/figures/
+map_data/
+survey_data/
 
 # Ignore all files with the following extensions: 
 *.csv
@@ -17,5 +19,7 @@ fortification_models/figures/
 *.shx
 *.topojson
 *.geson
+*.json
+*.geojson
 *.DS_Store
 
