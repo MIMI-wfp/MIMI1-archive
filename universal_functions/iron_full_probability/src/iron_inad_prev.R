@@ -149,11 +149,9 @@ fe_full_prob <- function(data, group1 = NULL, group2 = NULL, bio_avail = 5){
         )%>%
         ungroup() %>%
         pivot_wider(names_from = c({{group1}},{{group2}}), names_prefix = "fe_prop_", #this can be the name of the 'group by" group
-                values_from = fe_prop) 
-        %>%
+                values_from = fe_prop) %>%
         mutate(across(everything(),
-              ~replace_na(.,0)))
-        %>%
+              ~replace_na(.,0))) %>%
         summarise(
           across(-prob_inad,
                ~sum(.x*as.numeric(prob_inad))/sum(.x)*100

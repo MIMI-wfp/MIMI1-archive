@@ -99,7 +99,7 @@ rm(food_purchases)
 # FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS:
 
 # Read in data on proportion fortiable for each food item:
-nigeria_proportions <- read_excel("data_rich/fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx",
+nigeria_proportions <- read_excel("data_rich/fortification_models/fortification_models_data_mapping.xlsx",
            sheet = "Nigeria food items")
 
 nigeria_proportions <- nigeria_proportions %>% 
@@ -279,7 +279,7 @@ food_consumption <- dplyr::select(food_consumption, -proportion_purchased)
 # FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS:
 
 # Read in the data for fortifiable proportions:
-malawi_proportions <- read_excel("data_rich/fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx",
+malawi_proportions <- read_excel("data_rich/fortification_models/fortification_models_data_mapping.xlsx",
                                  sheet = "Malawi food items")
 
 # Keep only required columns:
@@ -442,7 +442,7 @@ food_consumption <- dplyr::select(food_consumption, -proportion_purchased)
 
 # FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS: 
 
-ess_proportions <- read_excel("data_rich/fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
+ess_proportions <- read_excel("data_rich/fortification_models/fortification_models_data_mapping.xlsx", 
                               sheet = "Ethiopia (ESS) food items")
 
 ess_proportions <- ess_proportions %>% 
@@ -530,6 +530,10 @@ base_ai <- apparent_intake("eth_hices1516")
 # Note that there are complete duplicates in base_ai, remove these entries: 
 base_ai <- base_ai[!duplicated(base_ai), ]
 
+# Also duplicated hhid's in hh_info:
+hh_info <- hh_info %>% 
+  dplyr::distinct(hhid, .keep_all = TRUE)
+
 # Save data-frame for base_ai:
 # write_csv(base_ai, "data_rich/fortification_models/data/eth_hices1516_base_ai.csv")
 
@@ -602,7 +606,7 @@ rm(food_purchases)
 
 # FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS: 
 
-hices_proportions <- read_excel("data_rich/fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
+hices_proportions <- read_excel("data_rich/fortification_models/fortification_models_data_mapping.xlsx", 
                                 sheet = "Ethiopia (HICES) food items")
 
 hices_proportions <- hices_proportions %>% 
@@ -687,7 +691,7 @@ food_consumption <- food_consumption %>%
   summarise(quantity_100g = sum(quantity_100g),
             purchased_100g = sum(purchased_100g))
 
-# write_csv(food_consumption, "data_rich/fortification_models/data/gabriel/eth_hices1516_vehicle_consumption.csv")
+# write_csv(food_consumption, "data_rich/fortification_models/data/eth_hices1516_vehicle_consumption.csv")
 
 # Create a data-frame to indicate consumption (including quantities), of each of
 # the fortification vehicles:
@@ -775,7 +779,7 @@ rm(food_purchases)
 # FORTIFIABLE PROPORTIONS OF COMPOSITE FOOD ITEMS: 
 
 # Read in proportions data: 
-ind_proportions <- read_excel("data_rich/fortification_models/fortification scenarios/fortification_models_data_mapping.xlsx", 
+ind_proportions <- read_excel("data_rich/fortification_models/fortification_models_data_mapping.xlsx", 
                               sheet = "India food items") %>% 
   dplyr::select("item_cd", "prop_fortifiable")
 

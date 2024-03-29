@@ -2,6 +2,9 @@
 ### MIMI
 ### 12-12-2023
 
+# Script updated on 22-03-2024 to integrate food composition matches from Katie
+# Adams
+
 library(tidyr)
 library(readr)
 library(dplyr)
@@ -9,13 +12,14 @@ library(stringr)
 library(lubridate)
 library(haven)
 library(ggplot2)
+library(readxl)
 
-path_to_data <- "~/Documents/MIMI/MIMI_data/"
+path_to_data <- "MIMI_data/"
 path_to_save <- here::here("all_base_models/data/")
 
 setwd(here::here())
 
-source("all_base_models/scripts/base_model_functions.R")
+source("data_rich/all_base_models/scripts/base_model_functions.R")
 
 # nsso #########################################################################
 
@@ -136,8 +140,8 @@ write_csv(hices_fct, paste0(path_to_save,"eth_hices1516_fct.csv"))
 rm(hices_fct)
 rm(hices_food_consumption)
 rm(hices_afe)
-# ESS --------------------------------------------------------------------------
 
+# ESS --------------------------------------------------------------------------
 
 ess_food_consumption <- read.csv(paste0(path_to_data, "Ethiopia/eth/ess41819/eth_ess4_food_cons.csv"))
 
@@ -369,9 +373,38 @@ nga_fct <- nga_fct %>%
 as_tibble(nga_fct)
 write_csv(nga_fct, paste0(path_to_save,"nga_lss1819_fct.csv"))
 
-
-
 rm(nga_fct)
+
+#-------------------------------------------------------------------------------
+
+# CREATE ALTERNATIVE NIGERIA FCT BASED ON KATIE ADAMS' FOOD COMPOSITION MATCHES: 
+
+# Read in the food composition table: 
+KA_nga_fct <- read_excel("data_rich/all_base_models/data/KA_nga_lss1819_fct/Nigeria nutrient values v6.xlsx",
+                         sheet = "Nutrient values", skip = 1)
+
+# Filter for the relevant columns: 
+KA_nga_fct <- KA_nga_fct %>% 
+  dplyr::select(c(1, 2, 3, 17, 33, 38, 39, 40, 43, 36, 44, 46, 47, 24, 25, 30))
+
+# Rename columns based on their index position: 
+new_col_names <- c("zone", "item_code", "item_name", "energy_kcal", "vita_rae_mcg",
+                   "thia_mg", "ribo_mg", "niac_mg", "vitb6_mg", "vitd_mcg",
+                   "folate_mcg", "vitb12_mcg", "vitc_mg", "ca_mg", "fe_mg",
+                   "zn_mg")
+
+colnames(KA_nga_fct) <- new_col_names
+
+# Additional pre-processing of fct: 
+KA_nga_fct <- KA_nga_fct %>% 
+  mutate(item_code = as.integer(item_code)) %>% 
+  filter(!is.na(item_code)) 
+
+as.tibble(KA_nga_fct)
+
+# Write this alternative fct to csv: 
+write_csv(KA_nga_fct, "data_rich/all_base_models/data/KA_nga_lss1819_fct/KAnga_lss1819_fct.csv")
+
 rm(nga_food_consumption)
 
 ################################################################################
