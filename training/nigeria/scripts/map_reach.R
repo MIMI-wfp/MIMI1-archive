@@ -91,10 +91,11 @@ nigeria2_reach <- dplyr::left_join(nigeria_2, reach_lga, by = "lga")
 # Rice: 
 rice <- tm_shape(nigeria2_reach) + 
   tm_fill(col = "reach_rice",
-          title = "Rice", 
-          palette = viridis(10, direction = -1), 
+          title = "Reach (%)", 
+          # palette = viridis(10, direction = -1), 
           style = "cont",
-          textNA = "Missing Data") + 
+          textNA = "Missing Data",
+          legend.is.portrait = F) + 
   tm_layout(main.title = "Rice", frame = F, main.title.size = 0.8, 
             main.title.position = "center") +
   tm_borders(lwd = 0.00001) + 
@@ -102,13 +103,17 @@ rice <- tm_shape(nigeria2_reach) +
   tm_shape(nigeria_1) +
   tm_borders(col = "black", lwd = 1)
 
+# tmap_save(rice, "training/nigeria/maps/without_legend/rice_reach.png", 
+#           width = 8, height = 7, units = "in", dpi = 600)
+
 # Wheatflour:
 wheatflour <- tm_shape(nigeria2_reach) + 
   tm_fill(col = "reach_wheatflour",
-          title = "Wheatflour", 
-          palette = viridis(10, direction = -1), 
+          title = "Reach (%)", 
+          # palette = viridis(10, direction = -1), 
           style = "cont",
-          textNA = "Missing Data") + 
+          textNA = "Missing Data",
+          legend.is.portrait = F) + 
   tm_layout(main.title = "Wheatflour", frame = F, main.title.size = 0.8, 
             main.title.position = "center") +
   tm_borders(lwd = 0.00001) + 
@@ -116,13 +121,17 @@ wheatflour <- tm_shape(nigeria2_reach) +
   tm_shape(nigeria_1) +
   tm_borders(col = "black", lwd = 1)
 
+# tmap_save(wheatflour, "training/nigeria/maps/without_legend/wheatflour_reach.png",
+#           width = 8, height = 7, units = "in", dpi = 600)
+
 # Maizeflour:
 maizeflour <- tm_shape(nigeria2_reach) + 
   tm_fill(col = "reach_maizeflour",
-          title = "Maizeflour", 
-          palette = viridis(10, direction = -1), 
+          title = "Reach (%)", 
+          # palette = viridis(10, direction = -1), 
           style = "cont",
-          textNA = "Missing Data") + 
+          textNA = "Missing Data",
+          legend.is.portrait = F) + 
   tm_layout(main.title = "Maizeflour", frame = F, main.title.size = 0.8, 
             main.title.position = "center") +
   tm_borders(lwd = 0.00001) + 
@@ -130,27 +139,35 @@ maizeflour <- tm_shape(nigeria2_reach) +
   tm_shape(nigeria_1) +
   tm_borders(col = "black", lwd = 1)
 
+# tmap_save(maizeflour, "training/nigeria/maps/without_legend/maizeflour_reach.png", 
+#           width = 8, height = 7, units = "in", dpi = 600)
+
 # Staple Grains:
 staple_grains <- tm_shape(nigeria2_reach) + 
   tm_fill(col = "reach_staple_grains",
-          title = "Staple Grains", 
-          palette = viridis(10, direction = -1), 
+          title = "Reach (%)", 
+          # palette = viridis(10, direction = -1), 
           style = "cont",
-          textNA = "Missing Data") + 
-  tm_layout(main.title = "Staple Grains \n (combined)", frame = F, main.title.size = 0.8, 
+          textNA = "Missing Data",
+          legend.is.portrait = F) + 
+  tm_layout(main.title = "Staple grains (combined)", frame = F, main.title.size = 0.8, 
             main.title.position = "center") +
   tm_borders(lwd = 0.00001) + 
   tm_legend(show = F) +
   tm_shape(nigeria_1) +
   tm_borders(col = "black", lwd = 1)
 
+# tmap_save(staple_grains, "training/nigeria/maps/without_legend/staple_grains_reach.png", 
+#           width = 8, height = 7, units = "in", dpi = 600)
+
 # Edible Oil:
 edible_oil <- tm_shape(nigeria2_reach) + 
   tm_fill(col = "reach_edible_oil",
-          title = "Edible Oil", 
-          palette = viridis(10, direction = -1), 
+          title = "Reach (%)", 
+          # palette = viridis(10, direction = -1), 
           style = "cont",
-          textNA = "Missing Data") + 
+          textNA = "Missing Data",
+          legend.is.portrait = F) + 
   tm_layout(main.title = "Edible Oil", frame = F, main.title.size = 0.8, 
             main.title.position = "center") +
   tm_borders(lwd = 0.00001) + 
@@ -158,13 +175,17 @@ edible_oil <- tm_shape(nigeria2_reach) +
   tm_shape(nigeria_1) +
   tm_borders(col = "black", lwd = 1)
 
+# tmap_save(edible_oil, "training/nigeria/maps/without_legend/edible_oil_reach.png",
+#           width = 8, height = 7, units = "in", dpi = 600)
+
 # Sugar:
 sugar <- tm_shape(nigeria2_reach) + 
   tm_fill(col = "reach_sugar",
-          title = "Sugar", 
-          palette = viridis(10, direction = -1), 
+          title = "Reach (%)", 
+          # palette = viridis(10, direction = -1), 
           style = "cont",
-          textNA = "Missing Data") + 
+          textNA = "Missing Data",
+          legend.is.portrait = F) + 
   tm_layout(main.title = "Sugar", frame = F, main.title.size = 0.8, 
             main.title.position = "center") +
   tm_borders(lwd = 0.00001) + 
@@ -172,18 +193,25 @@ sugar <- tm_shape(nigeria2_reach) +
   tm_shape(nigeria_1) +
   tm_borders(col = "black", lwd = 1)
 
+# tmap_save(sugar, "training/nigeria/maps/without_legend/sugar_reach.png",
+#           width = 8, height = 7, units = "in", dpi = 600)
+
 # Legend: 
 legend <- tm_shape(nigeria2_reach) + 
   tm_fill(col = "reach_rice",
-          palette = viridis(10, direction = -1), 
+          # palette = viridis(10, direction = -1), 
           style = "cont",
           textNA = "Missing Data",
-          title = "Reach (% of households that consumed market acquired vehicle)", 
+          title = "Reach (% of households that consume market acquired vehicle)", 
           legend.is.portrait = FALSE) + 
   tm_layout(legend.only = T,
             legend.position = c("center", "center"),
             legend.width = 1, 
-            legend.height = 1)
+            legend.height = 1,
+            title.position =c(0.5, 0.5))
+
+# tmap_save(legend, "training/nigeria/maps/legend_reach.png",
+#           width = 3.5, height = 3.5, units = "in", dpi = 600)
 
 # Store maps in a list:
 reach_adm2 <- list(rice, wheatflour, maizeflour, staple_grains, edible_oil, sugar, legend)
@@ -195,7 +223,8 @@ reach_adm2 <- tmap_arrange(reach_adm2, ncol = 3, nrow = 3)
 reach_adm2
 
 # Save:
-# tmap_save(reach_adm2, filename = "training/nigeria/reach.png", width = 9, height = 6, units = "in", dpi = 600
+# tmap_save(reach_adm2, filename = "training/nigeria/maps/reach_all_vehicles.png", 
+#           width = 9, height = 6, units = "in", dpi = 600)
 
 # Clear environment: 
 rm(list = ls())

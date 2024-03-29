@@ -58,5 +58,5 @@ If you would like gain contributor access to the MIMI repository, please contact
 
 ## Team
 
-(Add team contact details here?)
+(Add team contact details here? To discuss if we should have a generic MIMI email address rather than individual contact details)
 

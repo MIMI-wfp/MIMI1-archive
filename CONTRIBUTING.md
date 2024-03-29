@@ -55,9 +55,6 @@ Click this button, and you will be taken to a page where you can "open a pull re
 
 If you have requested a review from someone, please make sure that you inform them that you have done so.
 
-<p align="center">
-<img width="813" alt="Picture 1" src="https://github.com/kmtang/MIMI/assets/90572354/3cffa146-75b2-4175-98e2-ad324cdbb9ac">
-</p>
 
 Once you are happy with everything, click "Create pull request"
 

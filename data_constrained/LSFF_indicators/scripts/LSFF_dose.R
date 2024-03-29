@@ -5,7 +5,7 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 08-Feb-2024
-# Last edited: 16-Feb-2024
+# Last edited: 22-Feb-2024
 
 # This script is for developing 3 possible options for a binary LSFF dose indicator.
 
@@ -40,7 +40,7 @@ base_ai <- read_csv("data_rich/fortification_models/data/nga_lss1819_base_ai.csv
 ##### DOSE INDICATOR #1 #####
 #############################
 
-# Now create a second dose indicator, based on staple grain consumption delivering
+# Create a dose indicator, based on staple grain consumption delivering
 # 80% of the H-AR for all of the 5 MNs:
 
 # Firstly select staple grain quantities: 
@@ -134,6 +134,101 @@ rm(list = c("rice_contribution", "wheatflour_contribution", "maizeflour_contribu
 
 #############################
 ##### DOSE INDICATOR #3 #####
+#############################
+
+# Create an alternative dose indicator, based on staple grain consumption delivering
+# 40% of the H-AR for all of the 5 MNs:
+
+# Firstly select staple grain quantities: 
+vehicle_quantities <- vehicle_quantities %>% 
+  dplyr::select("hhid", "rice_100g", "wheatflour_100g", "maizeflour_100g", 
+                "staplegrain_100g")
+
+# Transform all quantities to grams: 
+vehicle_quantities <- vehicle_quantities %>% 
+  dplyr::mutate_at(vars(-hhid), funs(. * 100)) %>% 
+  rename(rice_g = rice_100g, wheatflour_g = wheatflour_100g, 
+         maizeflour_g = maizeflour_100g, staplegrain_g = staplegrain_100g)
+
+# Calculate how much of the intake objective was contributed by each vehicle:
+
+rice_contribution <- vehicle_quantities %>% 
+  dplyr::mutate(vita_rae = rice_g / 131,
+                folate = rice_g / 77,
+                vitb12 = rice_g / 80,
+                fe = rice_g / 224,
+                zn = rice_g / 68) %>%
+  dplyr::select("hhid", "vita_rae", "folate", "vitb12", "fe", "zn") %>% 
+  dplyr::mutate_all(funs(replace(., is.na(.), 0)))
+
+wheatflour_contribution <- vehicle_quantities %>%
+  dplyr::mutate(vita_rae = wheatflour_g / 123,
+                folate = wheatflour_g / 25,
+                vitb12 = wheatflour_g / 47,
+                fe = wheatflour_g / 149,
+                zn = wheatflour_g / 74) %>%
+  dplyr::select("hhid", "vita_rae", "folate", "vitb12", "fe", "zn") %>% 
+  dplyr::mutate_all(funs(replace(., is.na(.), 0)))
+
+maizeflour_contribution <- vehicle_quantities %>%
+  dplyr::mutate(vita_rae = maizeflour_g / 123,
+                folate = maizeflour_g / 41,
+                vitb12 = maizeflour_g / 47,
+                fe = maizeflour_g / 172,
+                zn = maizeflour_g / 62) %>%
+  dplyr::select("hhid", "vita_rae", "folate", "vitb12", "fe", "zn") %>% 
+  dplyr::mutate_all(funs(replace(., is.na(.), 0)))
+
+# Now, sum the contributions of each vehicle to get the total contribution:
+staplegrain_contribution <- rice_contribution %>% 
+  dplyr::left_join(wheatflour_contribution, by = "hhid") %>%
+  dplyr::left_join(maizeflour_contribution, by = "hhid") %>% 
+  dplyr::mutate(vita_rae = vita_rae.x + vita_rae.y + vita_rae,
+                folate = folate.x + folate.y + folate,
+                vitb12 = vitb12.x + vitb12.y + vitb12,
+                fe = fe.x + fe.y + fe,
+                zn = zn.x + zn.y + zn) %>% 
+  dplyr::select("hhid", "vita_rae", "folate", "vitb12", "fe", "zn")
+
+# Now binarise variables, if >1, then 1, else 0:
+staplegrain_contribution <- staplegrain_contribution %>% 
+  dplyr::mutate(vita_rae = ifelse(vita_rae > 1, 1, 0),
+                folate = ifelse(folate > 1, 1, 0),
+                vitb12 = ifelse(vitb12 > 1, 1, 0),
+                fe = ifelse(fe > 1, 1, 0),
+                zn = ifelse(zn > 1, 1, 0))
+
+# Create dose 1 variable, if all MNs are met, then 1, else 0:
+staplegrain_contribution <- staplegrain_contribution %>% 
+  dplyr::mutate(dose3 = ifelse(rowSums(staplegrain_contribution[,2:6]) == 5, 1, 0))
+
+#-------------------------------------------------------------------------------
+
+#############################
+##### DOSE INDICATOR #4 #####
+#############################
+
+# This indicator is similar to the above, but only required the staple grain to 
+# deliver 40% of the H-AR for 3 or more MNs:
+
+staplegrain_contribution <- staplegrain_contribution %>% 
+  dplyr::mutate(dose4 = ifelse(rowSums(staplegrain_contribution[,2:6]) >= 3, 1, 0))
+
+#-------------------------------------------------------------------------------
+
+# Join dose3 and dose4 to nga_dose dataframe:
+nga_dose <- nga_dose %>% 
+  dplyr::left_join(staplegrain_contribution %>% 
+                     dplyr::select("hhid", "dose3", "dose4"), by = "hhid")
+
+# Remove objects no longer required: 
+rm(list = c("rice_contribution", "wheatflour_contribution", "maizeflour_contribution",
+            "staplegrain_contribution", "vehicle_quantities"))
+
+#-------------------------------------------------------------------------------
+
+#############################
+##### DOSE INDICATOR #5 #####
 #############################
 
 # Re-read the vehicle quantities data:
@@ -266,13 +361,13 @@ fortification_ai <- fortification_ai %>%
 
 # Now, use this data to create dose variable: 
 
-dose3 <- base_ai %>% 
+dose5 <- base_ai %>% 
   dplyr::select("hhid", "nut_adeq") %>%
   rename(base_adeq = nut_adeq) %>% 
   dplyr::left_join(fortification_ai %>% dplyr::select("hhid", "nut_adeq"), 
                    by = "hhid") %>%
   rename(fort_adeq = nut_adeq) %>% 
-  dplyr::mutate(dose3 = ifelse(base_adeq == 0 & fort_adeq == 1, 1,
+  dplyr::mutate(dose5 = ifelse(base_adeq == 0 & fort_adeq == 1, 1,
                                ifelse(base_adeq == 0 & fort_adeq == 0, 0, NA)))
 
 #-------------------------------------------------------------------------------
@@ -280,11 +375,11 @@ dose3 <- base_ai %>%
 # Add to nga_dose: 
 
 nga_dose <- nga_dose %>% 
-  dplyr::left_join(dose3 %>% dplyr::select("hhid", "base_adeq", "dose3"), 
+  dplyr::left_join(dose5 %>% dplyr::select("hhid", "base_adeq", "dose5"), 
                    by = "hhid")
 
 # Remove objects not required further: 
-rm(list = c("base_ai", "dose3", "fortification_ai", "maizeflour_fortified", "rice_fortified", 
+rm(list = c("base_ai", "dose5", "fortification_ai", "maizeflour_fortified", "rice_fortified", 
             "wheatflour_fortified"))
 
 #-------------------------------------------------------------------------------
@@ -296,12 +391,14 @@ rm(list = c("base_ai", "dose3", "fortification_ai", "maizeflour_fortified", "ric
 
 nga_dose <- nga_dose %>% 
   dplyr::mutate(dose1 = ifelse(base_adeq == 0, dose1, NA),
-                dose2 = ifelse(base_adeq == 0, dose2, NA))
+                dose2 = ifelse(base_adeq == 0, dose2, NA),
+                dose3 = ifelse(base_adeq == 0, dose3, NA),
+                dose4 = ifelse(base_adeq == 0, dose4, NA))
 
 # Export csv file with relevant variables for further analysis: 
 
 nga_indicators <- nga_dose %>% 
-  dplyr::select("hhid", "base_adeq", "dose1", "dose2", "dose3") %>% 
+  dplyr::select("hhid", "base_adeq", "dose1", "dose2", "dose3", "dose4", "dose5") %>% 
   dplyr::left_join(vehicle_quantities %>% dplyr::select("hhid", "staple_grain"), 
                    by = "hhid")
 
@@ -329,7 +426,7 @@ base_ai <- read_csv("data_rich/fortification_models/data/eth_hices1516_base_ai.c
 ##### DOSE INDICATOR #1 #####
 #############################
 
-# Now create a second dose indicator, based on staple grain consumption delivering
+# Create a dose indicator, based on staple grain consumption delivering
 # 80% of the H-AR for all of the 5 MNs:
 
 # Firstly select staple grain quantities: 
@@ -423,6 +520,101 @@ rm(list = c("rice_contribution", "wheatflour_contribution", "maizeflour_contribu
 
 #############################
 ##### DOSE INDICATOR #3 #####
+#############################
+
+# Create a dose indicator, based on staple grain consumption delivering
+# 40% of the H-AR for all of the 5 MNs:
+
+# Firstly select staple grain quantities: 
+vehicle_quantities <- vehicle_quantities %>% 
+  dplyr::select("hhid", "rice_100g", "wheatflour_100g", "maizeflour_100g", 
+                "staplegrain_100g")
+
+# Transform all quantities to grams: 
+vehicle_quantities <- vehicle_quantities %>% 
+  dplyr::mutate_at(vars(-hhid), funs(. * 100)) %>% 
+  rename(rice_g = rice_100g, wheatflour_g = wheatflour_100g, 
+         maizeflour_g = maizeflour_100g, staplegrain_g = staplegrain_100g)
+
+# Calculate how much of the intake objective was contributed by each vehicle:
+
+rice_contribution <- vehicle_quantities %>% 
+  dplyr::mutate(vita_rae = rice_g / 131,
+                folate = rice_g / 77,
+                vitb12 = rice_g / 80,
+                fe = rice_g / 224,
+                zn = rice_g / 68) %>%
+  dplyr::select("hhid", "vita_rae", "folate", "vitb12", "fe", "zn") %>% 
+  dplyr::mutate_all(funs(replace(., is.na(.), 0)))
+
+wheatflour_contribution <- vehicle_quantities %>%
+  dplyr::mutate(vita_rae = NA,
+                folate = wheatflour_g / 57,
+                vitb12 = wheatflour_g / 47,
+                fe = NA,
+                zn = wheatflour_g / 37) %>%
+  dplyr::select("hhid", "vita_rae", "folate", "vitb12", "fe", "zn") %>% 
+  dplyr::mutate_all(funs(replace(., is.na(.), 0)))
+
+maizeflour_contribution <- vehicle_quantities %>%
+  dplyr::mutate(vita_rae = maizeflour_g / 245,
+                folate = maizeflour_g / 125,
+                vitb12 = maizeflour_g / 118,
+                fe = maizeflour_g / 597,
+                zn = maizeflour_g / 102) %>%
+  dplyr::select("hhid", "vita_rae", "folate", "vitb12", "fe", "zn") %>% 
+  dplyr::mutate_all(funs(replace(., is.na(.), 0)))
+
+# Now, sum the contributions of each vehicle to get the total contribution:
+staplegrain_contribution <- rice_contribution %>% 
+  dplyr::left_join(wheatflour_contribution, by = "hhid") %>%
+  dplyr::left_join(maizeflour_contribution, by = "hhid") %>% 
+  dplyr::mutate(vita_rae = vita_rae.x + vita_rae.y + vita_rae,
+                folate = folate.x + folate.y + folate,
+                vitb12 = vitb12.x + vitb12.y + vitb12,
+                fe = fe.x + fe.y + fe,
+                zn = zn.x + zn.y + zn) %>% 
+  dplyr::select("hhid", "vita_rae", "folate", "vitb12", "fe", "zn")
+
+# Now binarise variables, if >1, then 1, else 0:
+staplegrain_contribution <- staplegrain_contribution %>% 
+  dplyr::mutate(vita_rae = ifelse(vita_rae > 1, 1, 0),
+                folate = ifelse(folate > 1, 1, 0),
+                vitb12 = ifelse(vitb12 > 1, 1, 0),
+                fe = ifelse(fe > 1, 1, 0),
+                zn = ifelse(zn > 1, 1, 0))
+
+# Create dose 1 variable, if all MNs are met, then 1, else 0:
+staplegrain_contribution <- staplegrain_contribution %>% 
+  dplyr::mutate(dose3 = ifelse(rowSums(staplegrain_contribution[,2:6]) == 5, 1, 0))
+
+#-------------------------------------------------------------------------------
+
+#############################
+##### DOSE INDICATOR #4 #####
+#############################
+
+# This indicator is similar to the above, but only required the staple grain to 
+# deliver 40% of the H-AR for 3 or more MNs:
+
+staplegrain_contribution <- staplegrain_contribution %>% 
+  dplyr::mutate(dose4 = ifelse(rowSums(staplegrain_contribution[,2:6]) >= 3, 1, 0))
+
+#-------------------------------------------------------------------------------
+
+# Join dose3 and dose4 to eth_dose dataframe:
+eth_dose <- eth_dose %>% 
+  dplyr::left_join(staplegrain_contribution %>% 
+                     dplyr::select("hhid", "dose3", "dose4"), by = "hhid")
+
+# Remove objects no longer required: 
+rm(list = c("rice_contribution", "wheatflour_contribution", "maizeflour_contribution",
+            "staplegrain_contribution", "vehicle_quantities"))
+
+#-------------------------------------------------------------------------------
+
+#############################
+##### DOSE INDICATOR #5 #####
 #############################
 
 # Re-read the vehicle quantities data:
@@ -555,13 +747,13 @@ fortification_ai <- fortification_ai %>%
 
 # Now, use this data to create dose variable: 
 
-dose3 <- base_ai %>% 
+dose5 <- base_ai %>% 
   dplyr::select("hhid", "nut_adeq") %>%
   rename(base_adeq = nut_adeq) %>% 
   dplyr::left_join(fortification_ai %>% dplyr::select("hhid", "nut_adeq"), 
                    by = "hhid") %>%
   rename(fort_adeq = nut_adeq) %>% 
-  dplyr::mutate(dose3 = ifelse(base_adeq == 0 & fort_adeq == 1, 1,
+  dplyr::mutate(dose5 = ifelse(base_adeq == 0 & fort_adeq == 1, 1,
                                ifelse(base_adeq == 0 & fort_adeq == 0, 0, NA)))
 
 #-------------------------------------------------------------------------------
@@ -569,11 +761,11 @@ dose3 <- base_ai %>%
 # Add to eth_dose: 
 
 eth_dose <- eth_dose %>% 
-  dplyr::left_join(dose3 %>% dplyr::select("hhid", "base_adeq", "dose3"), 
+  dplyr::left_join(dose5 %>% dplyr::select("hhid", "base_adeq", "dose5"), 
                    by = "hhid")
 
 # Remove objects not required further: 
-rm(list = c("base_ai", "dose3", "fortification_ai", "maizeflour_fortified", "rice_fortified", 
+rm(list = c("base_ai", "dose5", "fortification_ai", "maizeflour_fortified", "rice_fortified", 
             "wheatflour_fortified"))
 
 #-------------------------------------------------------------------------------
@@ -585,14 +777,17 @@ rm(list = c("base_ai", "dose3", "fortification_ai", "maizeflour_fortified", "ric
 
 eth_dose <- eth_dose %>% 
   dplyr::mutate(dose1 = ifelse(base_adeq == 0, dose1, NA),
-                dose2 = ifelse(base_adeq == 0, dose2, NA))
+                dose2 = ifelse(base_adeq == 0, dose2, NA),
+                dose3 = ifelse(base_adeq == 0, dose3, NA),
+                dose4 = ifelse(base_adeq == 0, dose4, NA))
 
 
 
 # Export csv file with relevant variables for further analysis: 
 
 eth_indicators <- eth_dose %>% 
-  dplyr::select("hhid", "base_adeq", "dose1", "dose2", "dose3") %>% 
+  dplyr::select("hhid", "base_adeq", "dose1", "dose2", 
+                "dose3", "dose4", "dose5") %>% 
   dplyr::left_join(vehicle_quantities %>% dplyr::select("hhid", "staple_grain"), 
                    by = "hhid")
 
