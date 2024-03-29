@@ -48,13 +48,16 @@ Once you are happy that the code in your branch is ready to be merged into the m
 To start a pull request. Firstly "push" the branch that you have been working on. Now go to the MIMI GitHub repository, you should see your branch appear at the top of the page next to a green button labelled "Compare & pull request".
 
 <p align="center">
-<img width="700" alt="Screenshot 2024-02-19 at 15 11 33" src="https://github.com/kmtang/MIMI/assets/90572354/3790d37e-21ff-4126-aa3b-44609b028937">
+<img width="700" alt="Submit a pull request" src="https://github.com/kmtang/MIMI/assets/90572354/3790d37e-21ff-4126-aa3b-44609b028937">
 </p>
 
 Click this button, and you will be taken to a page where you can "open a pull request". Here you'll be asked to add a title and description for your pull request. You will also be given the opportunity to "Request a review". You should do this whenever you are making contributions to a project that somebody else is working on, by requesting a review from that person, they will be given an opportunity to review the changes and contributions that you have made before merging them into the main branch.
 
-If you have requested a review from someone, please make sure that you inform them that you have done so.
+If you have request a review from someone, please make sure that you inform them that you are doing so.
 
+<p align="center">
+<img width="700" alt="Request a review" src"https://github.com/kmtang/MIMI/assets/90572354/5304ab02-808d-4e5d-a48a-0a5619e1fa16">
+</p>
 
 Once you are happy with everything, click "Create pull request"
 
@@ -65,7 +68,7 @@ If you are the sole contributor to the project you have submitted the pull reque
 If you are a reviewer, you will find your review requests in the "pull requests" tab in the repository. Click on the request, and click "add your review".
 
 <p align="center">
-<img width="850" alt="pull_request" src="https://github.com/kmtang/MIMI/assets/90572354/edb614d9-d047-4c6f-9716-f48311f3c01d">
+<img width="850" alt="Merge pull request" src="https://github.com/kmtang/MIMI/assets/90572354/edb614d9-d047-4c6f-9716-f48311f3c01d">
 </p>
 <br>
 You will then be taken to a page where you are able to review the changes made. If you are happy with the changes made, you can click "Approve" and "Submit review". Otherwise you can submit feedback or request changes from your collaborator as required.
