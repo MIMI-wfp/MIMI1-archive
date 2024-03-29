@@ -18,7 +18,7 @@ This code repository has been created for collaborative coding and version contr
 Below is a directory tree that outlines the structure of the MIMI repository:
 ```
 MIMI/
-├─ README.md    <<<<<<<<<<<<<<<<<<<<<<<<<< YOU ARE HERE
+├─ README.md    
 ├─ CONTRIBUTING.md
 ├─ LICENSE
 ├─ MIMI.Rproj
@@ -58,4 +58,5 @@ If you would like gain contributor access to the MIMI repository, please contact
 
 ## Team
 
-(list team members and contact details here? - could also include photos if we wanted)
+(Add team contact details here?)
+
