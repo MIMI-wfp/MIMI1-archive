@@ -8,8 +8,8 @@ library(treemap)
 library(treemapify)
 library(hrbrthemes)
 
-source(here::here("all_base_models/scripts/base_model_functions.R"))
-source(here::here("dietary_assessment/processing/individual_level_clean.R"))
+source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
+source(here::here("data_rich/dietary_assessment/processing/individual_level_clean.R"))
 
 
 #read in base models
@@ -338,12 +338,12 @@ ess1819_all_items %>%
               se = sqrt(coverage*(1-coverage)/n()))
 
 # add in a food group variable for each survey from MDD-W
-hices_mdd_w <- read.csv(here::here("dietary_assessment/data/hices_mdd_w.csv"))
-hices_mdd_w_tubers <- read.csv(here::here("dietary_assessment/data/hices_mdd_w_tubers.csv"))
-ess_mdd_w <- read.csv(here::here("dietary_assessment/data/ess_mdd_w.csv"))
-nnmb_mdd_w <- read.csv(here::here("dietary_assessment/data/nnmb_mdd_w.csv"))
-nsso_mdd_w <- read.csv(here::here("dietary_assessment/data/nsso_mdd_w.csv"))
-fcs_mdd_w <- read.csv(here::here("dietary_assessment/data/fcs_mdd_w.csv"))
+hices_mdd_w <- read.csv(here::here("data_rich/dietary_assessment/data/hices_mdd_w.csv"))
+hices_mdd_w_tubers <- read.csv(here::here("data_rich/dietary_assessment/data/hices_mdd_w_tubers.csv"))
+ess_mdd_w <- read.csv(here::here("data_rich/dietary_assessment/data/ess_mdd_w.csv"))
+nnmb_mdd_w <- read.csv(here::here("data_rich/dietary_assessment/data/nnmb_mdd_w.csv"))
+nsso_mdd_w <- read.csv(here::here("data_rich/dietary_assessment/data/nsso_mdd_w.csv"))
+fcs_mdd_w <- read.csv(here::here("data_rich/dietary_assessment/data/fcs_mdd_w.csv"))
 
 ###### food group analyses #### 
 # defining it based on MDD-W because of Vit A food groups and ASF

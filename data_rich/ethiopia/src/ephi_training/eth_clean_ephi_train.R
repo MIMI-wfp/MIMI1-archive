@@ -1,7 +1,7 @@
 # Author: Gabriel Battcock
 # Collaborators: Mo Osman & Kevin Tang
 # Date created: 14-Feb-2024
-# Last edited: 26-Feb-2024
+# Last edited: 26-March-2024
 
 # File to make sure we have clean data for
 # EPHI training to be delivered March 2024
@@ -145,7 +145,7 @@ fortifiable_contributions <- fort_data %>%
 # ------------------------------------------------------------------------------
 
 # read in the hdds groups
-hices_hdds <- read_xlsx(here::here("data_rich/ethiopia/src/ephi_training/data/hices_hdds.xlsx"))
+hices_hdds <- readxl::read_xlsx(here::here("data_rich/ethiopia/src/ephi_training/data/hices_hdds.xlsx"))
 
 eth_hdds <- eth_hices1516_all_items %>% 
   select(hhid, item_code, quantity_g) %>% 
@@ -170,6 +170,42 @@ eth_hdds <- eth_hices1516_all_items %>%
     )
   ) 
   
+
+# ------------------------------------------------------------------------------
+# look at the food group that contributes the most to folate intake
+
+eth_micronutrient_food_groups <- eth_hices1516_all_items %>% 
+  # create a long table of mn itnake from each food group within a hoseuold
+  dplyr::select(-c(food_group)) %>% 
+  left_join(hices_mdd_w %>% 
+              tidyr::pivot_longer(cols = c(cereals,pulses,nuts_seeds,
+                                           dairy,asf,eggs,green_veg,vita_fruit_veg,
+                                           other_veg,other_fruit)) %>%
+              
+              dplyr::filter(!is.na(value)) %>%
+              dplyr::select(-value) %>%
+              dplyr::rename(food_group = name),by = "item_code") %>% 
+  dplyr::group_by(hhid,food_group) %>% 
+  mutate(across(-c(afe,item_code,item_name,quantity_g,value,quantity_100g),
+                ~.x*quantity_100g/afe)) %>% 
+  dplyr::summarise(
+    dplyr::across(
+      -c(afe,item_code,item_name,quantity_g,value,quantity_100g),
+      ~sum(.x, na.rm = TRUE)
+    )
+  ) 
+
+
+eth_food_group <- eth_micronutrient_food_groups %>% 
+  group_by(hhid) %>% 
+  select(hhid, folate_mcg, food_group) %>% 
+  mutate(max = max(folate_mcg)) %>% 
+  filter(max == folate_mcg) %>% 
+  select(!max) %>% 
+  rename(folate_from_foodgroup = folate_mcg,
+         folate_fg_cont = food_group)
+
+
 # 
 
 # no NAs in apparent intake
@@ -215,12 +251,20 @@ eth_analysis <-
   left_join(eth_under5,
             by = "hhid") %>% 
   left_join(fortifiable_contributions, by = 'hhid') %>% 
-  left_join(eth_hdds, by = "hhid")
+  left_join(eth_hdds, by = "hhid") 
+# %>% 
+  # left_join(eth_food_group %>% 
+  #             distinct(hhid, .keep_all = T), by = "hhid") %>% 
+  # mutate(folate_from_foogroup = folate_from_foodgroup/folate_mcg)
 
 names(eth_analysis)
 
 summary(eth_analysis)
 
 haven::write_dta(eth_analysis, "data_rich/ethiopia/src/ephi_training/data/hices1516.dta")
+write_csv(eth_analysis, "data_rich/ethiopia/src/ephi_training/data/hices1516.csv")
 
 names(eth_analysis)
+
+eth_analysis %>% 
+  as_survey_design(psu)

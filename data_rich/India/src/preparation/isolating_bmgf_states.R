@@ -30,26 +30,26 @@ names(block_4_demog)
 
 dim(block_4_demog)
 # 
-isolate_states <- function(block){
-
-  block <- block %>%
-    {if('State_Code'%in% names(.)) rename(., "State_code" = "State_Code") else .} %>%
-    filter(State_code == "09" |State_code == "10" | State_code == "22")
-  # | State_code == "21" )
-             # State_code == "19" |State_code == "20" | State_code == "23" |State_code == "28" | State_code == "02")
-  block
-}
-
-block_1_2_identification <- isolate_states(block_1_2_identification)
-block_3_level_2_household_char <- isolate_states(block_3_level_2_household_char)
-block_4_demog <- isolate_states(block_4_demog)
-block_5_6_food_consumption <- isolate_states(block_5_6_food_consumption)
-block_7_8_clothing_consumption <- isolate_states(block_7_8_clothing_consumption)
-block_9_edu_expenditure <- isolate_states(block_9_edu_expenditure)
-block_10_misc_expenditure <- isolate_states(block_10_misc_expenditure)
-block_11_construction_expenditure <- isolate_states(block_11_construction_expenditure)
-block_12_consumer_expenditure <- isolate_states(block_12_consumer_expenditure)
-block_13_yoga_ayurveda <- isolate_states(block_13_yoga_ayurveda)
+# isolate_states <- function(block){
+# 
+#   block <- block %>%
+#     {if('State_Code'%in% names(.)) rename(., "State_code" = "State_Code") else .} %>%
+#     filter(State_code == "09" |State_code == "10" | State_code == "22")
+#   # | State_code == "21" )
+#              # State_code == "19" |State_code == "20" | State_code == "23" |State_code == "28" | State_code == "02")
+#   block
+# }
+# 
+# block_1_2_identification <- isolate_states(block_1_2_identification)
+# block_3_level_2_household_char <- isolate_states(block_3_level_2_household_char)
+# block_4_demog <- isolate_states(block_4_demog)
+# block_5_6_food_consumption <- isolate_states(block_5_6_food_consumption)
+# block_7_8_clothing_consumption <- isolate_states(block_7_8_clothing_consumption)
+# block_9_edu_expenditure <- isolate_states(block_9_edu_expenditure)
+# block_10_misc_expenditure <- isolate_states(block_10_misc_expenditure)
+# block_11_construction_expenditure <- isolate_states(block_11_construction_expenditure)
+# block_12_consumer_expenditure <- isolate_states(block_12_consumer_expenditure)
+# block_13_yoga_ayurveda <- isolate_states(block_13_yoga_ayurveda)
 
 # 
 # unique(block_5_6_food_consumption$Item_Code)
@@ -70,7 +70,7 @@ block_13_yoga_ayurveda <- isolate_states(block_13_yoga_ayurveda)
 # write_csv(block_13_yoga_ayurveda, paste0(path_to_save, "block_13_yoga_ayurveda.csv"))
 
 
-path_to_save2 <- "~/Documents/MIMI/data_science_code/nss68_consumer_expenditure_type_1_1/"
+path_to_save2 <- "~/Documents/MIMI/data_science_code/DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012/"
 
 write_csv(block_1_2_identification,paste0(path_to_save2, "Identification of Sample Household - Block 1 and 2 - Level 1 -  68.csv"))
 write_csv(block_3_level_2_household_char,paste0(path_to_save2, "Household Characteristics - Block 3 -  Level 2 -  68.csv"))
