@@ -19,14 +19,14 @@ library(gt)
 
 
 source(here::here("all_base_models/scripts/base_model_functions.R"))
-source(here::here("dietary_assessment/processing/individual_level_clean.R"))
+source(here::here("data_rich/dietary_assessment/processing/individual_level_clean.R"))
 
 # India ------------------------------------------------------------------------
 
-base_model <- read_csv(here::here("India_analysis/data/final/extra_states/base_model.csv"))
-india_adm2 <- st_read(here::here("India_analysis/data/processed/extra_states/district_shape.shp"))
-india_adm1 <- st_read(here::here("India_analysis/data/processed/state_shape.shp"))
-household_characteristics <- read_csv(paste0("India_analysis/data/processed/extra_states/household_char.csv"))
+base_model <- read_csv(here::here("data_rich/India/data/final/extra_states/base_model.csv"))
+india_adm2 <- st_read(here::here("data_rich/India/processed/extra_states/district_shape.shp"))
+india_adm1 <- st_read(here::here("data_rich/India/data/processed/state_shape.shp"))
+household_characteristics <- read_csv(paste0("data_rich/India/data/processed/extra_states/household_char.csv"))
 # x <-  india_adm2%>% dplyr::anti_join(base_model, by = c("Dstrct_c" = "District_code"))
 
 # create average intakes at adm2 level 
