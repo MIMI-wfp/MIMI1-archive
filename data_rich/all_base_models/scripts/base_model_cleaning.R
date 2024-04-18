@@ -3,6 +3,7 @@
 ### 12-12-2023
 
 # Script updated on 22-03-2024 to integrate food composition matches from Katie
+# Updated to include Rupi's updates to food matching on India FCT.
 # Adams
 
 library(tidyr)
@@ -43,20 +44,31 @@ nsso_food_consumption <- nsso_food_consumption %>%
 
 write_csv(nsso_food_consumption, paste0(path_to_save,"ind_nss1112_food_consumption.csv"))
 
+# 
+# nsso_fct <- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_matched_fct.csv"))
+nsso_fct <- read_xlsx(paste0(path_to_data, "India/India_NSSO_2012/nsso_fct_20240417.xlsx"), sheet = 1)
 
-nsso_fct <- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_matched_fct.csv"))
+
+
 # nsso_fct <- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/matched_fct.csv")
-nsso_fct <- nsso_fct %>%  
+nsso_fct <- nsso_fct %>%
+  select(-ends_with(
+    c(
+      "_id",
+      "_name",
+      "_source"
+    )
+  )) %>% 
   
   rename(
-    item_code = Item_Code,
-    vita_rae_mcg = vita_mg,
+    # item_code = Item_Code,
+    vita_rae_mcg = vita_mcg,
     folate_mcg = folate_ug,
-    vitb12_mcg = vitaminb12_in_mg,
+    vitb12_mcg = vitaminb12_in_mcg,
     fe_mg = iron_mg,
     ca_mg = calcium_mg,
     zn_mg = zinc_mg,
-    na_mg = sodium_mg,
+    # na_mg = sodium_mg,
     thia_mg = vitb1_mg,
     ribo_mg = vitb2_mg,
     niac_mg = vitb3_mg,
