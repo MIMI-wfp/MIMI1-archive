@@ -8,7 +8,7 @@ library(ggplot2)
 
 path_to_file <- here::here("data_rich/all_base_models/data/")
 
-path_to_file <- here::here("data_rich/all_base_models/data/current/")
+# path_to_file <- here::here("data_rich/all_base_models/data/current")
 
 
 allen_ear <- data.frame(
@@ -96,7 +96,7 @@ apparent_intake <- function(name_of_survey){
     mutate(
       across(
         -c(item_code, hhid,item_name ,food_group, quantity_100g, quantity_g),
-        ~.x*quantity_100g
+        ~ifelse(is.na(.x), 0, .x*quantity_100g)
       )
     ) %>% 
     group_by(hhid) %>% 
@@ -114,6 +114,8 @@ apparent_intake <- function(name_of_survey){
     ungroup()
   x
 }
+
+nsso_fct
 
 
 
