@@ -14,7 +14,7 @@ lapply(rq_packages, require, character.only = T)
 rm(list= c("rq_packages", "installed_packages"))
 
 source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
-source(here::here("data_rich/dietary_assessment/processing/individual_level_clean.R"))
+# source(here::here("data_rich/dietary_assessment/processing/individual_level_clean.R"))
 
 # create some data frame
 ind_targets <- ind_nsso1112 %>% 
@@ -71,9 +71,22 @@ eth_nga_ind_targets <- ethiopia_nigeria_targets %>%
   bind_rows(ind_targets) %>% 
   select(-X)
 
+
 # save the data
 
 write.csv(eth_nga_ind_targets,
           file = "~/Documents/MIMI/code/data_rich/data_requests/ram_mimi20240418/ethiopia_nigeria_india_targets.csv")
 
+#### test some of the data 
 
+
+ind_targets %>% 
+  mutate(vita_inad = ifelse(va_ai>va_ref,1,0),
+         iron_inad = ifelse(fe_ai>fe_ref,1,0),
+         vitb12_inad = ifelse(vb12_ai>vb12_ref,1,0)) %>% 
+  summarise(sum(vitb12_inad))
+
+
+
+ind_nsso1112 %>% 
+  summarise(mean(vita_rae_mcg))

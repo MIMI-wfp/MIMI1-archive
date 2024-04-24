@@ -46,6 +46,8 @@ nin_ear <- data.frame(
 )
 unique(base_model$State_code)
 
+# create NAR values ------------------------------------------------------------
+
 sw_mean_intake <- base_model %>% 
   dplyr::left_join(
     household_characteristics %>% 
@@ -98,6 +100,8 @@ sw_mean_intake <- base_model %>%
   srvyr::as_survey_design(id = HHID, strata = District_code,
                           weights = Combined_multiplier, nest=T)
 
+# syrvey weights --------------------------------------------------------------
+
 intake <- base_model %>%
   dplyr::left_join(
     household_characteristics %>% 
@@ -134,6 +138,8 @@ sw_mean_intake_district_tot <- sw_mean_intake %>%
   dplyr::ungroup() %>% 
   st_as_sf()
 
+# split UR ---------------------------------------------------------------------
+
 sw_mean_intake_district_urb_rural <- sw_mean_intake %>%
   srvyr::group_by(District_code, HH_Type_code) %>% 
   srvyr::summarise(
@@ -148,8 +154,6 @@ sw_mean_intake_district_urb_rural <- sw_mean_intake %>%
   st_as_sf()
   
 
-
-# showing which states we are using
 
 india_sp <- india_adm1 %>%
   dplyr::mutate(
@@ -166,6 +170,9 @@ india_sp <- india_adm1 %>%
 states_sp <- india_sp %>% 
   dplyr::filter(state == 1)
 
+
+
+
 # Create maps: 
   india_co <- tm_shape(india_sp) + 
     tm_fill(col = "state") +
@@ -178,10 +185,29 @@ states_sp <- india_sp %>%
     # tm_fill(col = "state") +
     tm_borders(col = "black", lwd = 1) +
     tm_legend(show = F)
-  
 
-# rm(breaks)
-# 
+# create map function ----------------------------------------------------------
+  
+create_map <- function(shape_file, micronutrient, adm1_shape){
+  output_map <- tm_shape(shape_file) + 
+      tm_fill(col = micronutrient, style = "cont", breaks = seq(0,1,by=.10),
+              # c(1000,1550,2100,2650,3200),
+              palette = rev(wesanderson::wes_palette("Zissou1Continuous")),
+              title = "")+
+      tm_layout(main.title =  "", 
+                frame = F,
+                main.title.size = 0.8) +
+      tm_borders(col = "black", lwd = 0)+
+      tm_shape(adm1_shape) + 
+      # tm_fill(col = "state") +
+      tm_borders(col = "black", lwd = 1.5)+
+      tm_legend(show = F)
+  
+  output_map
+}
+  
+  
+  
 energy_adm2 <- tm_shape(sw_mean_intake_district_tot) + 
   tm_fill(col = "energy_kcal", style = "cont", breaks = seq(0,1,by=.10),
             # c(1000,1550,2100,2650,3200),
