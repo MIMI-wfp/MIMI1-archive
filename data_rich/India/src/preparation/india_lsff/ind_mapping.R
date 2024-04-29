@@ -4,7 +4,7 @@
 
 # Author: Gabriel Battcock
 # Created: 23 Apr 24
-# Last updated: 23 Apr 24
+# Last updated: 25 Apr 24
 
 rq_packages <- c("tidyverse","dplyr","readr","srvyr","ggplot2",
                  "ggridges", "gt", "haven","foreign",
@@ -142,16 +142,21 @@ ind_micronutrient_maps <- function (adm_selection, micronutrient){
 
   # create a string vavrialbe of the micronutrient we're looking at 
   column_name <-  paste0("mean_",deparse(substitute(micronutrient)))
-  title_name <- toupper(gsub("_", " ",deparse(substitute(micronutrient))))
+  title_name <- stringr::str_to_title(gsub("_", " ",deparse(substitute(micronutrient))))
 
   # create the map
   tm_shape(shape_file) +
     tm_fill(col = column_name, style = "cont",
             #breaks = seq(0,1,by=.10),
             palette = rev(wesanderson::wes_palette("Zissou1Continuous")),
-            title = title_name ) +
+            title = title_name ,
+            legend.is.portrait = FALSE
+            ) +
     tm_layout(main.title = , frame = F,
-              main.title.size = 0.8) +
+              main.title.size = 0.8,
+              legend.outside.position = "bottom",
+              legend.outside.size = 0.35
+              ) +
     tm_borders(col = "black", lwd = 0) +
     tm_shape(india_adm1) +
     # tm_fill(col = "state") +
@@ -159,14 +164,68 @@ ind_micronutrient_maps <- function (adm_selection, micronutrient){
     tm_legend(show = T)
 }
 
-ind_micronutrient_maps("adm2", vita_rae_mcg)
+ind_micronutrient_maps("adm2", vita_rae_mcg) +
+  tm_layout(
+    main.title = "Vitamin A"
+   
+  ) 
+  
 
 
 # maps for maps
 
-ind_micronutrient_maps('adm2', lysine_g)
+ind_micronutrient_maps('adm2', lysine_g)+
+  tm_layout(main.title = "Lysine", frame = F,
+            main.title.size = 0.8)
 
-ind_micronutrient_maps('adm2', protein_g)
+ind_micronutrient_maps('adm2', protein_g)+
+  tm_layout(main.title = "Protein", frame = F,
+            main.title.size = 0.8)
 
-ind_micronutrient_maps('adm2', tryptophan_g 
-                       )
+ind_micronutrient_maps('adm2', tryptophan_g ) +
+  tm_layout(main.title = "Tryptophan", frame = F,
+            main.title.size = 0.8)
+
+
+
+x <- india_adm1 %>% 
+  mutate(highlight = ifelse(
+    NAME_1 %in% c(
+      "Andhra Pradesh",
+      "Himachal Pradesh",
+      "Telangana",
+      "Madhya Pradesh",
+      "West Bengal",
+      "Jharkhand",
+      "Odisha"
+    ),
+    1,
+    ifelse(
+      NAME_1 %in% c(
+        "Chhattisgarh",
+        "Bihar",
+        "Uttar Pradesh"
+        
+      ),
+      2,0
+    )
+    )
+    ) %>% 
+  st_as_sf()
+
+r <- intake_aggregate(adm2, lysine_g)
+# 2218 with lowest
+
+ind_nsso1112_hh_info %>% 
+  filter(adm2 == 2218)
+
+tm_shape(x) +
+  tm_fill(col = "highlight",
+          legend.show =  FALSE
+          # , 
+          #breaks = seq(0,1,by=.10),
+          # palette = rev(wesanderson::wes_palette("Zissou1Continuous")),
+          # title = title_name ,
+          # legend.is.portrait = FALSE
+  ) 
+  

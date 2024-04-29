@@ -48,15 +48,30 @@ district <- st_read("~/Documents/LSHTM/WFP_project/data/shrug-pc11dist-poly-shp/
 district <- district %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
 plot(district$geometry)
 
+shrug_adm2_names <- district %>%  sf::st_drop_geometry(data_all)
+write.csv(shrug_adm2_names, "/Users/gabrielbattcock/Documents/MIMI/code/data_rich/India/data/shrug_adm2.csv")
+# gadm2
 gadm_adm2 <- st_read(here::here("../MIMI_data/India/gadm41_IND_shp/gadm41_IND_2.shp"))
 gadm_adm2 <- gadm_adm2 %>%  ms_simplify(keep  = 0.1, keep_shapes = T, snap = T) 
 
+#gadm3
+gadm2_adm3 <- st_read(here::here("../MIMI_data/India/gadm41_IND_shp/gadm41_IND_3.shp"))
+delhi_gadm3 <- gadm2_adm3 %>% filter(NAME_1 =="NCT of Delhi")
 
-
+# 
 x <- gadm_adm2 %>% sf::st_drop_geometry(data_all) %>% select(
   NAME_1, NAME_2, GID_1, GID_2
 )
-write.csv(x, "/Users/gabrielbattcock/Documents/MIMI/code/data_rich/India/data/shapefile_names.csv")
+
+delhi_gadm2 = x %>% filter(NAME_1 =="NCT of Delhi")
+plot(delhi_gadm2 $geometry)
+
+delhi_shp <-district %>% filter(pc11_s_id =="07")
+plot(delhi_shp$geometry)
+
+plot(delhi_gadm3$geometry)
+
+ write.csv(x, "/Users/gabrielbattcock/Documents/MIMI/code/data_rich/India/data/shapefile_names.csv")
 
 
 #################################################################################
