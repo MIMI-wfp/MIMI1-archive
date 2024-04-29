@@ -36,8 +36,8 @@ district <- district %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
 x <- district %>% dplyr::select(pc11_s_id, d_name, pc11_d_id) %>% filter(pc11_s_id%in%c("02","19","20","23","28"))
 #state
 
-# state <- st_read(here::here("../gadm41_IND_shp/gadm41_IND_1.shp"))
-# state <- state %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
+state <- st_read(here::here("../MIMI_data/India/gadm41_IND_shp/gadm41_IND_1.shp"))
+state <- state %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
 # plot(state$geometry)
 # plot(district$geometry)
 
@@ -68,7 +68,7 @@ x <- district %>% dplyr::select(pc11_s_id, d_name, pc11_d_id) %>% filter(pc11_s_
 
 # bmgf_states <- bmgf_states %>% dplyr::select(State_code,District_code,District_name,pc11_d_id, geometry)
  # write_sf(bmgf_states, "./India_analysis/data/processed/extra_states/district_shape.shp")
-# write_sf(state, "./India_analysis/data/processed/state_shape.shp")
+write_sf(state, here::here("data_rich/India/data/processed/state_shape.shp"))
 
 # household level --------------------------------------------------------------
 

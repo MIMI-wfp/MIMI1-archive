@@ -22,21 +22,23 @@ library(dplyr)
 library(gt)
 library(sjmisc)
 
-source("India_analysis/src/processing/food_matching.R")
+source(here::here("data_rich/India/src/processing/food_matching.R"))
 
 # read in cleaned and mathced data
-path_to_data = here::here("India_analysis", "data", "processed/")
+# path_to_data = here::here("India_analysis", "data", "processed/")
 
-# path_to_data = here::here("India_analysis", "data", "processed", "extra_states/")
+path_to_data = here::here("data_rich","India", "data", "processed", "extra_states/")
 
 consumption <- read_csv(paste0(path_to_data, "consumption.csv"))
+
 unique(consumption$State_code)
 demographics <- read_csv(paste0(path_to_data,"demographics.csv"))
+
 household_characteristics <- read_csv(paste0(path_to_data, "household_char.csv"))
 
-india_fct <- read_csv(paste0(path_to_data, "matched_fct.csv"))
-conversion <- read_csv(paste0(path_to_data, "conversion_factors.csv"))
-hdds <- read_csv(here::here("India_analysis", "data", "raw","hdds_nsso.csv"))
+india_fct <- read_csv(here::here("data_rich","India", "data", "processed", "matched_fct.csv"))
+conversion <- read_csv(here::here("data_rich","India", "data", "processed", "conversion_factors.csv"))
+hdds <- read_csv(here::here("data_rich", "India", "data", "raw","hdds_nsso.csv"))
 
 sum_or_function <- function(x){
   #### TO DO ## explain the function
@@ -162,7 +164,7 @@ household_daily <-consumption %>%
   dplyr::rename(hdds_groups = name)
 
 
-# write.csv(household_daily,paste0(path_to_data, "india_daily_consumption.csv"))
+write.csv(household_daily,paste0(path_to_data, "india_daily_consumption.csv"))
 
 
 
@@ -245,7 +247,7 @@ household_afe <-
       afe = sum(afe)
     )
 
-# write.csv(household_afe, paste0(path_to_data, "india_afe.csv"))
+write.csv(household_afe, paste0(path_to_data, "india_afe.csv"))
 
 # %>% 
   # left_join(household_characteristics %>% select(HHID,HH_Size), by = "HHID")
@@ -636,7 +638,7 @@ x <- food_items_grouped %>%
   dplyr::filter(HHID == "412001102")
 
 write_csv(micronutrient_distributions, here::here(
-  "India_analysis/data/final/extra_states/base_model.csv"
+  "data_rich/India/data/final/extra_states/base_model.csv"
 ))
 
 micronutrient_distributions %>% 

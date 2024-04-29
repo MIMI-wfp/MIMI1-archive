@@ -16,8 +16,8 @@ x <- hices1516 %>%
   left_join(hices_hh_info , by = "hhid") %>% 
   mutate(b12_nar = ifelse(vitb12_mcg<=2,vitb12_mcg/2, 1 )) %>% 
   group_by(adm1,adm2) %>% 
-  summarise(median_b12_nar = mean(b12_nar)) %>% 
-  left_join(kev_eth_codes, by = c("adm1" = "CQ11", "adm2" = "CQ12")) %>% 
+  summarise(median_b12_nar = median(b12_nar)) %>% 
+  left_join(kev_eth_codes %>% mutate(adm2 = paste0(CQ11,"_",CQ12)), by = 'adm2') %>% 
   left_join(eth_shp, by = "GID_2") 
   
   
