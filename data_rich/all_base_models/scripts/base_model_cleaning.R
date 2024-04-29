@@ -2,9 +2,11 @@
 ### MIMI
 ### 12-12-2023
 
-# Script updated on 22-03-2024 to integrate food composition matches from Katie
+
+# LAST UPDATED BY MO OSMAN ON 20-04-24, TO UPDATE NGA FOOD COMPOSITION TABLES
 # Updated to include Rupi's updates to food matching on India FCT.
-# Adams
+
+
 
 library(tidyr)
 library(readr)
@@ -16,9 +18,9 @@ library(ggplot2)
 library(readxl)
 
 
-path_to_data <- "~/Documents/MIMI/MIMI_data/"
+path_to_data <- "MIMI_data/"
 path_to_save <- here::here("data_rich/all_base_models/data/")
-# path_to_save <-  here::here("data_rich/India/data/processed/lsff/")
+
 
 setwd(here::here())
 
@@ -80,7 +82,6 @@ write_csv(nsso_fct, paste0(path_to_save,"ind_nss1112_fct.csv"))
 
 
 # rm(nsso_afe)
-rm(nsso_basics)
 rm(nsso_food_consumption)
 rm(nsso_fct)
 # rm(nsso_afe)
@@ -155,7 +156,7 @@ write_csv(hices_fct, paste0(path_to_save,"eth_hices1516_fct.csv"))
 
 rm(hices_fct)
 rm(hices_food_consumption)
-rm(hices_afe)
+# rm(hices_afe)
 
 # ESS --------------------------------------------------------------------------
 
@@ -388,7 +389,9 @@ nga_fct <- nga_fct %>%
 # fct 
 
 as_tibble(nga_fct)
-write_csv(nga_fct, paste0(path_to_save,"nga_lss1819_fct.csv"))
+
+# THIS IS THE OLD FCT WHICH WILL NOW BE REPLACED BY KATIE ADAMS FCT:
+# write_csv(nga_fct, paste0(path_to_save,"nga_lss1819_fct.csv"))
 
 rm(nga_fct)
 
@@ -420,7 +423,8 @@ KA_nga_fct <- KA_nga_fct %>%
 as.tibble(KA_nga_fct)
 
 # Write this alternative fct to csv: 
-write_csv(KA_nga_fct, "data_rich/all_base_models/data/KA_nga_lss1819_fct/KAnga_lss1819_fct.csv")
+write_csv(KA_nga_fct, paste0(path_to_save,"current/nga_lss1819_fct.csv"))
+
 
 rm(nga_food_consumption)
 

@@ -13,7 +13,7 @@
 # INSTALL AND LOAD PACKAGES:
 
 rq_packages <- c("readr", "tidyverse", "ggplot2", "srvyr", "wesanderson", 
-                 "gridExtra", "gt", "gtsummary")
+                 "gridExtra", "gt", "gtsummary", "plotrix", "ggsci")
 
 installed_packages <- rq_packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -136,6 +136,123 @@ nigeria_all_data$nga_food_consumption %>%
 
 #-------------------------------------------------------------------------------
 
+# STACKED HISTOGRAMS:
+
+# NIGERIA
+
+# Need to create a new variable to indicate which combination of staple grains 
+# each household is consuming: 
+nigeria_all_data$nga_vehicle_quantities <- nigeria_all_data$nga_vehicle_quantities %>% 
+  mutate(which_grain = dplyr::case_when(
+    rice == "Yes" & wheatflour == "No" & maizeflour == "No" ~ "Rice only",
+    rice == "No" & wheatflour == "Yes" & maizeflour == "No" ~ "Wheat flour only",
+    rice == "No" & wheatflour == "No" & maizeflour == "Yes" ~ "Maize flour only",
+    rice == "Yes" & wheatflour == "Yes" & maizeflour == "No" ~ "Rice and wheat flour",
+    rice == "Yes" & wheatflour == "No" & maizeflour == "Yes" ~ "Rice and maize flour",
+    rice == "No" & wheatflour == "Yes" & maizeflour == "Yes" ~ "Wheat and maize flour",
+    rice == "Yes" & wheatflour == "Yes" & maizeflour == "Yes" ~ "Rice, wheat flour and maize flour"
+  ))
+
+# relevel:
+nigeria_all_data$nga_vehicle_quantities$which_grain <- 
+  factor(nigeria_all_data$nga_vehicle_quantities$which_grain, 
+         levels = c("Rice only", "Wheat flour only", "Maize flour only", 
+                    "Rice and wheat flour", "Rice and maize flour", 
+                    "Wheat and maize flour", "Rice, wheat flour and maize flour"))
+
+# Get quantity of staple grain consumption in grams: 
+nigeria_all_data$nga_vehicle_quantities$staplegrain_g <-
+  nigeria_all_data$nga_vehicle_quantities$staplegrain_100g * 100
+
+# Colour palette: 
+stack_palette <- scale_colour_locuszoom()
+stack_palette <- environment(environment(stack_palette[["palette"]])[["f"]])[["values"]]
+
+histStack(staplegrain_g ~ which_grain, data = nigeria_all_data$nga_vehicle_quantities, 
+          main = "Nigeria - LSS 2018-2019",
+          legend.pos = "none", xlim = c(0, 600), col = stack_palette, 
+          breaks = 40, xlab = "Staple grain consumption (grams per day, per AFE)",
+          ylab = "Number of households")
+
+# Create another version with a legend: 
+histStack(staplegrain_g ~ which_grain, data = nigeria_all_data$nga_vehicle_quantities, 
+          main = "Nigeria - LSS 2018-2019",
+          legend.pos = "topright", xlim = c(0, 600), col = stack_palette, 
+          breaks = 40, xlab = "Staple grain consumption (grams per day, per AFE)",
+          ylab = "Number of households")
+
+# Save from viewer
+
+# ETHIOPIA
+
+# Need to create a new variable to indicate which combination of staple grains
+# each household is consuming:
+
+ethiopia_all_data$eth_vehicle_quantities <- ethiopia_all_data$eth_vehicle_quantities %>% 
+  mutate(which_grain = dplyr::case_when(
+    rice == "Yes" & wheatflour == "No" & maizeflour == "No" ~ "Rice only",
+    rice == "No" & wheatflour == "Yes" & maizeflour == "No" ~ "Wheat flour only",
+    rice == "No" & wheatflour == "No" & maizeflour == "Yes" ~ "Maize flour only",
+    rice == "Yes" & wheatflour == "Yes" & maizeflour == "No" ~ "Rice and wheat flour",
+    rice == "Yes" & wheatflour == "No" & maizeflour == "Yes" ~ "Rice and maize flour",
+    rice == "No" & wheatflour == "Yes" & maizeflour == "Yes" ~ "Wheat and maize flour",
+    rice == "Yes" & wheatflour == "Yes" & maizeflour == "Yes" ~ "Rice, wheat flour and maize flour"
+  ))
+
+# relevel: 
+ethiopia_all_data$eth_vehicle_quantities$which_grain <- 
+  factor(ethiopia_all_data$eth_vehicle_quantities$which_grain, 
+         levels = c("Rice only", "Wheat flour only", "Maize flour only", 
+                    "Rice and wheat flour", "Rice and maize flour", 
+                    "Wheat and maize flour", "Rice, wheat flour and maize flour"))
+
+# Get quantity of staple grain consumption in grams:
+ethiopia_all_data$eth_vehicle_quantities$staplegrain_g <-
+  ethiopia_all_data$eth_vehicle_quantities$staplegrain_100g * 100
+
+histStack(staplegrain_g ~ which_grain, data = ethiopia_all_data$eth_vehicle_quantities, 
+          main = "Ethiopia - HICES 2015-2016",
+          legend.pos = "none", xlim = c(0, 600), col = stack_palette, 
+          breaks = 100, xlab = "Staple grain consumption (grams per day, per AFE)",
+          ylab = "Number of households")
+
+# INDIA
+
+# Need to create a new variable to indicate which combination of staple grains
+# each household is consuming:
+
+india_all_data$ind_vehicle_quantities <- india_all_data$ind_vehicle_quantities %>% 
+  mutate(which_grain = dplyr::case_when(
+    rice == "Yes" & wheatflour == "No" & maizeflour == "No" ~ "Rice only",
+    rice == "No" & wheatflour == "Yes" & maizeflour == "No" ~ "Wheat flour only",
+    rice == "No" & wheatflour == "No" & maizeflour == "Yes" ~ "Maize flour only",
+    rice == "Yes" & wheatflour == "Yes" & maizeflour == "No" ~ "Rice and wheat flour",
+    rice == "Yes" & wheatflour == "No" & maizeflour == "Yes" ~ "Rice and maize flour",
+    rice == "No" & wheatflour == "Yes" & maizeflour == "Yes" ~ "Wheat and maize flour",
+    rice == "Yes" & wheatflour == "Yes" & maizeflour == "Yes" ~ "Rice, wheat flour and maize flour"
+  ))
+
+# relevel: 
+india_all_data$ind_vehicle_quantities$which_grain <- 
+  factor(india_all_data$ind_vehicle_quantities$which_grain, 
+         levels = c("Rice only", "Wheat flour only", "Maize flour only", 
+                    "Rice and wheat flour", "Rice and maize flour", 
+                    "Wheat and maize flour", "Rice, wheat flour and maize flour"))
+
+# Get quantity of staple grain consumption in grams:
+india_all_data$ind_vehicle_quantities$staplegrain_g <-
+  india_all_data$ind_vehicle_quantities$staplegrain_100g * 100
+
+histStack(staplegrain_g ~ which_grain, data = india_all_data$ind_vehicle_quantities, 
+          main = "India - NSS 2011-2012",
+          legend.pos = "none", xlim = c(0, 600), col = stack_palette, 
+          breaks = 175, xlab = "Staple grain consumption (grams per day, per AFE)",
+          ylab = "Number of households")
+
+# save from viewer
+
+#-------------------------------------------------------------------------------
+
 # STAPLE GRAIN QUANTITIES BY COUNTRY: 
 
 # Firstly create a new data-frame to include quantities from all countries, this
@@ -174,8 +291,8 @@ ggplot(data = country_quantities,
        y = "Quantity consumed of all potentially fortifiable staple grains \n(grams per day, per AFE)",
        caption = "* Horizontal black line indicates median consumption")
 
-ggsave("data_constrained/LSFF_indicators/figures/staplegrains_violin.png", width = 6.5, height = 5.5,
-       dpi = 600)
+# ggsave("data_constrained/LSFF_indicators/figures/staplegrains_violin.png", width = 6.5, height = 5.5,
+       # dpi = 600)
 
 # Remove unwanted objects: 
 rm(list = c("country_quantities", "colour_fill"))
@@ -366,7 +483,8 @@ source("data_constrained/LSFF_indicators/scripts/eda_indicators_functions.R")
 # Nigeria:
 stratified_plots(nigeria_all_data$svy_nga_indicators)
 
-nga_reach_plot <- reach_plot + theme(legend.position = "none") + labs(title = "Nigeria")
+nga_reach_plot <- reach_plot + theme(legend.position = "right") + labs(title = "Nigeria")
+
 nga_dose_plot <- dose_plot + theme(legend.position = "none") + labs(title = "Nigeria")
 nga_reach_dose <- reach_dose_plot + theme(legend.position = "none") + 
   labs(caption = "Potentially fortifiable staple grains: Rice, Wheat flour, Maize flour",
