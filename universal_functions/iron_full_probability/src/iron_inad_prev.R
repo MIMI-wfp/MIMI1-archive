@@ -27,7 +27,8 @@ fe_full_prob <- function(data, group1 = NULL, group2 = NULL, bio_avail = 5){
       mutate(prob_inad = 
                case_when(
                  bio_avail == 5 ~
-                   case_when(                            # Dividing intake distribution into probability of inadequacy catagories 
+                   case_when(
+                     # Dividing intake distribution into probability of inadequacy catagories 
                       ai_afe <= 15 ~ "1",
                       ai_afe <= 16.7 & ai_afe > 15 ~ "0.96",
                       ai_afe <= 18.7 & ai_afe > 16.7 ~ "0.93",
