@@ -138,7 +138,7 @@ prevalence_aggregate <- function( aggregate_level, micronutrient, path_to_file =
         pivot_longer(cols = -hhid, names_to = "nutrient") %>% 
         left_join(nin_ear, by= "nutrient"),
       by = "hhid"
-    )%>% 
+    ) %>% 
     mutate(inad = ifelse(value<ear_value,1,0)) %>% 
     as_survey_design(
       ids = hhid,
