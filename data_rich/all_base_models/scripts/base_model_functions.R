@@ -6,28 +6,45 @@
 library(ggplot2)
 
 
-path_to_file <- here::here("data_rich/all_base_models/data/")
 
 path_to_file <- here::here("data_rich/all_base_models/data/current/")
 
 
 allen_ear <- data.frame(
-  energy_kcal = 2100,#who
-  vita_rae_mcg  = 490, 
-  thia_mg = 0.9,
-  ribo_mg = 1.3, 
-  niac_mg = 11, 
-  vitb6_mg = 1.3, 
-  folate_mcg = 250, 
-  vitb12_mcg = 2, 
-  fe_mg = 22.4, #low absorption
-  ca_mg = 860, 
-  zn_mg = 10.2# unrefined
+  nutrient = c(
+    "energy_kcal",
+    "vita_rae_mcg",
+    "thia_mg",
+    "ribo_mg",
+    "niac_mg",
+    "vitb6_mg",
+    "folate_mcg",
+    "vitb12_mcg",
+    "fe_mg",
+    "ca_mg",
+    "zn_mg"
+  ),
+  ear_value = c(
+  
+  2100,#who
+  490, 
+  0.9,
+  1.3, 
+  11, 
+  1.3, 
+  250, 
+  2, 
+  22.4, #low absorption
+  860, 
+  10.2# unrefined
+  )
 )
 
+allen_ear$ear_value[allen_ear$nutrient == "energy_kcal"]
 
 
-read_in_survey <- function(name_of_survey){
+
+read_in_survey <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   # given the name of the survey of country
   # the function reads in each part of the base model into general 
   # object names
@@ -39,7 +56,7 @@ read_in_survey <- function(name_of_survey){
 }
 
 
-full_item_list <- function(name_of_survey){
+full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   # creates a data frame with a full list of food items for every
   # household. If food item is not consumed, quantity = 0
   # uesful for food group analyses
@@ -86,17 +103,17 @@ full_item_list <- function(name_of_survey){
 
 # full_item_list("nga1819")
 
-apparent_intake <- function(name_of_survey){
+apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   # Estimates apparent intake of nutrients based on consumed food items
   # and adult female equivalent unit of the household
-  read_in_survey(name_of_survey)
+  read_in_survey(name_of_survey, path_to_file)
   
   x <- food_consumption %>% 
     left_join(fc_table, by = "item_code") %>% 
     mutate(
       across(
         -c(item_code, hhid,item_name ,food_group, quantity_100g, quantity_g),
-        ~.x*quantity_100g
+        ~ifelse(is.na(.x), 0, .x*quantity_100g)
       )
     ) %>% 
     group_by(hhid) %>% 
@@ -118,7 +135,9 @@ apparent_intake <- function(name_of_survey){
 
 
 
-household_data <- function(name_of_survey){
+
+
+household_data <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   #reads in the household information data
   x <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_hh_info.csv")))
   x
@@ -179,11 +198,12 @@ target_creation <- function(){
       ) %>% 
       mutate(
         hhid = as.character(hhid),
-        va_ref = allen_ear$vita_rae_mcg,
-        fo_ref = allen_ear$folate_mcg,
-        vb12_ref = allen_ear$vitb12_mcg,
-        fe_ref = allen_ear$fe_mg,
-        zn_ref = allen_ear$zn_mg,
+        va_ref = 
+          allen_ear$ear_value[allen_ear$nutrient == "vita_rae_mcg"],
+        fo_ref = allen_ear$ear_value[allen_ear$nutrient == "folate_mcg"],
+        vb12_ref = allen_ear$ear_value[allen_ear$nutrient == "vitb12_mcg"],
+        fe_ref =  allen_ear$ear_value[allen_ear$nutrient == "fe_mg"],
+        zn_ref = allen_ear$ear_value[allen_ear$nutrient == "zn_mg"],
         va_nar = ifelse(va_ai<=va_ref, va_ai/va_ref,1),
         fo_nar = ifelse(fo_ai<=fo_ref, fo_ai/fo_ref,1),
         vb12_nar = ifelse(vb12_ai<=vb12_ref, vb12_ai/vb12_ref,1),
@@ -200,6 +220,5 @@ target_creation <- function(){
     bind_rows(select_and_append(ind_nss1112,"DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012"))
  x
 }
-
 
 

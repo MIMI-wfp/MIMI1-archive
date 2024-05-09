@@ -60,7 +60,7 @@ nsso_fct <- nsso_fct %>%
       "_name",
       "_source"
     )
-  )) %>% 
+  )|item_name) %>% 
   
   rename(
     # item_code = Item_Code,
@@ -74,7 +74,13 @@ nsso_fct <- nsso_fct %>%
     thia_mg = vitb1_mg,
     ribo_mg = vitb2_mg,
     niac_mg = vitb3_mg,
-  ) 
+  ) %>% 
+  mutate(
+    across(-c(item_name, item_code),
+    ~tidyr::replace_na(.x,0)
+  )
+  )
+  
 
 
 write_csv(nsso_fct, paste0(path_to_save,"ind_nss1112_fct.csv"))
