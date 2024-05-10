@@ -333,16 +333,16 @@ ind_prev_maps <- function (adm_selection, micronutrient, path_to_file = file_pat
 # 
 # # maps for maps
 # 
-# ind_micronutrient_maps('adm2', lysine_g)+
-#   tm_layout(main.title = "Lysine", frame = F,
-#             main.title.size = 0.8)
-# 
-# ind_micronutrient_maps('adm2', protein_g)+
-#   tm_layout(main.title = "Protein", frame = F,
-#             main.title.size = 0.8)
-# 
-# ind_micronutrient_maps('adm2', tryptophan_g ) +
-#   tm_layout(main.title = "Tryptophan", frame = F,
-#             main.title.size = 0.8)
+ind_micronutrient_maps('adm2', lysine_g)+
+  tm_layout(main.title = "Lysine", frame = F,
+            main.title.size = 0.8)
+
+ind_micronutrient_maps('adm2', protein_g)+
+  tm_layout(main.title = "Protein", frame = F,
+            main.title.size = 0.8)
+
+ind_micronutrient_maps('adm2', tryptophan_g ) +
+  tm_layout(main.title = "Tryptophan", frame = F,
+            main.title.size = 0.8)
 
 

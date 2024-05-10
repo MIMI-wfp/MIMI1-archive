@@ -20,7 +20,7 @@ rm(list= c("rq_packages", "installed_packages"))
 
 # source the base models function
 source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
-source(here::here("data_rich/India/"))
+source(here::here("data_rich/India/src/preparation/india_lsff/ind_mapping.R"))
 
 # ------------------------------------------------------------------------------       
 # read in nsso clean data
