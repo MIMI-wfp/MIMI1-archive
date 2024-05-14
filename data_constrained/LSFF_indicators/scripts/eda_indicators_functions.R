@@ -150,14 +150,14 @@ stratified_plots <- function(svy_indicators) {
   rm(urb_1)
   
   # Specify colours for urban/rural:
-  point_colours <- wes_palette("AsteroidCity1", 2)
+  point_colours <- wes_palette("AsteroidCity2", 2)
   point_colours <- setNames(point_colours, c("Rural", "Urban"))
   
   
   # Plot reach by population sub-group:
   reach_plot <<- ggplot(df_indicators, aes (x = res_quintile, y = reach)) +
     geom_point(aes(colour = res), size = 2.8) +
-    geom_errorbar(aes(ymin = reach_low, ymax = reach_upp), width = 0.05) +
+    # geom_errorbar(aes(ymin = reach_low, ymax = reach_upp), width = 0.05) +
     ylab("Survey weighted reach (%) of potentially \n fortifiable staple grains (combined)") +
     xlab("Socio-economic quintile") +
     # Change colours using wesanderson package:

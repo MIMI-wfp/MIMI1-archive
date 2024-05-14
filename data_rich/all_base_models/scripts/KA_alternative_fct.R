@@ -123,7 +123,7 @@ KAbase_ai <- bind_rows(KAbase_ai, KAmilk_ai) %>%
 #-------------------------------------------------------------------------------
 
 # WRITE DATA: 
-write_csv(KAbase_ai, "data_rich/all_base_models/data/KA_nga_lss1819_fct/KAnga_lss1819_base_ai.csv")
+# write_csv(KAbase_ai, "data_rich/all_base_models/data/KA_nga_lss1819_fct/KAnga_lss1819_base_ai.csv")
 
 # Remove objects that are not required further: 
 rm(list = ls()[!ls() %in% "KAbase_ai"])
@@ -141,6 +141,24 @@ base_ai <- read_csv("data_rich/fortification_models/data/nga_lss1819_base_ai.csv
 summary(base_ai)
 summary(KAbase_ai)
 # Summary statistics almost identical for all MN's except Vitamin A
+
+# Calculate the mean of each micronutrient for base_ai and KAbase_ai - list values in a table: 
+intake_basemodel <- base_ai %>% 
+  summarise(across(-c(hhid, afe), ~mean(., na.rm = T))) %>% 
+  pivot_longer(cols = everything(), names_to = "nutrient", values_to = "value")
+
+intake_KAmodel <- KAbase_ai %>%
+  summarise(across(-c(hhid, afe), ~mean(., na.rm = T))) %>% 
+  pivot_longer(cols = everything(), names_to = "nutrient", values_to = "value")
+
+compare_models <- intake_basemodel %>% 
+  left_join(intake_KAmodel, by = "nutrient", suffix = c("_base", "_KA")) %>% 
+  mutate(diff = value_KA - value_base) %>% 
+  dplyr::select(nutrient, value_base, value_KA, diff) %>% 
+  # Round diff to 5 dp: 
+  mutate(diff = round(diff, 5))
+
+rm(list = c("intake_basemodel", "intake_KAmodel"))
 
 # Create simple boxplot to compare vita_rae_mcg from each model: 
 boxplot(base_ai$vita_rae_mcg, 
@@ -179,6 +197,8 @@ base_fct <- read_csv("data_rich/all_base_models/data/current/nga_lss1819_fct.csv
 comparison_fct <- base_fct %>% 
   left_join(KA_fct, by = "item_code", suffix = c("_base", "_KA")) %>% 
   filter(vita_rae_mcg_base != vita_rae_mcg_KA)
+
+rm(list = c("base_fct", "KA_fct"))
 
 # The main difference lies with item_code 50 (Palm oil). 0mcg per 100g in original
 # base model, and 572mcg per 100g in the KA model.

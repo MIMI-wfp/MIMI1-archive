@@ -1,0 +1,25 @@
+CODEBOOK FOR "nut_inadequacy_kaduna_kano.csv": 
+
+hhid: unique household idenfitier - can be used to link to variables from other modules of the Nigeria Living Standards Survey 2018-2019 (https://microdata.worldbank.org/index.php/catalog/3827/data-dictionary)
+
+survey_wgt: Survey weight
+
+state: ADM1
+
+lga: ADM2
+
+res: urban/rural 
+
+totcons_adj: Total consumption expenditure, annual, per capita, spatially and temporally adjusted 2018-2019
+
+va_ai: Apparent inadequacy of vitamin A (1 = inadequate, 0 = adequate)
+
+fol_ai: Apparent inadequacy of folate (1 = inadequate, 0 = adequate)
+
+vb12_ai: Apparent inadequacy of vitamin B12 (1 = inadequate, 0 = adequate)
+
+fe_ai: Apparent inadequacy of Iron (1 = inadequate, 0 = adequate)
+
+zn_ai: Apparent inadequacy of Zinc (1 = inadequate, 0 = adequate)
+
+MAR_5mn_ai: Overall apparent micronutrient inadequacy, based on mean adequacy ratio (MAR) < 0.75 for all 5 micronutrients (1 = inadequate, 0 = adequate)
