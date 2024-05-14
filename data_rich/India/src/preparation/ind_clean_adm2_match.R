@@ -4,7 +4,7 @@
 
 # Author: Gabriel Battcock
 # Created: 10 October 23
-# Last updated: 23 Apr 24
+# Last updated: 6 May 24
 # Script does a simple clean of the NSSO 2011-12 data and matches the adm2 varaibles
 # to the gadm shapefile
 
@@ -20,69 +20,101 @@ library(here)
 
 # choose whether we select all the states or just bmgf states
 # path_to_file <- "./India/data/raw/"
-path_to_file <- "./India/data/raw/extra_states/"
+# path_to_file <- "./India/data/raw/extra_states/"
 # all states
-# path_to_file <- "~/Documents/MIMI/data_science_code/DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012/"
+path_to_file <- "~/Documents/MIMI/data_science_code/DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012/"
 
 # read in the data files
 block_1_2_identification <- read_csv(paste0(path_to_file, "Identification of Sample Household - Block 1 and 2 - Level 1 -  68.csv"))
-# block_3_level_2_household_char <- read_csv(paste0(path_to_file, "block_3_level_2_household_char.csv"))
-# block_4_demog <- read_csv(paste0(path_to_file, "block_4_demog.csv"))
-# block_5_6_food_consumption <- read_csv(paste0(path_to_file, "block_5_6_food_consumption.csv"))
-# block_7_8_clothing_consumption <- read_csv(paste0(path_to_file, "block_7_8_clothing_consumption.csv"))
-# block_9_edu_expenditure <- read_csv( paste0(path_to_file, "block_9_edu_expenditure.csv"))
-# block_10_misc_expenditure <- read_csv( paste0(path_to_file, "block_10_misc_expenditure.csv"))
-# block_11_construction_expenditure <- read_csv(paste0(path_to_file, "block_11_construction_expenditure.csv"))
-# block_12_consumer_expenditure <- read_csv(paste0(path_to_file, "block_12_consumer_expenditure.csv"))
-# block_13_yoga_ayurveda <- read_csv(paste0(path_to_file, "block_13_yoga_ayurveda.csv"))
+block_3_level_2_household_char <- read_csv(paste0(path_to_file, "Household Characteristics - Block 3 -  Level 2 -  68.csv"))
+bloc_3_level_3 <- read_csv(paste0(path_to_file, "Household characteristics - Block 3 - Level 3.csv"))
+block_4_demog <- read_csv(paste0(path_to_file, "Demographic and other particulars of household members - Block 4  - Level 4 - 68.csv"))
+block_5_6_food_consumption <- read_csv(paste0(path_to_file, "Consumption of cereals-pulses- milk and milk products  during the last 30 days  - Block 5.1- 5.2- 6 - Level 5 - 68.csv"))
+block_7_8_clothing_consumption <- read_csv(paste0(path_to_file, "Consumption of clothing, bedding and footwear during last 30 and 365 days - Block 7 and 8  - Level 6 -  68.csv"))
+block_9_edu_expenditure <- read_csv( paste0(path_to_file, "Expenditure on Education and Medical (institutional) goods and services -  Block 9 - Level 7 -  68.csv"))
+block_10_misc_expenditure <- read_csv( paste0(path_to_file, "Expenditure on miscellaneous goods and services including medical(non-institutional), rents and taxes during the last 30 days. Block 10 - Level 8 -68.csv"))
+block_11_construction_expenditure <- read_csv(paste0(path_to_file, "Expenditure for purchase and construction (including repair and maintenance) of durable goods for domestic use-  Block 11 - Level 9 -  68.csv"))
+block_12_consumer_expenditure <- read_csv(paste0(path_to_file, "Summary of Consumer Expenditure - Block 12 - Level 11 - 68.csv"))
+block_13_yoga_ayurveda <- read_csv(paste0(path_to_file, "Information on Ayurveda, Yoga, Naturopathy, Unani, Siddha, Homeopathy(ASYUSH) - Block 13 - Level 10 - 68.csv"))
+
 
 # Indian food composition table
-ifct <- read_xlsx("~/Documents/MIMI/MIMI_data/India/FCT/ifct_noduplicates_sentencecase_20231110.xlsx")
+# ifct <- read_xlsx("~/Documents/MIMI/MIMI_data/India/FCT/ifct_noduplicates_sentencecase_20231110.xlsx")
 #read in the conversion from item code to ifct code
-item_code_dict <- read_xlsx(paste0(path_to_file,"food_codes_nsso_to_ifct.xlsx"),sheet = "food_codes")
-item_code_dict %>% dplyr::select(!c(NSS_CES_group)) %>% na.omit()
+# item_code_dict <- read_xlsx(paste0(path_to_file,"food_codes_nsso_to_ifct.xlsx"),sheet = "food_codes")
+# item_code_dict %>% dplyr::select(!c(NSS_CES_group)) %>% na.omit()
 
 
-#shape files
-district <- st_read("~/Documents/LSHTM/WFP_project/data/shrug-pc11dist-poly-shp/district.shp")
-district <- district %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
-plot(district$geometry)
-
-shrug_adm2_names <- district %>%  sf::st_drop_geometry(data_all)
-write.csv(shrug_adm2_names, "/Users/gabrielbattcock/Documents/MIMI/code/data_rich/India/data/shrug_adm2.csv")
-# gadm2
-gadm_adm2 <- st_read(here::here("../MIMI_data/India/gadm41_IND_shp/gadm41_IND_2.shp"))
-gadm_adm2 <- gadm_adm2 %>%  ms_simplify(keep  = 0.1, keep_shapes = T, snap = T) 
-
-#gadm3
-gadm2_adm3 <- st_read(here::here("../MIMI_data/India/gadm41_IND_shp/gadm41_IND_3.shp"))
-delhi_gadm3 <- gadm2_adm3 %>% filter(NAME_1 =="NCT of Delhi")
+#shape files ----------------------------------------
 
 # 
-x <- gadm_adm2 %>% sf::st_drop_geometry(data_all) %>% select(
-  NAME_1, NAME_2, GID_1, GID_2
-)
+# 
+# district <- st_read("~/Documents/LSHTM/WFP_project/data/shrug-pc11dist-poly-shp/district.shp")
+# district <- district %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
+# plot(district$geometry)
+# 
+# shrug_adm2_names <- district %>%  sf::st_drop_geometry(data_all)
+# write.csv(shrug_adm2_names, "/Users/gabrielbattcock/Documents/MIMI/code/data_rich/India/data/shrug_adm2.csv")
+# # gadm2
+# gadm_adm2 <- st_read(here::here("../MIMI_data/India/gadm41_IND_shp/gadm41_IND_2.shp"))
+# gadm_adm2 <- gadm_adm2 %>%  ms_simplify(keep  = 0.1, keep_shapes = T, snap = T) 
 
-delhi_gadm2 = x %>% filter(NAME_1 =="NCT of Delhi")
-plot(delhi_gadm2 $geometry)
+# #gadm3
+# gadm2_adm3 <- st_read(here::here("../MIMI_data/India/gadm41_IND_shp/gadm41_IND_3.shp"))
+# delhi_gadm3 <- gadm2_adm3 %>% filter(NAME_1 =="NCT of Delhi")
+# 
+# # 
+# x <- gadm_adm2 %>% sf::st_drop_geometry(data_all) %>% select(
+#   NAME_1, NAME_2, GID_1, GID_2
+# )
+# 
+# delhi_gadm2 = x %>% filter(NAME_1 =="NCT of Delhi")
+# plot(delhi_gadm2 $geometry)
+# 
+# delhi_shp <-district %>% filter(pc11_s_id =="07")
+# plot(delhi_shp$geometry)
+# 
+# plot(delhi_gadm3$geometry)
 
-delhi_shp <-district %>% filter(pc11_s_id =="07")
-plot(delhi_shp$geometry)
-
-plot(delhi_gadm3$geometry)
-
- write.csv(x, "/Users/gabrielbattcock/Documents/MIMI/code/data_rich/India/data/shapefile_names.csv")
+ # write.csv(x, "/Users/gabrielbattcock/Documents/MIMI/code/data_rich/India/data/shapefile_names.csv")
 
 
 #################################################################################
 
-chat_gbt_match <- read.csv("/Users/gabrielbattcock/Documents/MIMI/code/data_rich/India/data/nsso_match_chatgbt.csv")
+# chat_gbt_match <- read.csv("/Users/gabrielbattcock/Documents/MIMI/code/data_rich/India/data/nsso_match_chatgbt.csv")
 
 
 #state
 
-state <- st_read(here::here("../MIMI_data/India/gadm41_IND_shp/gadm41_IND_1.shp"))
-state <- state %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
+# state <- st_read(here::here("../MIMI_data/India/gadm41_IND_shp/gadm41_IND_1.shp"))
+# state <- state %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
+# 
+# state <- state %>%   sf::st_drop_geometry(data_all)
+
+# write.csv(state, "/Users/gabrielbattcock/Documents/MIMI/code/data_rich/India/data/gadm_adm1.csv")
+# adm1_nsso_link <- read.csv("/Users/gabrielbattcock/Documents/MIMI/code/data_rich/India/data/gadm_adm1.csv")
+
+
+## rematch with NSSO codes
+# 
+# nsso_states <-  state %>% 
+#   left_join(adm1_nsso_link, by =c("GID_1", "NAME_1")) %>% 
+#   group_by(State_code) %>% 
+#   mutate(geometry = sf::st_union(geometry)) %>% 
+#   slice(1)
+# 
+# 
+# 
+# 
+# nsso_states <- nsso_states %>% 
+#   st_as_sf()  %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
+# 
+# write_sf(nsso_states, here::here("data_rich/India/data/processed/state_shape.shp"))
+
+plot(nsso_states$geometry)
+
+
+
 # plot(state$geometry)
 # plot(district$geometry)
 
@@ -97,22 +129,22 @@ state <- state %>% ms_simplify(keep  = 0.1, keep_shapes = T, snap = T)
 
 # write_csv(district_names, paste0(path_to_file, "district_names_unmatched.csv" ))
 # read in the matched datat
-district_dict <- read_csv(paste0(path_to_file, "district_names.csv"))
+# district_dict <- read_csv(paste0(path_to_file, "district_names.csv"))
 
 # create a new csv with the 
-all_districts <- district_names %>% 
-  left_join(
-    
-  )
+# all_districts <- district_names %>% 
+#   left_join(
+#     
+#   )
 
-bmgf_states <- district %>% mutate(pc11_s_id = as.numeric(pc11_s_id))
-plot(bmgf_states$geometry)
+# bmgf_states <- district %>% mutate(pc11_s_id = as.numeric(pc11_s_id))
+# plot(bmgf_states$geometry)
 
-
-bmgf_states <- bmgf_states %>%
-  dplyr::select(State_code,District_code,District_name,pc11_d_id,geometry) %>%
-  filter(!is.na(State_code))
-x_name$d_name %in% bmgf_states$District_name
+# 
+# bmgf_states <- bmgf_states %>%
+#   dplyr::select(State_code,District_code,District_name,pc11_d_id,geometry) %>%
+#   filter(!is.na(State_code))
+# x_name$d_name %in% bmgf_states$District_name
 
 x_name <- district %>% dplyr::filter(pc11_s_id %in% c("09","10","22"))
 # dplyr::anti_join(district %>% dplyr::filter(pc11_s_id == "09"), bmgf_states)
@@ -120,7 +152,7 @@ x_name <- district %>% dplyr::filter(pc11_s_id %in% c("09","10","22"))
 
 # bmgf_states <- bmgf_states %>% dplyr::select(State_code,District_code,District_name,pc11_d_id, geometry)
  # write_sf(bmgf_states, "./India_analysis/data/processed/extra_states/district_shape.shp")
-write_sf(state, here::here("data_rich/India/data/processed/state_shape.shp"))
+# write_sf(state, here::here("data_rich/India/data/processed/state_shape.shp"))
 
 # household level --------------------------------------------------------------
 
@@ -192,7 +224,7 @@ household_characteristic_b3 <-
 #                                                  "data",
 #                                                  "processed",
 #                                                  "household_char.csv"))
-readr::write_csv(household_characteristic_b3, here::here("India_analysis",
+readr::write_csv(household_characteristic_b3, here::here("data_rich", "India",
                                                          "data",
                                                          "processed",
                                                          "extra_states",
@@ -266,7 +298,7 @@ demographics_b4 <-
 #                                              "demographics.csv"))
 
 
-readr::write_csv(demographics_b4, here::here("India_analysis",
+readr::write_csv(demographics_b4, here::here("data_rich", "India",
                                              "data",
                                              "processed",
                                              "extra_states",
@@ -281,7 +313,7 @@ readr::write_csv(demographics_b4, here::here("India_analysis",
 
 consumption_b5 <- block_5_6_food_consumption %>%
     dplyr::select(HHID,
-                  State_code,
+                  State_Code,
                   Item_Code,
                   Home_Produce_Quantity,
                   Home_Produce_Value,
@@ -296,7 +328,7 @@ consumption_b5 <- block_5_6_food_consumption %>%
 #                                              "consumption.csv"))
 
 
-readr::write_csv(consumption_b5, here::here("India_analysis",
+readr::write_csv(consumption_b5, here::here("data_rich", "India",
                                             "data",
                                             "processed",
                                             "extra_states",

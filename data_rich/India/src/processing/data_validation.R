@@ -22,7 +22,7 @@ library(dplyr)
 library(gt)
 library(sjmisc)
 
-source(here::here("data_rich/India/src/processing/food_matching.R"))
+# source(here::here("data_rich/India/src/processing/food_matching.R"))
 
 # read in cleaned and mathced data
 # path_to_data = here::here("India_analysis", "data", "processed/")
@@ -31,7 +31,7 @@ path_to_data = here::here("data_rich","India", "data", "processed", "extra_state
 
 consumption <- read_csv(paste0(path_to_data, "consumption.csv"))
 
-unique(consumption$State_code)
+# unique(consumption$State_code)
 demographics <- read_csv(paste0(path_to_data,"demographics.csv"))
 
 household_characteristics <- read_csv(paste0(path_to_data, "household_char.csv"))
@@ -58,9 +58,9 @@ sum_or_function <- function(x){
 
 #### Calculate daily consumption per household -----------------------------
 
-daily_food_items_consumed <-consumption %>% 
+daily_food_items_consumed <- consumption %>% 
   dplyr::left_join(
-    india_fct, by = "Item_Code"
+    india_fct, by = c("Item_Code" = "item_code")
   ) %>% 
   dplyr::left_join(
     conversion, by = c("Item_Code", "item_name")
@@ -80,20 +80,20 @@ daily_food_items_consumed <-consumption %>%
   ) %>% 
   #create state name
   dplyr::mutate(
-    quantity_100g = Total_Consumption_Quantity/100,
-    State_name = dplyr::case_when(
-      State_code == "09" ~ "Uttar Pradesh", 
-      State_code == "10" ~ "Bihar",
-      State_code == "22" ~ "Chhattisgarh",
-      State_code == "21" ~ "Orissa"
-    )
+    quantity_100g = Total_Consumption_Quantity/100
+    # State_name = dplyr::case_when(
+    #   State_code == "09" ~ "Uttar Pradesh", 
+    #   State_code == "10" ~ "Bihar",
+    #   State_code == "22" ~ "Chhattisgarh",
+    #   State_code == "21" ~ "Orissa"
+    # )
   ) %>% 
   dplyr::select(
     -c( Home_Produce_Quantity,Home_Produce_Value,Total_Consumption_Quantity,Total_Consumption_Value)
   ) %>% 
   dplyr::mutate(
     dplyr::across(
-      -c(item_name, Item_Code, State_code, District_code, HHID, quantity_100g, State_name, conversion_factor),
+      -c(item_name, Item_Code, State_Code, District_code, HHID, quantity_100g, conversion_factor),
       ~.x*quantity_100g/30
     )
   ) %>% 
@@ -108,7 +108,7 @@ daily_food_items_consumed <-consumption %>%
 
 household_daily <-consumption %>%
   dplyr::left_join(
-    india_fct, by = "Item_Code"
+    india_fct, by = c("Item_Code" = "item_code")
   ) %>%
   dplyr::left_join(
     conversion, by = c("Item_Code", "item_name")
@@ -128,28 +128,35 @@ household_daily <-consumption %>%
   ) %>%
   #create state name
   dplyr::mutate(
-    quantity_100g = Total_Consumption_Quantity/100,
-    State_name = dplyr::case_when(
-      State_code == "09" ~ "Uttar Pradesh",
-      State_code == "10" ~ "Bihar",
-      State_code == "22" ~ "Chhattisgarh",
-      State_code == "21" ~ "Orissa",
-      State_code == "20" ~ "Jharkhand",
-      State_code == "23" ~ "Madhya Pradesh",
-      State_code == "02" ~ "Himachal Pradesh",
-      State_code == "19" ~ "West Bengal",
-      State_code == "28" ~ "Andhra Pradesh"
-      )
+    quantity_100g = Total_Consumption_Quantity/100
+    # State_name = dplyr::case_when(
+    #   State_code == "09" ~ "Uttar Pradesh",
+    #   State_code == "10" ~ "Bihar",
+    #   State_code == "22" ~ "Chhattisgarh",
+    #   State_code == "21" ~ "Orissa",
+    #   State_code == "20" ~ "Jharkhand",
+    #   State_code == "23" ~ "Madhya Pradesh",
+    #   State_code == "02" ~ "Himachal Pradesh",
+    #   State_code == "19" ~ "West Bengal",
+    #   State_code == "28" ~ "Andhra Pradesh"
+      # )
   ) %>%
   ungroup() %>%
   # dplyr::select(
   #   -c( Home_Produce_Quantity,Home_Produce_Value,Total_Consumption_Quantity,Total_Consumption_Value)
   # ) %>%
   dplyr::mutate(
+    #### NOTE
+    #### The india data has 30 day recall for some items and 7 day recall for others. 
+    #### item code 101 - 179 (cereals, pulses, dairy, salt and sugar) 30 days
+    #### item code 180+ 7 day recall 
+    
+    
     across( c(Total_Consumption_Quantity,Total_Consumption_Value),
-    ~ .x/30)
-    ) %>%
-  dplyr::select(HHID,State_code,Item_Code,item_name,Total_Consumption_Quantity,Total_Consumption_Value) %>%
+    # ~ ifelse(Item_Code<180, .x/30,.x/7)
+    ~.x/30
+    )) %>%
+  dplyr::select(HHID,State_Code,Item_Code,item_name,Total_Consumption_Quantity,Total_Consumption_Value) %>%
   dplyr::filter(
     !is.na(item_name)
   ) %>%
@@ -165,7 +172,8 @@ household_daily <-consumption %>%
 
 
 write.csv(household_daily,paste0(path_to_data, "india_daily_consumption.csv"))
-
+# path_to_new_data = "data_rich/India/data/data_052024_7day/"
+# write.csv(household_daily,paste0(path_to_new_data, "india_daily_consumption.csv"))
 
 
 

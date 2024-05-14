@@ -96,13 +96,14 @@ sw_mean_intake <- base_model %>%
   ) %>% 
   dplyr::mutate(mar = (vita_mg+vitb1_mg+vitb2_mg+
                          vitb3_mg+vitb6_mg+folate_ug+
-                         vitaminb12_in_mg+ calcium_mg+iron_mg+zinc_mg)/10) %>%
-  srvyr::as_survey_design(id = HHID, strata = District_code,
-                          weights = Combined_multiplier, nest=T)
+                         vitaminb12_in_mg+ calcium_mg+iron_mg+zinc_mg)/10)
+# %>%
+#   srvyr::as_survey_design(id = HHID, strata = District_code,
+#                           weights = Combined_multiplier, nest=T)
 
 # syrvey weights --------------------------------------------------------------
 
-intake <- base_model %>%
+sw_mean_intake <- base_model %>%
   dplyr::left_join(
     household_characteristics %>% 
       dplyr::select(
@@ -208,7 +209,7 @@ create_map <- function(shape_file, micronutrient, adm1_shape){
   
   
   
-energy_adm2 <- tm_shape(sw_mean_intake_district_tot) + 
+energy_adm2 <- tm_shape(sw_mean_intake) + 
   tm_fill(col = "energy_kcal", style = "cont", breaks = seq(0,1,by=.10),
             # c(1000,1550,2100,2650,3200),
           palette = rev(wesanderson::wes_palette("Zissou1Continuous")),
@@ -238,7 +239,7 @@ energy_adm2
 # tmap_save(energy_adm2, here::here("../energy_adm2.png"))
 
 #
-vita_adm2 <- tm_shape(sw_mean_intake_district_tot) + 
+vita_adm2 <- tm_shape(sw_mean_intake) + 
   tm_fill(col = "vita_mg", style = "cont", breaks = seq(0,1,by=.10),
           palette = rev(wesanderson::wes_palette("Zissou1Continuous")),
           title = "Nurtient Adequacy \n Ratio")+
