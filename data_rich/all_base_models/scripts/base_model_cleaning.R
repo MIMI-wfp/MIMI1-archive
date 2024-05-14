@@ -29,6 +29,7 @@ source("data_rich/all_base_models/scripts/base_model_functions.R")
 # nsso_food_consumption <- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_daily_consumption.csv"))
 nsso_food_consumption <- read_csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/india_daily_consumption.csv")
 
+
 nsso_food_consumption <- nsso_food_consumption %>% 
   rename(
     hhid = HHID,
@@ -42,6 +43,7 @@ nsso_food_consumption <- nsso_food_consumption %>%
 
 
 write_csv(nsso_food_consumption, paste0(path_to_save,"ind_nss1112_food_consumption.csv"))
+
 
 
 # 

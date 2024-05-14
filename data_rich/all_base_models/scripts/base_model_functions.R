@@ -55,6 +55,9 @@ read_in_survey <- function(name_of_survey, path_to_file = here::here("data_rich/
   # fct causes conflict with fct() function in forcats package, reconsider the name of this object
 }
 
+read_in_survey("ind_nss1112")
+x <- food_consumption %>% 
+  distinct(item_code)
 
 full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   # creates a data frame with a full list of food items for every
@@ -62,7 +65,7 @@ full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/
   # uesful for food group analyses
   
 
-  hh_info <-  read.csv(paste0(path_to_file, paste0(name_of_survey, "_hh_info.csv")))
+  hh_info <-   read.csv(paste0(path_to_file, paste0(name_of_survey, "_hh_info.csv")))
   food_consumption<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_food_consumption.csv")))
   fc_table <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
   
@@ -97,11 +100,41 @@ full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/
   x
 }
 
+
+
 # food_consumption<- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_food_consumption.csv"))))
 # fct <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_fct.csv"))))
 
+read_in_survey("nga_lss1819")
 
-# full_item_list("nga1819")
+hh_info %>% 
+  select(hhid,afe) %>% 
+  cross_join(fc_table %>% 
+               select(item_code)) %>% 
+  left_join(food_consumption %>% 
+              group_by(hhid, item_code, food_group) %>% 
+              summarise(across(
+                everything(),
+                ~sum(., na.rm = TRUE)
+              )) %>% 
+              ungroup(), 
+            by = c("hhid", "item_code")) %>% 
+  select(-food_group) %>% 
+  mutate(
+    across(
+      c(quantity_100g, quantity_g),
+      ~replace_na(.,0)
+    )
+  ) %>% 
+  mutate(
+    quantity_100g = quantity_100g/afe, 
+    quantity_g = quantity_g/afe
+  ) %>% 
+  left_join(fc_table, by = "item_code") %>% 
+  inner_join(food_consumption %>% 
+               select(item_code, food_group) %>% 
+               distinct(item_code, food_group),
+             by = c('item_code'))
 
 apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   # Estimates apparent intake of nutrients based on consumed food items

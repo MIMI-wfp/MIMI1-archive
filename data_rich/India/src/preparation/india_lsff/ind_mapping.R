@@ -77,14 +77,14 @@ intake_aggregate <- function( aggregate_level, micronutrient, path_to_file = fil
   return(output_df)
   
 }
-# ind_vita_adm2 <- intake_aggregate(adm2, vita_rae_mcg)
+ind_vita_adm2 <- intake_aggregate(adm1, vita_rae_mcg)
 # ind_vitb12_adm2 <- intake_aggregate(adm2, vitb12_mcg)
 # ind_lys <- intake_aggregate(adm2, lysine_g)
 
 
 
 
-prevalence_aggregate <- function( aggregate_level, micronutrient, path_to_file = file_path){
+prevalence_aggregate <- function(aggregate_level, micronutrient, path_to_file = file_path){
   # this reads in the Indian apparent intake data and aggregates at different sub-populations
   # Sub-populations could be adm1, adm2, res, sep.
   
@@ -133,7 +133,7 @@ prevalence_aggregate <- function( aggregate_level, micronutrient, path_to_file =
     ) %>% 
     dplyr::left_join(
       india_ai  %>% 
-        select(-c(value,protein_g, lysine_g, tryptophan_g, fat_g, carb_g, cholesterol_mg,
+        select(-c(value,protein_g, fat_g, carb_g, cholesterol_mg,
                   vitc_mg,fibre_g, freesugar_g, carotenoids_ug,afe)) %>% 
         pivot_longer(cols = -hhid, names_to = "nutrient") %>% 
         left_join(nin_ear, by= "nutrient"),
@@ -248,7 +248,7 @@ ind_prev_maps <- function (adm_selection, micronutrient, path_to_file = file_pat
   # create the map
   tm_shape(shape_file) +
     tm_fill(col = "inad_prev", style = "cont", breaks = seq(0,1,by=.10),
-            palette = rev(wesanderson::wes_palette("Zissou1Continuous")),
+            palette = (wesanderson::wes_palette("Zissou1Continuous")),
             title = "Prevalence of inadequacy" ,
             legend.is.portrait = FALSE
     ) +
@@ -266,73 +266,68 @@ ind_prev_maps <- function (adm_selection, micronutrient, path_to_file = file_pat
 
 # prevalence maps ------------------------------------------------------------
 
-# ind_prev_maps("adm1","vita_rae_mcg")
-# 
-# ind_prev_maps("adm1","folate_mcg")+ 
-#   tm_layout(
-#     main.title = "Folate"
-#     
-#   ) 
-# 
-# 
-# ind_prev_maps("adm1","fe_mg") +
-#   tm_layout(
-#     main.title = "Iron (not full prob)"
-#     
-#   ) 
-# 
-# 
-# ind_prev_maps("adm1","zn_mg")+ tm_layout(
-#   main.title = "Zinc"
-#   
-# ) 
-# 
-# ind_prev_maps("adm1","vitb12_mcg")+
-#   tm_layout(
-#     main.title = "Vitamin B12"
-#     
-#   ) 
-# 
-# ind_prev_maps("adm2","thia_mg")+
-#   tm_layout(
-#     main.title = "Thiamin"
-#     
-#   ) 
-# 
-# 
-# ind_prev_maps("adm2","vita_rae_mcg")
-# 
-# ind_prev_maps("adm2","vita_rae_mcg")
-# 
-# ind_prev_maps("adm2","vita_rae_mcg")
-# 
-# ind_prev_maps("adm2","vita_rae_mcg")
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# ind_micronutrient_maps("adm1", vita_rae_mcg) +
-#   tm_layout(
-#     main.title = "Vitamin A"
-#    
-#   ) 
-#   
-# 
-# 
-# # maps for maps
-# 
+ind_prev_maps("adm1","vita_rae_mcg")
+
+ind_prev_maps("adm1","folate_mcg")+
+  tm_layout(
+    main.title = "Folate"
+
+  )
+
+
+ind_prev_maps("adm1","fe_mg") +
+  tm_layout(
+    main.title = "Iron (not full prob)"
+
+  )
+
+
+ind_prev_maps("adm1","zn_mg")+ tm_layout(
+  main.title = "Zinc"
+
+)
+
+ind_prev_maps("adm1","vitb12_mcg")+
+  tm_layout(
+    main.title = "Vitamin B12"
+
+  )
+
+ind_prev_maps("adm2","thia_mg")+
+  tm_layout(
+    main.title = "Thiamin"
+
+  )
+
+
+ind_prev_maps("adm2","vita_rae_mcg")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ind_micronutrient_maps("adm1", vita_rae_mcg) +
+  tm_layout(
+    main.title = "Vitamin A"
+
+  )
+
+
+
+# maps for maps
+
 ind_micronutrient_maps('adm2', lysine_g)+
   tm_layout(main.title = "Lysine", frame = F,
             main.title.size = 0.8)
