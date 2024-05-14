@@ -646,7 +646,7 @@ food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
   item_code == "Wheat&Barley(Duragna),flour" ~ "Wheat flour",
   item_code == "Wheat&othercereals,flour" ~ "Wheat flour",
   item_code == "Flour,factoryproduct,mainlyofwheat" ~ "Wheat flour",
-  item_code == "Maize,flour" ~ "Maizeflour",
+  item_code == "Maize,flour" ~ "Maize flour",
   item_code == "Rice" ~ "Rice",
   item_code == "Bread(Dufo,Anbashaetc),Wheat-homemade" ~ "Wheat flour",
   item_code == "Bread,wheat-bakery" ~ "Wheat flour",
