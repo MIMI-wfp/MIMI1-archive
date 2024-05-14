@@ -55,6 +55,9 @@ read_in_survey <- function(name_of_survey, path_to_file = here::here("data_rich/
   # fct causes conflict with fct() function in forcats package, reconsider the name of this object
 }
 
+read_in_survey("ind_nss1112")
+x <- food_consumption %>% 
+  distinct(item_code)
 
 full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   # creates a data frame with a full list of food items for every
@@ -62,7 +65,7 @@ full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/
   # uesful for food group analyses
   
 
-  hh_info <-  read.csv(paste0(path_to_file, paste0(name_of_survey, "_hh_info.csv")))
+  hh_info <-   read.csv(paste0(path_to_file, paste0(name_of_survey, "_hh_info.csv")))
   food_consumption<- read.csv(paste0(path_to_file, paste0(name_of_survey, "_food_consumption.csv")))
   fc_table <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_fct.csv")))
   
@@ -82,7 +85,7 @@ full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/
     mutate(
       across(
         c(quantity_100g, quantity_g),
-        ~replace_na(.,0)
+        ~ifelse(is.na(.),0, .)
       )
     ) %>% 
     mutate(
@@ -97,11 +100,12 @@ full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/
   x
 }
 
+
+
 # food_consumption<- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_food_consumption.csv"))))
 # fct <- as_tibble(read.csv(paste0(path_to_file, paste0("nga1819", "_fct.csv"))))
 
 
-# full_item_list("nga1819")
 
 apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   # Estimates apparent intake of nutrients based on consumed food items

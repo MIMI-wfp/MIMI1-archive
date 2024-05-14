@@ -78,6 +78,19 @@ daily_food_items_consumed <- consumption %>%
     household_characteristics %>% dplyr::select(HHID, District_code),
     by = "HHID"
   ) %>% 
+  dplyr::mutate(
+    Total_Consumption_Quantity =
+      dplyr::case_when(
+        Item_Code == 166 ~ Total_Consumption_Value*80,#https://www.calories.info/food/ice-cream
+        Item_Code == 238 ~ Total_Consumption_Value*50,
+        Item_Code == 277 ~ Total_Consumption_Value*100,
+        Item_Code == 283 ~ Total_Consumption_Value*71, #https://www.eatthismuch.com/food/nutrition/samosa,2144079/,
+        Item_Code == 284 ~ Total_Consumption_Value*132, #https://www.eatthismuch.com/food/nutrition/veg-biryani,2502955/
+        Item_Code == 290 ~ Total_Consumption_Value*63, # https://www.fatsecret.co.uk/calories-nutrition/generic/ladoo-round-ball-(asian-indian-dessert)?frc=True
+        Item_Code == 291 ~ Total_Consumption_Value*12, # https://www.nutritionix.com/i/usda/cookies-chocolate-chip-commercially-prepared-soft-type-1-cookie-average-weight-of-1-cookie/513fceb775b8dbbc21002745
+        Item_Code == 296 ~ Total_Consumption_Value*50
+      )
+  ) %>% 
   #create state name
   dplyr::mutate(
     quantity_100g = Total_Consumption_Quantity/100
@@ -106,7 +119,9 @@ daily_food_items_consumed <- consumption %>%
 
 
 
-household_daily <-consumption %>%
+## write a csv for household daily consumption, pre separation by afe
+ 
+household_daily <- consumption %>%
   dplyr::left_join(
     india_fct, by = c("Item_Code" = "item_code")
   ) %>%
@@ -122,6 +137,20 @@ household_daily <-consumption %>%
                                         Total_Consumption_Quantity,
                                         Total_Consumption_Quantity*conversion_factor)
   ) %>%
+  dplyr::mutate(
+    Total_Consumption_Quantity =
+      dplyr::case_when(
+        Item_Code == 166 ~ Total_Consumption_Value*80,#https://www.calories.info/food/ice-cream
+        Item_Code == 238 ~ Total_Consumption_Value*50,
+        Item_Code == 277 ~ Total_Consumption_Value*100,
+        Item_Code == 283 ~ Total_Consumption_Value*71, #https://www.eatthismuch.com/food/nutrition/samosa,2144079/,
+        Item_Code == 284 ~ Total_Consumption_Value*132, #https://www.eatthismuch.com/food/nutrition/veg-biryani,2502955/
+        Item_Code == 290 ~ Total_Consumption_Value*63, # https://www.fatsecret.co.uk/calories-nutrition/generic/ladoo-round-ball-(asian-indian-dessert)?frc=True
+        Item_Code == 291 ~ Total_Consumption_Value*12, # https://www.nutritionix.com/i/usda/cookies-chocolate-chip-commercially-prepared-soft-type-1-cookie-average-weight-of-1-cookie/513fceb775b8dbbc21002745
+        Item_Code == 296 ~ Total_Consumption_Value*50, 
+        .default = Total_Consumption_Quantity
+      )
+  ) %>% 
   dplyr::left_join(
     household_characteristics %>% dplyr::select(HHID, District_code),
     by = "HHID"
@@ -255,7 +284,7 @@ household_afe <-
       afe = sum(afe)
     )
 
-write.csv(household_afe, paste0(path_to_data, "india_afe.csv"))
+# write.csv(household_afe, paste0(path_to_data, "india_afe.csv"))
 
 # %>% 
   # left_join(household_characteristics %>% select(HHID,HH_Size), by = "HHID")
