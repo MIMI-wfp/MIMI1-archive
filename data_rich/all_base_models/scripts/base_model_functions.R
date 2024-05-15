@@ -96,7 +96,14 @@ full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/
     inner_join(food_consumption %>% 
                  select(item_code, food_group) %>% 
                  distinct(item_code, food_group),
-              by = c('item_code'))
+              by = c('item_code')) %>% 
+    dplyr::mutate(
+      across(
+        -c(hhid,afe, item_code,quantity_100g,quantity_g,item_name, food_group),
+        ~.x*quantity_100g
+      )
+    )
+  
   x
 }
 

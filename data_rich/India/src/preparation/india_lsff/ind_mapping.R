@@ -304,40 +304,10 @@ ind_prev_maps("adm2","vita_rae_mcg")
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ind_micronutrient_maps("adm1", vita_rae_mcg) +
   tm_layout(
     main.title = "Vitamin A"
 
   )
-
-
-
-# maps for maps
-
-ind_micronutrient_maps('adm2', lysine_g)+
-  tm_layout(main.title = "Lysine", frame = F,
-            main.title.size = 0.8)
-
-ind_micronutrient_maps('adm2', protein_g)+
-  tm_layout(main.title = "Protein", frame = F,
-            main.title.size = 0.8)
-
-ind_micronutrient_maps('adm2', tryptophan_g ) +
-  tm_layout(main.title = "Tryptophan", frame = F,
-            main.title.size = 0.8)
 
 
