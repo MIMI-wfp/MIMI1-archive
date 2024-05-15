@@ -97,11 +97,11 @@ block_13_yoga_ayurveda <- read_csv(paste0(path_to_file, "Information on Ayurveda
 
 ## rematch with NSSO codes
 # 
-# nsso_states <-  state %>% 
-#   left_join(adm1_nsso_link, by =c("GID_1", "NAME_1")) %>% 
-#   group_by(State_code) %>% 
-#   mutate(geometry = sf::st_union(geometry)) %>% 
-#   slice(1)
+nsso_states <-  state %>%
+  left_join(adm1_nsso_link, by =c("GID_1", "NAME_1")) %>%
+  group_by(State_code) %>%
+  mutate(geometry = sf::st_union(geometry)) %>%
+  slice(1)
 # 
 # 
 # 
