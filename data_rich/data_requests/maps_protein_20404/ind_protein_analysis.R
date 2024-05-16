@@ -31,7 +31,7 @@ file_path <- here::here("data_rich/India/data/processed/lsff/")
 
 read_in_survey("ind_nss1112",file_path)
 
-ind_consumption <- consumption
+ind_consumption <- food_consumption
 
 
 
@@ -99,15 +99,15 @@ ind_nsso1112_hh_info %>%
     adm1
   ) %>% 
   srvyr::summarise(
-    "mean_lysine":= srvyr::survey_mean(
-      lysine_g,
-      na.rm = T
+    across(
+      c(protein_g,lysine_g, tryptophan_g),
+      ~survey_mean(.x, na.rm = T)
     )
   )
 
+12*70
 
-
-
+3.5*70
 
 
 

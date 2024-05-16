@@ -465,3 +465,206 @@ legend_reach <- tm_shape(eth_nns_sp) +
 tmap_save(legend_reach, paste0(file_path, "reach_legend.png"),
           width = 9, height = 9, units = "in", dpi = 600)
 
+
+# ethiopia inadequacy
+
+eth_hices <- apparent_intake("eth_hices1516")
+eth_hh_info <- household_data("eth_hices1516")
+
+eth_adm1_hices <- st_read("../MIMI_data/Ethiopia/gadm41_ETH_shp/gadm41_ETH_1.shp")
+
+eth_adm1_hices <- eth_adm1_hices %>% mutate(
+  adm1 = case_when(
+    NAME_1 == "Tigray" ~ "Tigray",
+    NAME_1 == "Afar" ~ "Afar",
+    NAME_1 == "Amhara" ~ "Amhara",
+    NAME_1 == "Oromia"~ "Oromiya",
+    NAME_1 == "Somali" ~ "Somali",
+    NAME_1 == "Benshangul-Gumaz" ~ "Benshangul",
+    NAME_1 == "Southern Nations, Nationalities" ~ "SNNP",
+    NAME_1 == "Gambela Peoples" ~ "Gambella",
+    NAME_1 == "Harari People" ~ "Harari", 
+    NAME_1 == "Addis Abeba" ~ "Addis Ababa", 
+    NAME_1 == "Dire Dawa" ~ "Dire Dawa"
+  )
+) %>% 
+  select(adm1, geometry)
+
+hices_inad <- eth_hices %>% 
+  select(hhid, vita_rae_mcg, fe_mg, folate_mcg, vitb12_mcg,zn_mg) %>% 
+  mutate(
+  va_ref =   allen_ear$ear_value[allen_ear$nutrient == "vita_rae_mcg"],
+     fo_ref = allen_ear$ear_value[allen_ear$nutrient == "folate_mcg"],
+    vb12_ref = allen_ear$ear_value[allen_ear$nutrient == "vitb12_mcg"],
+    fe_ref =  allen_ear$ear_value[allen_ear$nutrient == "fe_mg"],
+    zn_ref = allen_ear$ear_value[allen_ear$nutrient == "zn_mg"],
+    va_inad = ifelse(vita_rae_mcg<va_ref, 1,0),
+    fo_inad = ifelse(folate_mcg<fo_ref, 1,0),
+    vb12_inad = ifelse(vitb12_mcg<vb12_ref,1,0),
+    fe_inad = ifelse(fe_mg<fe_ref, 1,0),
+    zn_inad = ifelse(zn_mg<zn_ref, 1,0)
+) %>%
+  left_join(eth_hh_info %>% select(hhid,adm1,survey_wgt) %>% 
+              distinct(hhid,.keep_all = TRUE), by='hhid') %>% 
+  as_survey_design(ids = hhid, strata = adm1, weights = survey_wgt) %>% 
+  srvyr::group_by(adm1) %>% 
+  srvyr::summarise(
+    va_inad =srvyr::survey_mean(
+      va_inad == 1, proportion = TRUE,
+      na.rm = T
+    )*100,
+    fo_inad =  srvyr::survey_mean(
+      fo_inad == 1, proportion = TRUE,
+      na.rm = T
+    )*100,
+    fe_inad = srvyr::survey_mean(
+      fe_inad == 1, proportion = TRUE,
+      na.rm = T
+    )*100,
+    zn_inad  = srvyr::survey_mean(
+      zn_inad == 1, proportion = TRUE,
+      na.rm = T
+    )*100,
+    vb12_inad = srvyr::survey_mean(
+      vb12_inad == 1, proportion = TRUE,
+      na.rm = T
+    )*100
+  )
+
+
+hices_inad_sp <- hices_inad %>% left_join(eth_adm1_hices, by = "adm1") %>% 
+  st_as_sf()
+
+hices_vita <- tm_shape(hices_inad_sp)+
+  tm_fill(col = "va_inad",style = "cont", breaks = seq(0,100,by=10),
+          palette = (wesanderson::wes_palette("Zissou1Continuous")),
+          title = "Prevalence of VMD" ,
+          legend.is.portrait = FALSE
+  ) +
+  tm_layout(main.title = "Vitamin A", 
+            frame = F, main.title.size = 0.8, 
+            main.title.position = "center",
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.35
+            
+  ) +
+  tm_borders(col = "black", lwd = 0.2) +
+  tm_legend(show = F) +
+  tm_credits("Source: Ethiopian Household Consumption Expenditure Survey 2015-16",
+             position = 'left',
+             size = 0.5)
+
+tmap_save(hices_vita, paste0(file_path, "hiecs_vita.png"),
+          width = 9, height = 9, units = "in", dpi = 600)
+
+
+
+hices_fo <- tm_shape(hices_inad_sp)+
+  tm_fill(col = "fo_inad",style = "cont", breaks = seq(0,100,by=10),
+          palette = (wesanderson::wes_palette("Zissou1Continuous")),
+          title = "Prevalence of VMD" ,
+          legend.is.portrait = FALSE
+  ) +
+  tm_layout(main.title = "Folate", 
+            frame = F, main.title.size = 0.8, 
+            main.title.position = "center",
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.35
+            
+  ) +
+  tm_borders(col = "black", lwd = 0.2) +
+  tm_legend(show = F) +
+  tm_credits("Source: Ethiopian Household Consumption Expenditure Survey 2015-16",
+             position = 'left',
+             size = 0.5)
+
+tmap_save(hices_fo, paste0(file_path, "hiecs_fo.png"),
+          width = 9, height = 9, units = "in", dpi = 600)
+
+
+hices_fe <- tm_shape(hices_inad_sp)+
+  tm_fill(col = "fe_inad",style = "cont", breaks = seq(0,100,by=10),
+          palette = (wesanderson::wes_palette("Zissou1Continuous")),
+          title = "Prevalence of VMD" ,
+          legend.is.portrait = FALSE
+  ) +
+  tm_layout(main.title = "Iron", 
+            frame = F, main.title.size = 0.8, 
+            main.title.position = "center",
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.35
+            
+  ) +
+  tm_borders(col = "black", lwd = 0.2) +
+  tm_legend(show = F) +
+  tm_credits("Source: Ethiopian Household Consumption Expenditure Survey 2015-16",
+             position = 'left',
+             size = 0.5)
+
+tmap_save(hices_fe, paste0(file_path, "hiecs_iron.png"),
+          width = 9, height = 9, units = "in", dpi = 600)
+
+
+hices_zn <- tm_shape(hices_inad_sp)+
+  tm_fill(col = "zn_inad",style = "cont", breaks = seq(0,100,by=10),
+          palette = (wesanderson::wes_palette("Zissou1Continuous")),
+          title = "Prevalence of VMD" ,
+          legend.is.portrait = FALSE
+  ) +
+  tm_layout(main.title = "Zinc", 
+            frame = F, main.title.size = 0.8, 
+            main.title.position = "center",
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.35
+            
+  ) +
+  tm_borders(col = "black", lwd = 0.2) +
+  tm_legend(show = F) +
+  tm_credits("Source: Ethiopian Household Consumption Expenditure Survey 2015-16",
+             position = 'left',
+             size = 0.5)
+
+tmap_save(hices_zn, paste0(file_path, "hiecs_zinc.png"),
+          width = 9, height = 9, units = "in", dpi = 600)
+  
+hices_b12 <- tm_shape(hices_inad_sp)+
+  tm_fill(col = "vb12_inad",style = "cont", breaks = seq(0,100,by=10),
+          palette = (wesanderson::wes_palette("Zissou1Continuous")),
+          title = "Prevalence of VMD" ,
+          legend.is.portrait = FALSE
+  ) +
+  tm_layout(main.title = "Vitamin B12", 
+            frame = F, main.title.size = 0.8, 
+            main.title.position = "center",
+            legend.outside.position = "bottom",
+            legend.outside.size = 0.35
+            
+  ) +
+  tm_borders(col = "black", lwd = 0.2) +
+  tm_legend(show = F) +
+  tm_credits("Source: Ethiopian Household Consumption Expenditure Survey 2015-16",
+             position = 'left',
+             size = 0.5)
+
+tmap_save(hices_b12, paste0(file_path, "hiecs_b12.png"),
+          width = 9, height = 9, units = "in", dpi = 600)
+
+
+
+legend_inad_intake <- tm_shape(hices_inad_sp) + 
+  tm_fill(col = "va_inad",
+          palette = (wesanderson::wes_palette("Zissou1Continuous")),
+          breaks = seq(0,100,by=10),
+          style = "cont",
+          textNA = "Missing Data",
+          title = "Prevalence of inadequate micronutrient intake (%)", 
+          legend.is.portrait = FALSE) + 
+  tm_layout(legend.only = T,
+            legend.position = c("center", "center"),
+            legend.width = 1, 
+            legend.height = 1,
+            title.position =c(0.5, 0.5))
+
+tmap_save(legend_inad_intake, paste0(file_path, "inad_intake_legend.png"),
+          width = 9, height = 9, units = "in", dpi = 600)
+

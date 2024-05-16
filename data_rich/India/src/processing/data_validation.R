@@ -25,9 +25,9 @@ library(sjmisc)
 # source(here::here("data_rich/India/src/processing/food_matching.R"))
 
 # read in cleaned and mathced data
-# path_to_data = here::here("India_analysis", "data", "processed/")
+path_to_data = here::here("data_rich", "India", "data", "processed/")
 
-path_to_data = here::here("data_rich","India", "data", "processed", "extra_states/")
+# path_to_data = here::here("data_rich","India", "data", "processed", "extra_states/")
 
 consumption <- read_csv(paste0(path_to_data, "consumption.csv"))
 
@@ -185,7 +185,7 @@ household_daily <- consumption %>%
     # ~ ifelse(Item_Code<180, .x/30,.x/7)
     ~.x/30
     )) %>%
-  dplyr::select(HHID,State_Code,Item_Code,item_name,Total_Consumption_Quantity,Total_Consumption_Value) %>%
+  dplyr::select(HHID,State_code,Item_Code,item_name,Total_Consumption_Quantity,Total_Consumption_Value) %>%
   dplyr::filter(
     !is.na(item_name)
   ) %>%
@@ -284,7 +284,7 @@ household_afe <-
       afe = sum(afe)
     )
 
-# write.csv(household_afe, paste0(path_to_data, "india_afe.csv"))
+ write.csv(household_afe, paste0(path_to_data, "india_afe.csv"))
 
 # %>% 
   # left_join(household_characteristics %>% select(HHID,HH_Size), by = "HHID")
@@ -323,7 +323,7 @@ food_items_grouped <- daily_food_items_consumed %>%
   ) %>%
   dplyr::mutate(
     dplyr::across(
-      -c( HHID, State_code,Item_Code,item_name, District_code,capita,afe, State_name),
+      -c( HHID, State_code,Item_Code,item_name, District_code,capita,afe),
       ~.x/capita
     )) %>% 
   dplyr::group_by(

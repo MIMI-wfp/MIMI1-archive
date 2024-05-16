@@ -55,9 +55,8 @@ read_in_survey <- function(name_of_survey, path_to_file = here::here("data_rich/
   # fct causes conflict with fct() function in forcats package, reconsider the name of this object
 }
 
+
 read_in_survey("ind_nss1112")
-x <- food_consumption %>% 
-  distinct(item_code)
 
 full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   # creates a data frame with a full list of food items for every
@@ -132,7 +131,7 @@ apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich
       across(-c(item_code,item_name,quantity_100g,quantity_g, food_group),
              ~sum(.,na.rm = T))
     ) %>% 
-    left_join(hh_info %>% select(hhid, afe), by = "hhid") %>% 
+    inner_join(hh_info %>% select(hhid, afe), by = "hhid") %>% 
     mutate(
       across(
         -c(hhid,afe),
@@ -145,8 +144,20 @@ apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich
 
 
 
+ind_ai <- apparent_intake("ind_nss1112")
+
+ind_ai %>% 
+  ggplot(aes(x = energy_kcal))+ 
+  geom_histogram()+
+  xlim(0,5000)
+
+ind_ai %>% 
+  summarise(median(energy_kcal),
+            mean(vita_rae_mcg),
+            mean(zn_mg))
 
 
+sum(is.na(hh_info$afe))
 
 household_data <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   #reads in the household information data

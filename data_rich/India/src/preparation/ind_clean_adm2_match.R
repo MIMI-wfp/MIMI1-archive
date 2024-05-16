@@ -1,5 +1,5 @@
 #########################################
-#        Simple clean                  #
+#            Simple clean               #
 #########################################
 
 # Author: Gabriel Battcock
@@ -38,11 +38,11 @@ block_12_consumer_expenditure <- read_csv(paste0(path_to_file, "Summary of Consu
 block_13_yoga_ayurveda <- read_csv(paste0(path_to_file, "Information on Ayurveda, Yoga, Naturopathy, Unani, Siddha, Homeopathy(ASYUSH) - Block 13 - Level 10 - 68.csv"))
 
 
-# Indian food composition table
+# # Indian food composition table
 # ifct <- read_xlsx("~/Documents/MIMI/MIMI_data/India/FCT/ifct_noduplicates_sentencecase_20231110.xlsx")
-#read in the conversion from item code to ifct code
+# # read in the conversion from item code to ifct code
 # item_code_dict <- read_xlsx(paste0(path_to_file,"food_codes_nsso_to_ifct.xlsx"),sheet = "food_codes")
-# item_code_dict %>% dplyr::select(!c(NSS_CES_group)) %>% na.omit()
+# item_code_dict %>% dplyr::select(!c(NS_CES_group)) %>% na.omit()
 
 
 #shape files ----------------------------------------
@@ -60,7 +60,6 @@ block_13_yoga_ayurveda <- read_csv(paste0(path_to_file, "Information on Ayurveda
 # gadm_adm2 <- gadm_adm2 %>%  ms_simplify(keep  = 0.1, keep_shapes = T, snap = T) 
 
 # #gadm3
-# gadm2_adm3 <- st_read(here::here("../MIMI_data/India/gadm41_IND_shp/gadm41_IND_3.shp"))
 # delhi_gadm3 <- gadm2_adm3 %>% filter(NAME_1 =="NCT of Delhi")
 # 
 # # 
@@ -97,11 +96,11 @@ block_13_yoga_ayurveda <- read_csv(paste0(path_to_file, "Information on Ayurveda
 
 ## rematch with NSSO codes
 # 
-nsso_states <-  state %>%
-  left_join(adm1_nsso_link, by =c("GID_1", "NAME_1")) %>%
-  group_by(State_code) %>%
-  mutate(geometry = sf::st_union(geometry)) %>%
-  slice(1)
+# nsso_states <-  state %>%
+#   left_join(adm1_nsso_link, by =c("GID_1", "NAME_1")) %>%
+#   group_by(State_code) %>%
+#   mutate(geometry = sf::st_union(geometry)) %>%
+#   slice(1)
 # 
 # 
 # 
@@ -111,7 +110,7 @@ nsso_states <-  state %>%
 # 
 # write_sf(nsso_states, here::here("data_rich/India/data/processed/state_shape.shp"))
 
-plot(nsso_states$geometry)
+# plot(nsso_states$geometry)
 
 
 
@@ -146,7 +145,7 @@ plot(nsso_states$geometry)
 #   filter(!is.na(State_code))
 # x_name$d_name %in% bmgf_states$District_name
 
-x_name <- district %>% dplyr::filter(pc11_s_id %in% c("09","10","22"))
+# x_name <- district %>% dplyr::filter(pc11_s_id %in% c("09","10","22"))
 # dplyr::anti_join(district %>% dplyr::filter(pc11_s_id == "09"), bmgf_states)
 # write a shape file
 
@@ -305,7 +304,7 @@ readr::write_csv(demographics_b4, here::here("data_rich", "India",
                                              "demographics.csv"))
 
 
-# Food composition -------------------------------------------------------------
+# Food consumption -------------------------------------------------------------
 
 
 

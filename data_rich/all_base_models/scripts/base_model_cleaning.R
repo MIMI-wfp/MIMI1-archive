@@ -19,8 +19,8 @@ library(readxl)
 
 
 
-path_to_data <- "MIMI_data/"
-path_to_save <- here::here("data_rich/all_base_models/data/")
+path_to_data <- "../MIMI_data/"
+path_to_save <- here::here("data_rich/all_base_models/data/current/")
 # path_to_save <-  here::here("data_rich/India/data/processed/lsff/")
 
 
@@ -30,8 +30,8 @@ source("data_rich/all_base_models/scripts/base_model_functions.R")
 
 # nsso #########################################################################
 
-# nsso_food_consumption <- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_daily_consumption.csv"))
-nsso_food_consumption <- read_csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/india_daily_consumption.csv")
+nsso_food_consumption <- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_daily_consumption.csv"))
+# nsso_food_consumption <- read_csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/india_daily_consumption.csv")
 
 
 nsso_food_consumption <- nsso_food_consumption %>% 
@@ -452,19 +452,19 @@ rm(nga_food_consumption)
 
 
 # nsso #########################################################################
-# nsso_basics <- read.csv("India_analysis/data/raw/block_1_2_identification.csv")
-# 
-# nsso_household_information <- read.csv("India_analysis/data/processed/household_char.csv")
-# nsso_demographics <- read.csv("India_analysis/data/processed/demographics.csv")
-# nsso_expenditure <- read.csv("India_analysis/data/raw/block_12_consumer_expenditure.csv")
-# nsso_afe<- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_afe.csv"))
+nsso_basics <- read.csv("data_rich/India/data/raw/block_1_2_identification.csv")
+
+nsso_household_information <- read.csv("data_rich/India/data/processed/household_char.csv")
+nsso_demographics <- read.csv("data_rich/India/data/processed/demographics.csv")
+nsso_expenditure <- read.csv("data_rich/India/data/raw/block_12_consumer_expenditure.csv")
+nsso_afe<- read.csv( "data_rich/India/data/processed/india_afe.csv")
 #extra states
-nsso_basics <- read.csv(here::here("~/Documents/MIMI/data_science_code/DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012/Identification of Sample Household - Block 1 and 2 - Level 1 -  68.csv"))
-# 
-nsso_household_information <- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/household_char.csv")
-nsso_demographics <- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/demographics.csv")
-nsso_expenditure <- read.csv(here::here("data_rich/India/data/raw/extra_states/block_12_consumer_expenditure.csv"))
-nsso_afe<- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/india_afe.csv")
+# nsso_basics <- read.csv(here::here("~/Documents/MIMI/data_science_code/DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012/Identification of Sample Household - Block 1 and 2 - Level 1 -  68.csv"))
+# # 
+# nsso_household_information <- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/household_char.csv")
+# nsso_demographics <- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/demographics.csv")
+# nsso_expenditure <- read.csv(here::here("data_rich/India/data/raw/extra_states/block_12_consumer_expenditure.csv"))
+# nsso_afe<- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/india_afe.csv")
 
 
 
@@ -508,25 +508,29 @@ nsso_basics <- nsso_basics %>%
 
 nsso_expenditure <- nsso_expenditure %>% 
   rename(hhid = HHID) %>% 
-  group_by(hhid) %>% 
-  summarise(Value = sum(Value)) %>% 
+  filter(Srl_no == 49) %>% 
   left_join(nsso_afe, by = "hhid") %>% 
   mutate(expenditure = Value/(afe*30)) %>% 
-  ungroup() 
-# %>% 
-#   mutate(sep_quintile = ntile(expenditure, 5)) %>% 
-#   group_by(urbrur) %>% 
-#   mutate(ur_quintile = ntile(expenditure, 5)) %>% 
-#   ungroup() 
+  ungroup() %>% 
+  select(hhid, expenditure)
+# %>%
+#   mutate(sep_quintile = ntile(expenditure, 5)) %>%
+#   group_by(urbrur) %>%
+#   mutate(ur_quintile = ntile(expenditure, 5)) %>%
+#   ungroup()
 
-nsso_household_information <- nsso_household_information %>% 
-  left_join(nsso_basics, by = "hhid") %>% 
+nsso_household_information <- nsso_basics %>% 
+  left_join(nsso_household_information, by = "hhid") %>% 
   left_join(nsso_expenditure, by = "hhid") %>% 
+  left_join(nsso_afe, by= "hhid") %>% 
   mutate(sep_quintile = ntile(expenditure, 5)) %>% 
   group_by(res) %>%
   mutate(res_quintile = ntile(expenditure, 5)) %>%
   ungroup() %>% 
-  select(-c(Value, expenditure))
+  select(-c(expenditure))
+
+summary(nsso_household_information)
+nsso_household_information
 
 write_csv(nsso_household_information, paste0(path_to_save,"ind_nss1112_hh_info.csv"))
 
