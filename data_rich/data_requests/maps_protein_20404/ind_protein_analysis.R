@@ -22,13 +22,10 @@ rm(list= c("rq_packages", "installed_packages"))
 source(here::here("data_rich/India/src/preparation/india_lsff/ind_mapping.R"))
 
 # ------------------------------------------------------------------------------
-
 amino_acid_fct <- read_xlsx("~/Documents/MIMI/MIMI_data/India/India_NSSO_2012/nsso_fct_amino_acids.xlsx") %>% 
   select(item_code, lysine_g,tryptophan_g)
 
 file_path <- here::here("data_rich/India/data/processed/lsff/")
-
-
 read_in_survey("ind_nss1112",file_path)
 
 ind_consumption <- food_consumption
@@ -52,6 +49,7 @@ apparent_aa_intake <- function(name_of_survey = "ind_nss1112", path_to_file = fi
     left_join(amino_acid_fct, by = "item_code") %>% 
     mutate(across(
       c(lysine_g, tryptophan_g),
+      # amino acids are provided in grams per 100g of protein
       ~.x*(protein_g/100)
     )) %>% 
     group_by(hhid) %>%
@@ -71,77 +69,90 @@ apparent_aa_intake <- function(name_of_survey = "ind_nss1112", path_to_file = fi
   x
 }
 
-ind_aa_intake <- apparent_aa_intake()
+
+file_path <- here::here("data_rich/India/data/processed/lsff/")
+read_in_survey("ind_nss1112",file_path)
+ind_nsso1112_hh_info <- hh_info
+rm(hh_info)
+
+  # create intake at an admin level
+mean_aa_intake <- function(...){
   
-# create intake at an admin level
 
-ind_nsso1112_hh_info %>% 
-  dplyr::select(
-    hhid, 
-    res,
-    adm1,
-    adm2,
-    sep_quintile,
-    res_quintile,
-    survey_wgt
-  ) %>% 
-  dplyr::left_join(
-    ind_aa_intake,
-    by = "hhid"
-  ) %>% 
-  as_survey_design(
-    ids = hhid,
-    
-    weights = survey_wgt
-  ) %>% 
-  srvyr::group_by(
-    # aggregate by who 
-    adm1
-  ) %>% 
-  srvyr::summarise(
-    across(
-      c(protein_g,lysine_g, tryptophan_g),
-      ~survey_mean(.x, na.rm = T)
+  x <- ind_nsso1112_hh_info %>% 
+    dplyr::select(
+      hhid, 
+      res,
+      adm1,
+      adm2,
+      sep_quintile,
+      res_quintile,
+      survey_wgt
+    ) %>% 
+    dplyr::left_join(
+      ind_aa_intake,
+      by = "hhid"
+    ) %>% 
+    as_survey_design(
+      ids = hhid,
+      
+      weights = survey_wgt
+    ) %>% 
+    srvyr::group_by(
+      # aggregate by who 
+      ...
+    ) %>% 
+    srvyr::summarise(
+      across(
+        c(protein_g,lysine_g, tryptophan_g),
+        ~survey_mean(.x, na.rm = T)
+      )
     )
+  return(x)
+}
+
+sep_quintile_intake_aa <- mean_aa_intake(sep_quintile) %>% 
+  filter(!is.na(sep_quintile))
+
+res_quintile = c(res,res_quintile)
+
+res_quintile_intake_aa <- mean_aa_intake(res,res_quintile)  %>% 
+  filter(!is.na(res_quintile))
+
+res_intake_aa <-  mean_aa_intake(res) %>% 
+  mutate(res_quintile = 0)
+
+res_quintile_intake_aa <- bind_rows(res_intake_aa,res_quintile_intake_aa)
+
+adm1_intake_aa <-  mean_aa_intake(adm1)
+
+# prevalence of inadequacy -----------------------------------------------------
+
+# RDA 
+
+aa_rda <- data.frame(
+  amino_acid = c("lysine", "tryptophan"),
+  value_g_per_kg = c(0.030,0.0035)
+)
+
+weight_kg = 55
+
+aa_rda <- aa_rda %>% 
+  mutate(rda = value_g_per_kg*55)
+
+ind_aa_intake %>% 
+  mutate(
+    lys_rda = 1.65, 
+    tryp_rda = 0.1925,
+    lys_inad = ifelse(lysine_g<lys_rda, 1,0),
+    tryp_inad = ifelse(tryptophan_g<tryp_rda, 1,0)
+  ) %>% 
+  summarise(
+    sum(lys_inad, na.rm = T),
+    sum(tryp_inad, na.rm = T),
+    n()
   )
-
-12*70
-
-3.5*70
+ 
 
 
 
-
-
-
-
-
-
-
-
-# maps for maps
-ind_micronutrient_maps('adm1', lysine_g)+
-  tm_layout(main.title = "Lysine", frame = F,
-            main.title.size = 0.8)
-
-ind_micronutrient_maps('adm1', protein_g)+
-  tm_layout(main.title = "Protein", frame = F,
-            main.title.size = 0.8)
-
-ind_micronutrient_maps('adm1', tryptophan_g ) +
-  tm_layout(main.title = "Tryptophan", frame = F,
-            main.title.size = 0.8)
-
-ind_micronutrient_maps('adm1', energy_kcal)
-
-
-
-ind_full_item <- full_item_list("ind_nss1112")
-
-
-
-
-x <- intake_aggregate(adm1,energy_kcal)
-
-india_ai %>% 
-  select(hhid,lysine_g, tryptophan_g, protein_g)

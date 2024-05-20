@@ -77,9 +77,6 @@ intake_aggregate <- function( aggregate_level, micronutrient, path_to_file = fil
   return(output_df)
   
 }
-ind_vita_adm2 <- intake_aggregate(adm1, vita_rae_mcg)
-# ind_vitb12_adm2 <- intake_aggregate(adm2, vitb12_mcg)
-# ind_lys <- intake_aggregate(adm2, lysine_g)
 
 
 
@@ -160,18 +157,6 @@ prevalence_aggregate <- function(aggregate_level, micronutrient, path_to_file = 
   
 }
 
-# 
-# prevalence_aggregate(adm1, "zn_mg")
-# x <- india_adm1 %>% 
-#   rename(adm1 = 'State_code') %>%  
-#   inner_join(fol_adm1, by= "adm1")
-# 
-# tm_shape(x) +
-#   tm_fill(col = "inad_prev", style = "cont",
-#           breaks = seq(0,1,by=.10),
-#           palette = (wesanderson::wes_palette("Zissou1Continuous")),
-#           legend.is.portrait = FALSE
-#   )
 
 # create maps ------------------------------------------------------------------
 

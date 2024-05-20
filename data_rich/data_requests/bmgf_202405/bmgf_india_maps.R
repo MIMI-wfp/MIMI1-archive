@@ -82,7 +82,8 @@ cnns_iron <- tm_shape(ind_cnns_sp)+
   tm_legend(show = F) +
   tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("NAME_1", size = 1/2)
 
 
 tmap_save(cnns_iron, paste0(file_path, "cnns_iron.png"),

@@ -460,7 +460,7 @@ nsso_expenditure <- read.csv("data_rich/India/data/raw/block_12_consumer_expendi
 nsso_afe<- read.csv( "data_rich/India/data/processed/india_afe.csv")
 #extra states
 # nsso_basics <- read.csv(here::here("~/Documents/MIMI/data_science_code/DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012/Identification of Sample Household - Block 1 and 2 - Level 1 -  68.csv"))
-# # 
+# #
 # nsso_household_information <- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/household_char.csv")
 # nsso_demographics <- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/demographics.csv")
 # nsso_expenditure <- read.csv(here::here("data_rich/India/data/raw/extra_states/block_12_consumer_expenditure.csv"))
