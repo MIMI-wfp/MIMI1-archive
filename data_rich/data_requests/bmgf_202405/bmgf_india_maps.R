@@ -32,14 +32,14 @@ file_path <- here::here("~/Documents/MIMI/MIMI_data/data_requests/bmgf_052024/")
 
 ind_cnns16 <- read.csv(paste0(file_path, "ind_cnns_vmd.csv"))
 india_adm2 <- st_read(here::here("data_rich/India/data/processed/extra_states/district_shape.shp"))
-india_adm1 <- st_read("~/Documents/MIMI/MIMI_data/India/gadm41_IND_shp/gadm41_IND_1.shp")
+india_adm1 <- st_read("~/Documents/MIMI/MIMI_data/India/gadm41_IND_shp/gadm41_IND_1.shp") 
 
 
 ind_states <-  india_adm1 %>%
   # left_join(adm1_nsso_link, by =c("GID_1", "NAME_1")) %>%
   group_by(NAME_1) %>%
   mutate(geometry = sf::st_union(geometry)) %>%
-  slice(1)
+  slice(1) 
 
 
 
@@ -56,7 +56,10 @@ ind_cnns16 <- ind_cnns16 %>%
 
 ind_cnns_sp <- ind_states %>% 
   inner_join(ind_cnns16, by = "NAME_1") %>% 
-  st_as_sf() 
+  # ms_simplify(keep  = 0.2, keep_shapes = T, snap = T) %>% 
+  st_cast("MULTIPOLYGON") %>% 
+  st_as_sf()
+ 
   
 
 
@@ -73,17 +76,18 @@ cnns_iron <- tm_shape(ind_cnns_sp)+
   ) +
   tm_layout(main.title = "Iron",  frame = F, 
             main.title.size = 0.8, 
-            main.title.position = "center",
+            main.title.position = "left",
             legend.outside.position = "bottom",
             legend.outside.size = 0.35
             
   )+
+ 
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
   tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
-             position = 'left',
-             size = 0.5)+
-  tm_text("NAME_1", size = 1/2)
+             position = c('left','bottom'),
+             size = 0.39)+
+  tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 
 tmap_save(cnns_iron, paste0(file_path, "cnns_iron.png"),
@@ -104,9 +108,11 @@ cnns_zinc <- tm_shape(ind_cnns_sp)+
   )+ +
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
+
   tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
-             position = 'left',
-             size = 0.5)
+             position = c('left','bottom'),
+             size = 0.39)+
+  tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 
 tmap_save(cnns_zinc, paste0(file_path, "cnns_zinc.png"),
@@ -128,8 +134,9 @@ cnns_vita <- tm_shape(ind_cnns_sp)+
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
   tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
-             position = 'left',
-             size = 0.5)
+           position = c('left','bottom'),
+           size = 0.39)+
+  tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(cnns_vita, paste0(file_path, "cnns_vita.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -149,9 +156,11 @@ cnns_folate <- tm_shape(ind_cnns_sp)+
   )+ 
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
+  
   tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
-             position = 'left',
-             size = 0.5)
+             position = c('left','bottom'),
+             size = 0.39)+
+  tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(cnns_folate, paste0(file_path, "cnns_folate.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -173,8 +182,10 @@ cnns_vitb12 <- tm_shape(ind_cnns_sp)+
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
   tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
-             position = 'left',
-             size = 0.5)
+             position = c('left','bottom'),
+             size = 0.39)+
+  tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
+
 
 tmap_save(cnns_vitb12, paste0(file_path, "cnns_vitb12.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -194,9 +205,11 @@ cnns_vitd <- tm_shape(ind_cnns_sp)+
   )+ 
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
+  
   tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
-             position = 'left',
-             size = 0.5)
+             position = c('left','bottom'),
+             size = 0.39)+
+  tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(cnns_vitd, paste0(file_path, "cnns_vitd.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -251,6 +264,7 @@ eth_adm1 <- eth_adm1 %>%
 
 eth_nns_sp <- eth_adm1 %>% 
   left_join(eth_nns, by = c('adm1' = "zone")) %>% 
+  st_cast("MULTIPOLYGON") %>% 
   st_as_sf()
 
 # maps
@@ -276,7 +290,8 @@ eth_vitd <- tm_shape(eth_nns_sp)+
   tm_legend(show = F) +
   tm_credits("Source: Ethiopia National Food and Nutrition Survey 2021-22",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(eth_vitd, paste0(file_path, "eth_vitd.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -301,7 +316,8 @@ eth_iron <- tm_shape(eth_nns_sp)+
   tm_legend(show = F) +
   tm_credits("Source: Ethiopia National Food and Nutrition Survey 2021-22",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 
 tmap_save(eth_iron, paste0(file_path, "eth_iron.png"),
@@ -325,7 +341,8 @@ eth_vita <- tm_shape(eth_nns_sp)+
   tm_legend(show = F) +
   tm_credits("Source: Ethiopia National Food and Nutrition Survey 2021-22",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(eth_vita, paste0(file_path, "eth_vita.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -348,7 +365,8 @@ eth_fol <- tm_shape(eth_nns_sp)+
   tm_legend(show = F) +
   tm_credits("Source: Ethiopia National Food and Nutrition Survey 2021-22",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(eth_fol, paste0(file_path, "eth_fol.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -370,7 +388,8 @@ eth_vitb12 <- tm_shape(eth_nns_sp)+
   tm_legend(show = F) +
   tm_credits("Source: Ethiopia National Food and Nutrition Survey 2021-22",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(eth_vitb12, paste0(file_path, "eth_vitb12.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -388,7 +407,8 @@ legend <- tm_shape(eth_nns_sp) +
             legend.height = 1,
             title.position =c(0.5, 0.5))
 
-
+tmap_save(legend, paste0(file_path, "eth_reach.png"),
+          width = 9, height = 9, units = "in", dpi = 600)
 
 # reach of vehices
 eth_wheat <- tm_shape(eth_nns_sp) +
@@ -404,7 +424,8 @@ eth_wheat <- tm_shape(eth_nns_sp) +
   tm_legend(show = F) +
   tm_credits("Source: Ethiopia National Food and Nutrition Survey 2021-22",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 
 
@@ -425,7 +446,8 @@ eth_oil <- tm_shape(eth_nns_sp) +
   tm_legend(show = F) +
   tm_credits("Source: Ethiopia National Food and Nutrition Survey 2021-22",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(eth_oil, paste0(file_path, "eth_oil.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -443,7 +465,8 @@ eth_salt <- tm_shape(eth_nns_sp) +
   tm_legend(show = F) +
   tm_credits("Source: Ethiopia National Food and Nutrition Survey 2021-22",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(eth_salt, paste0(file_path, "eth_salt.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -553,7 +576,8 @@ hices_vita <- tm_shape(hices_inad_sp)+
   tm_legend(show = F) +
   tm_credits("Source: Ethiopian Household Consumption Expenditure Survey 2015-16",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(hices_vita, paste0(file_path, "hiecs_vita.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -577,7 +601,8 @@ hices_fo <- tm_shape(hices_inad_sp)+
   tm_legend(show = F) +
   tm_credits("Source: Ethiopian Household Consumption Expenditure Survey 2015-16",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(hices_fo, paste0(file_path, "hiecs_fo.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -600,7 +625,8 @@ hices_fe <- tm_shape(hices_inad_sp)+
   tm_legend(show = F) +
   tm_credits("Source: Ethiopian Household Consumption Expenditure Survey 2015-16",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(hices_fe, paste0(file_path, "hiecs_iron.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -623,7 +649,8 @@ hices_zn <- tm_shape(hices_inad_sp)+
   tm_legend(show = F) +
   tm_credits("Source: Ethiopian Household Consumption Expenditure Survey 2015-16",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(hices_zn, paste0(file_path, "hiecs_zinc.png"),
           width = 9, height = 9, units = "in", dpi = 600)
@@ -645,7 +672,8 @@ hices_b12 <- tm_shape(hices_inad_sp)+
   tm_legend(show = F) +
   tm_credits("Source: Ethiopian Household Consumption Expenditure Survey 2015-16",
              position = 'left',
-             size = 0.5)
+             size = 0.5)+
+  tm_text("adm1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
 
 tmap_save(hices_b12, paste0(file_path, "hiecs_b12.png"),
           width = 9, height = 9, units = "in", dpi = 600)
