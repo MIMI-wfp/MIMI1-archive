@@ -84,7 +84,7 @@ cnns_iron <- tm_shape(ind_cnns_sp)+
  
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
-  tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
+  tm_credits("Source: India Comprehensive National Nutrition Survey 2016-18",
              position = c('left','bottom'),
              size = 0.39)+
   tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
@@ -109,7 +109,7 @@ cnns_zinc <- tm_shape(ind_cnns_sp)+
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
 
-  tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
+  tm_credits("Source: India Comprehensive National Nutrition Survey 2016-18",
              position = c('left','bottom'),
              size = 0.39)+
   tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
@@ -133,7 +133,7 @@ cnns_vita <- tm_shape(ind_cnns_sp)+
   )+ 
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
-  tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
+  tm_credits("Source: India Comprehensive National Nutrition Survey 2016-18",
            position = c('left','bottom'),
            size = 0.39)+
   tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
@@ -157,7 +157,7 @@ cnns_folate <- tm_shape(ind_cnns_sp)+
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
   
-  tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
+  tm_credits("Source: India Comprehensive National Nutrition Survey 2016-18",
              position = c('left','bottom'),
              size = 0.39)+
   tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
@@ -181,7 +181,7 @@ cnns_vitb12 <- tm_shape(ind_cnns_sp)+
   )+ 
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
-  tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
+  tm_credits("Source: India Comprehensive National Nutrition Survey 2016-18",
              position = c('left','bottom'),
              size = 0.39)+
   tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
@@ -206,7 +206,7 @@ cnns_vitd <- tm_shape(ind_cnns_sp)+
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
   
-  tm_credits("Source: The Indian Comprehensive Nation Nutrition Survey 2016-18",
+  tm_credits("Source: India Comprehensive National Nutrition Survey 2016-18",
              position = c('left','bottom'),
              size = 0.39)+
   tm_text("NAME_1", size = 0.5, remove.overlap = TRUE, size.lim = c(0.5,0.6))
