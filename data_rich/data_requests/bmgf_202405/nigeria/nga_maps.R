@@ -4,7 +4,7 @@
 
 # Author: Mo Osman
 # Date created: 15-May-2024
-# Last edited: 
+# Last edited: 23-May-2024
 
 # This script has been created to create maps of VMD, dietary inadequacy and vehicle 
 # coverage for the 6 geopolitical zones in Nigeria.
@@ -29,7 +29,7 @@ rm(list= c("rq_packages", "installed_packages"))
 # READ IN REQUIRED DATA: 
 
 # Read in estimates for Nigeria: 
-nga_estimates <- read_csv("data_rich/data_requests/bmgf_14052024/nga_estimates.csv")
+nga_estimates <- read_csv("data_rich/data_requests/bmgf_202405/nigeria/nga_estimates.csv")
 
 # Read in "cover" data, this will be used to determine which states belong to 
 # which geopolitical zone: 
@@ -161,6 +161,7 @@ plot_map <- function(data, col, title, metric, caption) {
     tm_fill(col = col,
             title = metric, 
             style = "cont",
+            breaks = seq(0, 100, by = 10),
             textNA = "Missing Data",
             legend.is.portrait = F) + 
     tm_layout(main.title = title, frame = F, main.title.size = 0.8, 
@@ -189,7 +190,7 @@ wf_cov <- plot_map(data = nga_coverage,
 
 wf_cov
 
-# tmap_save(wf_cov, "data_rich/data_requests/bmgf_14052024/nigeria/vehicle_coverage/wflour.png", 
+# tmap_save(wf_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/wflour.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(wf_cov)
@@ -204,7 +205,9 @@ mf_cov <- plot_map(data = nga_coverage,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(mf_cov, "data_rich/data_requests/bmgf_14052024/nigeria/vehicle_coverage/mflour.png", 
+mf_cov
+
+# tmap_save(mf_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/mflour.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(mf_cov)
@@ -219,7 +222,9 @@ sem_cov <- plot_map(data = nga_coverage,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(sem_cov, "data_rich/data_requests/bmgf_14052024/nigeria/vehicle_coverage/semolina.png", 
+sem_cov
+
+# tmap_save(sem_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/semolina.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(sem_cov)
@@ -234,7 +239,9 @@ oil_cov <- plot_map(data = nga_coverage,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(oil_cov, "data_rich/data_requests/bmgf_14052024/nigeria/vehicle_coverage/oil.png", 
+oil_cov
+
+# tmap_save(oil_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/oil.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(oil_cov)
@@ -249,7 +256,9 @@ sugar_cov <- plot_map(data = nga_coverage,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(sugar_cov, "data_rich/data_requests/bmgf_14052024/nigeria/vehicle_coverage/sugar.png", 
+sugar_cov
+
+# tmap_save(sugar_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/sugar.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(sugar_cov)
@@ -264,7 +273,9 @@ salt_cov <- plot_map(data = nga_coverage,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(salt_cov, "data_rich/data_requests/bmgf_14052024/nigeria/vehicle_coverage/salt.png", 
+salt_cov
+
+# tmap_save(salt_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/salt.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(salt_cov)
@@ -279,7 +290,9 @@ bouillon_cov <- plot_map(data = nga_coverage,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(bouillon_cov, "data_rich/data_requests/bmgf_14052024/nigeria/vehicle_coverage/bouillon.png", 
+bouillon_cov
+
+# tmap_save(bouillon_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/bouillon.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(list = c("bouillon_cov", "nga_coverage"))
@@ -296,6 +309,7 @@ plot_map <- function(data, col, title, metric, caption) {
     tm_fill(col = col,
             title = metric, 
             style = "cont",
+            breaks = seq(0, 100, by = 10),
             textNA = "Missing Data",
             legend.is.portrait = F,
             palette = wesanderson::wes_palette("Zissou1Continuous")) + 
@@ -324,7 +338,7 @@ fe_inad <- plot_map(data = nga_inad,
 
 fe_inad
 
-# tmap_save(fe_inad, "data_rich/data_requests/bmgf_14052024/nigeria/inadequacy/iron.png", 
+# tmap_save(fe_inad, "data_rich/data_requests/bmgf_202405/nigeria/inadequacy/iron.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(fe_inad)
@@ -339,7 +353,9 @@ zn_inad <- plot_map(data = nga_inad,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(zn_inad, "data_rich/data_requests/bmgf_14052024/nigeria/inadequacy/zinc.png", 
+zn_inad
+
+# tmap_save(zn_inad, "data_rich/data_requests/bmgf_202405/nigeria/inadequacy/zinc.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(zn_inad)
@@ -354,7 +370,9 @@ va_inad <- plot_map(data = nga_inad,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(va_inad, "data_rich/data_requests/bmgf_14052024/nigeria/inadequacy/vitamin_a.png", 
+va_inad
+
+# tmap_save(va_inad, "data_rich/data_requests/bmgf_202405/nigeria/inadequacy/vitamin_a.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(va_inad)
@@ -369,7 +387,9 @@ folate_inad <- plot_map(data = nga_inad,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(folate_inad, "data_rich/data_requests/bmgf_14052024/nigeria/inadequacy/folate.png", 
+folate_inad
+
+# tmap_save(folate_inad, "data_rich/data_requests/bmgf_202405/nigeria/inadequacy/folate.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(folate_inad)
@@ -384,7 +404,9 @@ thia_inad <- plot_map(data = nga_inad,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(thia_inad, "data_rich/data_requests/bmgf_14052024/nigeria/inadequacy/thiamine.png", 
+thia_inad
+
+# tmap_save(thia_inad, "data_rich/data_requests/bmgf_202405/nigeria/inadequacy/thiamine.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(thia_inad)
@@ -399,7 +421,9 @@ ribo_inad <- plot_map(data = nga_inad,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(ribo_inad, "data_rich/data_requests/bmgf_14052024/nigeria/inadequacy/riboflavin.png", 
+ribo_inad
+
+# tmap_save(ribo_inad, "data_rich/data_requests/bmgf_202405/nigeria/inadequacy/riboflavin.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(ribo_inad)
@@ -414,7 +438,9 @@ vb12_inad <- plot_map(data = nga_inad,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-# tmap_save(vb12_inad, "data_rich/data_requests/bmgf_14052024/nigeria/inadequacy/vitamin_b12.png", 
+vb12_inad
+
+# tmap_save(vb12_inad, "data_rich/data_requests/bmgf_202405/nigeria/inadequacy/vitamin_b12.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 # Calcium: 
@@ -429,7 +455,7 @@ ca_inad <- plot_map(data = nga_inad,
 
 ca_inad
 
-# tmap_save(ca_inad, "data_rich/data_requests/bmgf_14052024/nigeria/inadequacy/calcium.png", 
+# tmap_save(ca_inad, "data_rich/data_requests/bmgf_202405/nigeria/inadequacy/calcium.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(ca_inad)
@@ -450,9 +476,9 @@ legend <- tm_shape(nga_inad) +
             title.position = c(0.5, 0.5))
 
 legend
-
-tmap_save(legend, "data_rich/data_requests/bmgf_14052024/nigeria/inadequacy/legend.png", 
-          width = 9, height = 9, units = "in", dpi = 600)
+# 
+# tmap_save(legend, "data_rich/data_requests/bmgf_202405/nigeria/inadequacy/legend.png", 
+#           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(legend, vb12_inad, nga_inad)
 
@@ -472,8 +498,10 @@ fe_vmd <- plot_map(data = nga_vmd,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-tmap_save(fe_vmd, "data_rich/data_requests/bmgf_14052024/nigeria/vmd/iron.png", 
-          width = 9, height = 9, units = "in", dpi = 600)
+fe_vmd
+
+# tmap_save(fe_vmd, "data_rich/data_requests/bmgf_202405/nigeria/vmd/iron.png", 
+#           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(fe_vmd)
 
@@ -487,8 +515,10 @@ zn_vmd <- plot_map(data = nga_vmd,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-tmap_save(zn_vmd, "data_rich/data_requests/bmgf_14052024/nigeria/vmd/zinc.png", 
-          width = 9, height = 9, units = "in", dpi = 600)
+zn_vmd
+
+# tmap_save(zn_vmd, "data_rich/data_requests/bmgf_202405/nigeria/vmd/zinc.png", 
+#           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(zn_vmd)
 
@@ -502,8 +532,10 @@ va_vmd <- plot_map(data = nga_vmd,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-tmap_save(va_vmd, "data_rich/data_requests/bmgf_14052024/nigeria/vmd/vitamin_a.png", 
-          width = 9, height = 9, units = "in", dpi = 600)
+va_vmd
+
+# tmap_save(va_vmd, "data_rich/data_requests/bmgf_202405/nigeria/vmd/vitamin_a.png", 
+#           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(va_vmd)
 
@@ -517,8 +549,10 @@ folate_vmd <- plot_map(data = nga_vmd,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-tmap_save(folate_vmd, "data_rich/data_requests/bmgf_14052024/nigeria/vmd/folate.png", 
-          width = 9, height = 9, units = "in", dpi = 600)
+folate_vmd
+
+# tmap_save(folate_vmd, "data_rich/data_requests/bmgf_202405/nigeria/vmd/folate.png", 
+#           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(folate_vmd)
 
@@ -532,8 +566,10 @@ thia_vmd <- plot_map(data = nga_vmd,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-tmap_save(thia_vmd, "data_rich/data_requests/bmgf_14052024/nigeria/vmd/thiamine.png", 
-          width = 9, height = 9, units = "in", dpi = 600)
+thia_vmd
+
+# tmap_save(thia_vmd, "data_rich/data_requests/bmgf_202405/nigeria/vmd/thiamine.png", 
+#           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(thia_vmd)
 
@@ -547,8 +583,10 @@ ribo_vmd <- plot_map(data = nga_vmd,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-tmap_save(ribo_vmd, "data_rich/data_requests/bmgf_14052024/nigeria/vmd/riboflavin.png", 
-          width = 9, height = 9, units = "in", dpi = 600)
+ribo_vmd
+
+# tmap_save(ribo_vmd, "data_rich/data_requests//vmd/riboflavin.png", 
+#           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(ribo_vmd)
 
@@ -562,8 +600,10 @@ vb12_vmd <- plot_map(data = nga_vmd,
          \n
          Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
 
-tmap_save(vb12_vmd, "data_rich/data_requests/bmgf_14052024/nigeria/vmd/vitamin_b12.png", 
-          width = 9, height = 9, units = "in", dpi = 600)
+vb12_vmd
+
+# tmap_save(vb12_vmd, "data_rich/data_requests/bmgf_202405/nigeria/vmd/vitamin_b12.png", 
+#           width = 9, height = 9, units = "in", dpi = 600)
 
 # Legend: 
 legend <- tm_shape(nga_vmd) + 
@@ -582,8 +622,8 @@ legend <- tm_shape(nga_vmd) +
 
 legend
 
-tmap_save(legend, "data_rich/data_requests/bmgf_14052024/nigeria/vmd/legend.png", 
-          width = 9, height = 9, units = "in", dpi = 600)
+# tmap_save(legend, "data_rich/data_requests/bmgf_202405/nigeria/vmd/legend.png", 
+#           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(legend, vb12_vmd, nga_vmd)
 
