@@ -18,10 +18,8 @@ library(ggplot2)
 library(readxl)
 
 
-
 path_to_data <- "MIMI_data/"
 path_to_save <- here::here("data_rich/all_base_models/data/")
-# path_to_save <-  here::here("data_rich/India/data/processed/lsff/")
 
 
 setwd(here::here())
@@ -30,8 +28,8 @@ source("data_rich/all_base_models/scripts/base_model_functions.R")
 
 # nsso #########################################################################
 
-# nsso_food_consumption <- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_daily_consumption.csv"))
-nsso_food_consumption <- read_csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/india_daily_consumption.csv")
+nsso_food_consumption <- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_daily_consumption.csv"))
+# nsso_food_consumption <- read_csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/india_daily_consumption.csv")
 
 
 nsso_food_consumption <- nsso_food_consumption %>% 
@@ -48,8 +46,6 @@ nsso_food_consumption <- nsso_food_consumption %>%
 
 write_csv(nsso_food_consumption, paste0(path_to_save,"ind_nss1112_food_consumption.csv"))
 
-
-
 # 
 # nsso_fct <- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_matched_fct.csv"))
 nsso_fct <- read_xlsx(paste0(path_to_data, "India/India_NSSO_2012/nsso_fct_20240417.xlsx"), sheet = 1)
@@ -64,7 +60,7 @@ nsso_fct <- nsso_fct %>%
       "_name",
       "_source"
     )
-  )|item_name) %>% 
+  )) %>% 
   
   rename(
     # item_code = Item_Code,
@@ -78,13 +74,7 @@ nsso_fct <- nsso_fct %>%
     thia_mg = vitb1_mg,
     ribo_mg = vitb2_mg,
     niac_mg = vitb3_mg,
-  ) %>% 
-  mutate(
-    across(-c(item_name, item_code),
-    ~tidyr::replace_na(.x,0)
-  )
-  )
-  
+  ) 
 
 
 write_csv(nsso_fct, paste0(path_to_save,"ind_nss1112_fct.csv"))
@@ -452,19 +442,19 @@ rm(nga_food_consumption)
 
 
 # nsso #########################################################################
-# nsso_basics <- read.csv("India_analysis/data/raw/block_1_2_identification.csv")
-# 
-# nsso_household_information <- read.csv("India_analysis/data/processed/household_char.csv")
-# nsso_demographics <- read.csv("India_analysis/data/processed/demographics.csv")
-# nsso_expenditure <- read.csv("India_analysis/data/raw/block_12_consumer_expenditure.csv")
-# nsso_afe<- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_afe.csv"))
+nsso_basics <- read.csv("India_analysis/data/raw/block_1_2_identification.csv")
+
+nsso_household_information <- read.csv("India_analysis/data/processed/household_char.csv")
+nsso_demographics <- read.csv("India_analysis/data/processed/demographics.csv")
+nsso_expenditure <- read.csv("India_analysis/data/raw/block_12_consumer_expenditure.csv")
+nsso_afe<- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_afe.csv")) 
 #extra states
-nsso_basics <- read.csv(here::here("~/Documents/MIMI/data_science_code/DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012/Identification of Sample Household - Block 1 and 2 - Level 1 -  68.csv"))
+# nsso_basics <- read.csv(here::here("data_rich/India/data/raw/extra_states/block_1_2_identification.csv"))
 # 
-nsso_household_information <- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/household_char.csv")
-nsso_demographics <- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/demographics.csv")
-nsso_expenditure <- read.csv(here::here("data_rich/India/data/raw/extra_states/block_12_consumer_expenditure.csv"))
-nsso_afe<- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/india_afe.csv")
+# nsso_household_information <- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/household_char.csv")
+# nsso_demographics <- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/demographics.csv")
+# nsso_expenditure <- read.csv(here::here("data_rich/India/data/raw/extra_states/block_12_consumer_expenditure.csv"))
+# nsso_afe<- read.csv("~/Documents/MIMI/code/data_rich/India/data/processed/extra_states/india_afe.csv") 
 
 
 
