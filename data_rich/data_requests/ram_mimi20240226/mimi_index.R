@@ -5,7 +5,7 @@
 # Author: Mo Osman
 # Collaborators: Gabriel Battcock & Kevin Tang
 # Date created: 29-Feb-2024
-# Last edited: 29-Apr-2024
+# Last edited: 20-Mar-2024
 
 # Addition of MIMI (simple) index, for display on RAM hungermap
 
@@ -25,10 +25,6 @@ rm(list= c("rq_packages", "installed_packages"))
 
 #-------------------------------------------------------------------------------
 
-# Source required scripts for functions: 
-source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
-
-
 ########################
 ### PART 1: NIGERIA ####
 ########################
@@ -36,7 +32,7 @@ source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
 # READ IN REQUIRED DATA:
 
 # Base apparent intake: 
-nga_base_ai <- apparent_intake("nga_lss1819")
+nga_base_ai <- read_csv("data_rich/fortification_models/data/nga_lss1819_base_ai.csv")
 
 # ADM1 apparent inadequacy: 
 nga_ai_adm1 <- read_csv("data_rich/data_requests/ram_mimi20240226/nigeria/nga_ai_adm1.csv")
@@ -182,8 +178,6 @@ rm(list = ls())
 
 #-------------------------------------------------------------------------------
 
-source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
-
 ########################
 ### PART 2: ETHIOPIA ###
 ########################
@@ -191,7 +185,7 @@ source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
 # READ IN REQUIRED DATA
 
 # Base apparent intake: 
-eth_base_ai <- apparent_intake("eth_hices1516")
+eth_base_ai <- read_csv("data_rich/fortification_models/data/eth_hices1516_base_ai.csv")
 
 # ADM1 apparent inadequacy: 
 eth_ai_adm1 <- read_csv("data_rich/data_requests/ram_mimi20240226/ethiopia/eth_ai_adm1.csv")
@@ -290,8 +284,6 @@ rm(list = ls())
 
 #-------------------------------------------------------------------------------
 
-source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
-
 ########################
 ##### PART 3: INDIA ####
 ########################
@@ -299,7 +291,7 @@ source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
 # READ IN REQUIRED DATA
 
 # Base apparent intake: 
-ind_base_ai <- apparent_intake("ind_nss1112")
+ind_base_ai <- read_csv("data_rich/fortification_models/data/ind_nss1112_base_ai.csv")
 
 # ADM1 apparent inadequacy:
 ind_ai_adm1 <- read_csv("data_rich/data_requests/ram_mimi20240226/india/ind_ai_adm1.csv")
@@ -430,7 +422,7 @@ hungermap_mimi <- hungermap_mimi %>%
   rename(iso3 = iso)
 
 # Write csv:
-write_csv(hungermap_mimi, "data_rich/data_requests/ram_mimi20240226/hungermap_mimi20240429.csv")
+write_csv(hungermap_mimi, "data_rich/data_requests/ram_mimi20240226/hungermap_mimi20240321.csv")
 
 rm(list = ls())
 
