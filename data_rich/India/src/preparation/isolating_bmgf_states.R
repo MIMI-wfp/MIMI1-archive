@@ -3,11 +3,13 @@
 # MIMI Project
 # Loading in NSSO 2010-12 data and isolating UP, Chat and Bihar before analysis
 
+
+
 library(haven)
 library(tidyverse)
 
-# For Fabriel local only
-path_to_file <- "~/Documents/MIMI/MIMI_data/India/nsso_data/"
+# For Gabriel local only
+path_to_file <- "~/Documents/MIMI/MIMI_data/India/raw_dta_nsso1112/"
   
 
 block_1_2_identification <- read_dta(paste0(path_to_file, "Identification of Sample Household - Block 1 and 2 - Level 1 -  68.dta"))
@@ -29,6 +31,9 @@ dim(block_3_level_3_household_char)
 names(block_4_demog)
 
 dim(block_4_demog)
+
+
+# isoalting only the states we want to use for analysis
 # 
 # isolate_states <- function(block){
 # 
@@ -55,8 +60,9 @@ dim(block_4_demog)
 # unique(block_5_6_food_consumption$Item_Code)
 # 
 # #save isolated states for analysis
+
 # path_to_save <- "~/Documents/MIMI/code/India_analysis/data/raw/"
-# # path_to_save <- "~/Documents/MIMI/code/India_analysis/data/raw/extra_states/"
+# path_to_save <- "~/Documents/MIMI/code/data_rich/India/data/raw/extra_states/"
 # 
 # write_csv(block_1_2_identification, paste0(path_to_save, "block_1_2_identification.csv"))
 # write_csv(block_3_level_2_household_char,paste0(path_to_save, "block_3_level_2_household_char.csv"))
