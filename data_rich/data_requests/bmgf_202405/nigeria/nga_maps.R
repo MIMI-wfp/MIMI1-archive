@@ -585,7 +585,7 @@ ribo_vmd <- plot_map(data = nga_vmd,
 
 ribo_vmd
 
-# tmap_save(ribo_vmd, "data_rich/data_requests//vmd/riboflavin.png", 
+# tmap_save(ribo_vmd, "data_rich/data_requests/bmgf_202405/nigeria/vmd/riboflavin.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(ribo_vmd)
