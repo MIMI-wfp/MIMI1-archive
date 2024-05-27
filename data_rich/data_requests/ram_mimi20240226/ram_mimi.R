@@ -1,7 +1,7 @@
 # Author: Gabriel Battcock
 # Collaborators: Mo Osman & Kevin Tang
 # Date created: 14-Feb-2024
-# Last edited: 19-Mar 2024 (Mo Osman)
+# Last edited: 29-Apr 2024 (Mo Osman) - Updated NGA base model.
 
 #  Data request for MIMI for hunger map
 
