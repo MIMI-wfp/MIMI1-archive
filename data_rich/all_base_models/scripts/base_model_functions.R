@@ -118,28 +118,105 @@ apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich
   # and adult female equivalent unit of the household
   read_in_survey(name_of_survey, path_to_file)
   
-  x <- food_consumption %>% 
-    left_join(fc_table, by = "item_code") %>% 
-    mutate(
-      across(
-        -c(item_code, hhid,item_name ,food_group, quantity_100g, quantity_g),
-        ~ifelse(is.na(.x), 0, .x*quantity_100g)
-      )
-    ) %>% 
-    group_by(hhid) %>% 
-    summarise(
-      across(-c(item_code,item_name,quantity_100g,quantity_g, food_group),
-             ~sum(.,na.rm = T))
-    ) %>% 
-    inner_join(hh_info %>% select(hhid, afe), by = "hhid") %>% 
-    mutate(
-      across(
-        -c(hhid,afe),
-        ~.x/afe
-      )
-    ) %>% 
-    ungroup()
-  x
+
+  # If NLSS survey then need to read in zone to do fct matches for milk by zone:
+  if (name_of_survey == "nga_lss1819"){
+    
+    # Read in zone data:
+    cover <- read_csv("survey_data/nga/secta_cover.csv")
+    
+    # Left join zone to hh_info:
+    hh_info <- hh_info %>% 
+      dplyr::left_join(cover %>% dplyr::select(hhid, zone), by = "hhid")
+    
+    # Filter fc_table for milk:
+    milk_fct <- fc_table %>% 
+      filter(item_code == 110) %>% 
+      filter(!is.na(zone))
+    
+    # Apparent nutrient intake from milk: 
+    milk_ai <- food_consumption %>% 
+      filter(item_code == 110) %>% # Filter to include only fresh milk
+      left_join(hh_info %>% select(hhid, zone), 
+                by = "hhid") %>%
+      left_join(milk_fct, 
+                by = c("item_code", "zone")) %>% # Join milk food composition table by item_code and zone
+      mutate(across(-c(item_code, hhid, item_name, food_group, quantity_100g, 
+                       quantity_g, zone),
+                    ~.x*quantity_100g)) %>% # Multiply nutrient values by quantity consumed
+      group_by(hhid) %>% # Aggregate by household id summing the values of consumption
+      summarise(across(-c(item_code, item_name, quantity_100g, quantity_g, 
+                          food_group, zone),
+                       ~sum(., na.rm = T))) %>% 
+      left_join(hh_info %>% select(hhid, afe), by = "hhid") %>% # Join afe
+      mutate(across(-c(hhid, afe),~.x/afe)) %>% # Divide all nutrient values by afe
+      ungroup()
+    
+    # Remove milk from the main food composition table: 
+    fc_table <- fc_table %>% 
+      filter(item_code != 110) %>% 
+      dplyr::select(-zone)
+    
+    # Apparent nutrient intake from all other foods:
+    base_ai <- food_consumption %>% 
+      filter(item_code != 110) %>%
+      left_join(fc_table, by = "item_code") %>% 
+      mutate(
+        across(
+          -c(item_code, hhid,item_name ,food_group, quantity_100g, quantity_g),
+          ~.x*quantity_100g
+        )
+      ) %>% 
+      group_by(hhid) %>% 
+      summarise(
+        across(-c(item_code,item_name,quantity_100g,quantity_g, food_group),
+               ~sum(.,na.rm = T))
+      ) %>% 
+      left_join(hh_info %>% select(hhid, afe), by = "hhid") %>% 
+      mutate(
+        across(
+          -c(hhid,afe),
+          ~.x/afe
+        )
+      ) %>% 
+      ungroup()
+    
+    # Combine nutrient intake from the 2 apparent intake data-frames: 
+    base_ai <- bind_rows(base_ai, milk_ai) %>% 
+      group_by(hhid) %>%
+      summarise(across(everything(), ~sum(., na.rm = T))) %>%
+      ungroup() %>% 
+      # One of the AFE's has been lost as an NA, therefore re-join hh_info:
+      dplyr::select(-afe) %>% 
+      left_join(hh_info %>% select(hhid, afe), by = "hhid")
+    
+    base_ai
+  }
+  
+  else{
+    x <- food_consumption %>% 
+      left_join(fc_table, by = "item_code") %>% 
+      mutate(
+        across(
+          -c(item_code, hhid,item_name ,food_group, quantity_100g, quantity_g),
+          ~.x*quantity_100g
+        )
+      ) %>% 
+      group_by(hhid) %>% 
+      summarise(
+        across(-c(item_code,item_name,quantity_100g,quantity_g, food_group),
+               ~sum(.,na.rm = T))
+      ) %>% 
+      left_join(hh_info %>% select(hhid, afe), by = "hhid") %>% 
+      mutate(
+        across(
+          -c(hhid,afe),
+          ~.x/afe
+        )
+      ) %>% 
+      ungroup()
+    x
+  }
 }
 
 
