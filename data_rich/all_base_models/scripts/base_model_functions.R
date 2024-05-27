@@ -7,7 +7,7 @@ library(ggplot2)
 
 
 
-path_to_file <- here::here("data_rich/all_base_models/data/current/")
+path_to_file <- here::here("data_rich/all_base_models/data/current//")
 
 
 allen_ear <- data.frame(
@@ -44,7 +44,7 @@ allen_ear$ear_value[allen_ear$nutrient == "energy_kcal"]
 
 
 
-read_in_survey <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
+read_in_survey <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current//")){
   # given the name of the survey of country
   # the function reads in each part of the base model into general 
   # object names
@@ -58,7 +58,7 @@ read_in_survey <- function(name_of_survey, path_to_file = here::here("data_rich/
 
 read_in_survey("ind_nss1112")
 
-full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
+full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current//")){
   # creates a data frame with a full list of food items for every
   # household. If food item is not consumed, quantity = 0
   # uesful for food group analyses
@@ -113,7 +113,7 @@ full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/
 
 
 
-apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
+apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current//")){
   # Estimates apparent intake of nutrients based on consumed food items
   # and adult female equivalent unit of the household
   read_in_survey(name_of_survey, path_to_file)

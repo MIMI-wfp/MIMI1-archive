@@ -24,7 +24,7 @@ source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
 # INDIA ------------------------------------------------------------------------
 
 # read in nsso clean data
-file_path <- here::here("~/Documents/MIMI/MIMI_data/data_requests/bmgf_052024/")
+file_path <- here::here("../MIMI_data/data_requests/bmgf_052024//")
 
 # ind_nsso1112_hh_info <-  read.csv(paste0(path_to_file, paste0("ind_nss1112", "_hh_info.csv")))
 # food_consumption<- read.csv(paste0(path_to_file, paste0("ind_nss1112", "_food_consumption.csv")))
@@ -32,7 +32,7 @@ file_path <- here::here("~/Documents/MIMI/MIMI_data/data_requests/bmgf_052024/")
 
 ind_cnns16 <- read.csv(paste0(file_path, "ind_cnns_vmd.csv"))
 india_adm2 <- st_read(here::here("data_rich/India/data/processed/extra_states/district_shape.shp"))
-india_adm1 <- st_read("~/Documents/MIMI/MIMI_data/India/gadm41_IND_shp/gadm41_IND_1.shp") 
+india_adm1 <- st_read("../MIMI_data/India/gadm41_IND_shp/gadm41_IND_1.shp") 
 
 
 ind_states <-  india_adm1 %>%
@@ -76,7 +76,7 @@ cnns_iron <- tm_shape(ind_cnns_sp)+
   ) +
   tm_layout(main.title = "Iron",  frame = F, 
             main.title.size = 0.8, 
-            main.title.position = "left",
+            main.title.position = "center",
             legend.outside.position = "bottom",
             legend.outside.size = 0.35
             
@@ -105,7 +105,7 @@ cnns_zinc <- tm_shape(ind_cnns_sp)+
             legend.outside.position = "bottom",
             legend.outside.size = 0.35
             
-  )+ +
+  )+ 
   tm_borders(col = "black", lwd = 0.2) +
   tm_legend(show = F) +
 
