@@ -24,7 +24,7 @@ block_11_construction_expenditure <- read_dta(paste0(path_to_file, "Expenditure 
 block_12_consumer_expenditure <- read_dta(paste0(path_to_file, "Summary of Consumer Expenditure - Block 12 - Level 11 - 68.dta"))
 block_13_yoga_ayurveda <- read_dta(paste0(path_to_file, "Information on Ayurveda, Yoga, Naturopathy, Unani, Siddha, Homeopathy(ASYUSH) - Block 13 - Level 10 - 68.dta"))
 
-# bihar = 10, UP = 09, chat = 22, odisha = 21, mp = , jk = 20, wb = 19, , hp = 02 ap = 28
+# bihar = 10, UP = 09, chat = 22, odisha = 21, mp = 23, jk = 20, wb = 19, , hp = 02 ap = 28
 
 dim(block_1_2_identification)
 dim(block_3_level_3_household_char)

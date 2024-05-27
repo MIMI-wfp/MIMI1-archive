@@ -18,8 +18,12 @@ library(ggplot2)
 library(readxl)
 
 
-path_to_data <- "MIMI_data/"
-path_to_save <- here::here("data_rich/all_base_models/data/")
+
+
+path_to_data <- "../MIMI_data/"
+# path_to_save <- here::here("data_rich/all_base_models/data/current/")
+path_to_save <-  here::here("data_rich/India/data/processed/lsff/")
+
 
 
 setwd(here::here())
@@ -442,6 +446,7 @@ rm(nga_food_consumption)
 
 
 # nsso #########################################################################
+
 nsso_basics <- read.csv("India_analysis/data/raw/block_1_2_identification.csv")
 
 nsso_household_information <- read.csv("India_analysis/data/processed/household_char.csv")
@@ -458,34 +463,35 @@ nsso_afe<- read.csv(paste0(path_to_data, "India/India_NSSO_2012/india_afe.csv"))
 
 
 
-nsso_afe <- nsso_afe %>% 
-  rename(hhid = HHID) %>% 
+
+nsso_afe <- nsso_afe %>%
+  rename(hhid = HHID) %>%
   select(hhid,
          afe)
 
 
-nsso_household_information <- nsso_household_information %>% 
-  inner_join(nsso_demographics, by = "HHID") %>% 
-  filter(Relation == "Self") %>% 
+nsso_household_information <- nsso_household_information %>%
+  inner_join(nsso_demographics, by = "HHID") %>%
+  filter(Relation == "Self") %>%
   mutate(sex_head = Sex,
          age_head = Age,
          educ_head = Education,
-         res = HH_Type_code) %>% 
+         res = HH_Type_code) %>%
    select(HHID,
           res,
           sex_head,
           age_head,
           educ_head,
-          Combined_multiplier) %>% 
+          Combined_multiplier) %>%
    rename(hhid = HHID,
           survey_wgt = Combined_multiplier)
-  
-    
-nsso_basics <- nsso_basics %>% 
+
+
+nsso_basics <- nsso_basics %>%
   select(HHID,
-         Date_of_Survey, 
+         Date_of_Survey,
          State_code,
-         District_code) %>% 
+         District_code) %>%
   mutate(year = paste0("20",
                        str_sub(Date_of_Survey, -2,-1)),
          month = str_sub(Date_of_Survey, -4,-3)) %>%
@@ -496,27 +502,31 @@ nsso_basics <- nsso_basics %>%
 
 # NEED SEP QUNINTILES -- MAYBE CALCULATE MYSLEF?
 
-nsso_expenditure <- nsso_expenditure %>% 
-  rename(hhid = HHID) %>% 
-  group_by(hhid) %>% 
-  summarise(Value = sum(Value)) %>% 
-  left_join(nsso_afe, by = "hhid") %>% 
-  mutate(expenditure = Value/(afe*30)) %>% 
-  ungroup() 
-# %>% 
-#   mutate(sep_quintile = ntile(expenditure, 5)) %>% 
-#   group_by(urbrur) %>% 
-#   mutate(ur_quintile = ntile(expenditure, 5)) %>% 
-#   ungroup() 
+nsso_expenditure <- nsso_expenditure %>%
+  rename(hhid = HHID) %>%
+  filter(Srl_no == 49) %>%
+  left_join(nsso_afe, by = "hhid") %>%
+  mutate(expenditure = Value/(30)) %>%
+  ungroup() %>%
+  select(hhid, expenditure)
+# %>%
+#   mutate(sep_quintile = ntile(expenditure, 5)) %>%
+#   group_by(urbrur) %>%
+#   mutate(ur_quintile = ntile(expenditure, 5)) %>%
+#   ungroup()
 
-nsso_household_information <- nsso_household_information %>% 
-  left_join(nsso_basics, by = "hhid") %>% 
-  left_join(nsso_expenditure, by = "hhid") %>% 
-  mutate(sep_quintile = ntile(expenditure, 5)) %>% 
+nsso_household_information <-  nsso_basics %>%
+  left_join(nsso_household_information, by = "hhid") %>%
+  left_join(nsso_expenditure, by = "hhid") %>%
+  left_join(nsso_afe, by= "hhid") %>%
+  mutate(sep_quintile = ntile(expenditure, 5)) %>%
   group_by(res) %>%
   mutate(res_quintile = ntile(expenditure, 5)) %>%
-  ungroup() %>% 
-  select(-c(Value, expenditure))
+  ungroup()
+  # select(-c(expenditure))
+
+# summary(nsso_household_information)
+nsso_household_information
 
 write_csv(nsso_household_information, paste0(path_to_save,"ind_nss1112_hh_info.csv"))
 

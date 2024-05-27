@@ -1,0 +1,25 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Ignore all fles in the at the following directory:
+data/
+MIMI_data/
+fortification_models/figures/
+map_data/
+survey_data/
+
+# Ignore all files with the following extensions: 
+*.csv
+*.dta
+*.dbf
+*.prj
+*.shp
+*.shx
+*.topojson
+*.geson
+*.json
+*.geojson
+*.DS_Store
+
