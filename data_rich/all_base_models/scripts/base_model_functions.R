@@ -7,7 +7,7 @@ library(ggplot2)
 
 
 
-path_to_file <- here::here("data_rich/all_base_models/data/current/")
+path_to_file <- here::here("data_rich/all_base_models/data/current//")
 
 
 allen_ear <- data.frame(
@@ -44,7 +44,7 @@ allen_ear$ear_value[allen_ear$nutrient == "energy_kcal"]
 
 
 
-read_in_survey <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
+read_in_survey <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current//")){
   # given the name of the survey of country
   # the function reads in each part of the base model into general 
   # object names
@@ -55,11 +55,10 @@ read_in_survey <- function(name_of_survey, path_to_file = here::here("data_rich/
   # fct causes conflict with fct() function in forcats package, reconsider the name of this object
 }
 
-read_in_survey("ind_nss1112")
-x <- food_consumption %>% 
-  distinct(item_code)
 
-full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
+read_in_survey("ind_nss1112")
+
+full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current//")){
   # creates a data frame with a full list of food items for every
   # household. If food item is not consumed, quantity = 0
   # uesful for food group analyses
@@ -114,11 +113,12 @@ full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/
 
 
 
-apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
+apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current//")){
   # Estimates apparent intake of nutrients based on consumed food items
   # and adult female equivalent unit of the household
   read_in_survey(name_of_survey, path_to_file)
   
+
   # If NLSS survey then need to read in zone to do fct matches for milk by zone:
   if (name_of_survey == "nga_lss1819"){
     
@@ -221,8 +221,20 @@ apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich
 
 
 
+ind_ai <- apparent_intake("ind_nss1112")
+
+ind_ai %>% 
+  ggplot(aes(x = energy_kcal))+ 
+  geom_histogram()+
+  xlim(0,5000)
+
+ind_ai %>% 
+  summarise(median(energy_kcal),
+            mean(vita_rae_mcg),
+            mean(zn_mg))
 
 
+sum(is.na(hh_info$afe))
 
 household_data <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   #reads in the household information data
