@@ -77,6 +77,9 @@ cover <- cover %>%
   dplyr::select(-state) %>% 
   rename(state = state_name)
 
+# Write zone shapefile: 
+write_sf(nigeria_zone, "map_data/nga/new_shapefiles/nigeria_zone/nigeria_zone.shp")
+
 #-------------------------------------------------------------------------------
 
 # JOIN ZONES TO SHAPEFILE: 
@@ -211,6 +214,24 @@ mf_cov
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(mf_cov)
+
+# Rice: 
+
+rice_cov <- plot_map(data = nga_coverage,
+         col = "rice_cov",
+         title = "Rice",
+         metric = "Coverage (%)", 
+         caption = "  \n
+         \n
+         \n
+         Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
+
+rice_cov
+
+# tmap_save(rice_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/rice.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(rice_cov)
 
 # Semolina: 
 sem_cov <- plot_map(data = nga_coverage,
