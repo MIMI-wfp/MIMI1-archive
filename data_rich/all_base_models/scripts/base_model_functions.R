@@ -223,7 +223,7 @@ apparent_intake("nga_lss1819")
 
 
 
-household_data <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
+household_data <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current//")){
   #reads in the household information data
   x <- read.csv(paste0(path_to_file, paste0(name_of_survey, "_hh_info.csv")))
   x
@@ -304,7 +304,7 @@ target_creation <- function(){
     bind_rows(select_and_append(ind_nss1112,"DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012"))
  x
 }
-targets <- target_creation()
-write_csv(targets,"ethiopia_nigeria_india_targets.csv")
+# targets <- target_creation()
+# write_csv(targets,"ethiopia_nigeria_india_targets.csv")
 
   
