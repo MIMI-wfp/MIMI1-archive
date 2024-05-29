@@ -25,7 +25,6 @@ allen_ear <- data.frame(
     "zn_mg"
   ),
   ear_value = c(
-  
   2100,#who
   490, 
   0.9,
@@ -56,7 +55,7 @@ read_in_survey <- function(name_of_survey, path_to_file = here::here("data_rich/
 }
 
 
-read_in_survey("ind_nss1112")
+read_in_survey("nga_lss1819")
 
 full_item_list <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current//")){
   # creates a data frame with a full list of food items for every
@@ -123,7 +122,8 @@ apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich
   if (name_of_survey == "nga_lss1819"){
     
     # Read in zone data:
-    cover <- read_csv("survey_data/nga/secta_cover.csv")
+    # TODO :: fix this so we don't have to read in the data within the function
+    cover <-  read.csv("../MIMI_data/nga/NGA_2018_LSS_v01_M_CSV/household/secta_cover.csv")
     
     # Left join zone to hh_info:
     hh_info <- hh_info %>% 
@@ -219,22 +219,9 @@ apparent_intake <- function(name_of_survey, path_to_file = here::here("data_rich
   }
 }
 
+apparent_intake("nga_lss1819")
 
 
-ind_ai <- apparent_intake("ind_nss1112")
-
-ind_ai %>% 
-  ggplot(aes(x = energy_kcal))+ 
-  geom_histogram()+
-  xlim(0,5000)
-
-ind_ai %>% 
-  summarise(median(energy_kcal),
-            mean(vita_rae_mcg),
-            mean(zn_mg))
-
-
-sum(is.na(hh_info$afe))
 
 household_data <- function(name_of_survey, path_to_file = here::here("data_rich/all_base_models/data/current/")){
   #reads in the household information data
@@ -274,8 +261,6 @@ nutrient_density <- function(name_of_survey){
 }
 
 
-apparent_intake("eth_ess1819") %>% 
-  select(hhid)
 
 
 target_creation <- function(){
@@ -319,5 +304,7 @@ target_creation <- function(){
     bind_rows(select_and_append(ind_nss1112,"DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012"))
  x
 }
+targets <- target_creation()
+write_csv(targets,"ethiopia_nigeria_india_targets.csv")
 
-
+  

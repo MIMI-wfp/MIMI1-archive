@@ -20,11 +20,11 @@ rm(list= c("rq_packages", "installed_packages"))
 
 # source the base models function
 source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
-source(here::here("data_rich/India/src/preparation/india_lsff/ind_mapping.R"))
+source(here::here("data_rich/India/india_lsff/ind_mapping.R")) 
 
 # ------------------------------------------------------------------------------       
 # read in nsso clean data
-path_to_file <- here::here("data_rich/India/data/processed/lsff")
+path_to_file <- here::here("data_rich/India/data/processed/lsff//")
 
 ind_nsso1112_hh_info <-  read.csv(paste0(path_to_file, paste0("/ind_nss1112", "_hh_info.csv")))
 food_consumption<- read.csv(paste0(path_to_file, paste0("/ind_nss1112", "_food_consumption.csv")))
