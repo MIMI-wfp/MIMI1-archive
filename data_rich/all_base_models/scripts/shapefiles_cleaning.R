@@ -35,3 +35,46 @@ eth_hices_sp <- eth_adm2 %>%
 
 st_write(eth_hices_sp,"~/../General - MIMI Project/Nutrition analysis/shapefiles/eth_hices1516_adm2.shp")
 
+
+
+
+# NGA --------------------------------------------------------------------------
+
+nga1819 <- apparent_intake("nga_lss1819")
+nga1819_hh_info <- household_data("nga_lss1819")
+nga_lga_dict <- read.csv("../nigeria_mapping/data_dictionary/lga.csv")
+hh_to_lga <-as_tibble(read.csv("../nigeria_mapping/hh_to_lga.csv"))
+nga_adm2 <- st_read(here::here("../MIMI_data/nga/map_data/new_shapefiles/nigeria_2.shp"))
+nga_adm1 <- st_read(here::here("../MIMI_data/nga/map_data/new_shapefiles/nigeria_1.shp"))
+
+
+plot(nga_adm1$geometry)
+allen_ear <- data.frame(
+  energy_kcal = 2200,#who
+  vita_rae_mcg  = 490, 
+  thia_mg = 0.9,
+  ribo_mg = 1.3, 
+  niac_mg = 11, 
+  vitb6_mg = 1.3, 
+  folate_mcg = 250, 
+  vitb12_mcg = 2, 
+  fe_mg = 9.6, #moderate absorption
+  ca_mg = 860, 
+  zn_mg = 11#semi unrefined
+)
+
+
+library(dplyr)
+
+
+
+nga1819_adm2_sp <- nga1819_hh_info %>% 
+  left_join(hh_to_lga %>% dplyr::select(hhid, lga), by ="hhid") %>% 
+  dplyr::select(hhid,adm2,survey_wgt,lga,ea) %>% 
+  distinct(adm2,lga) %>% 
+  full_join(nga_adm2, by = "lga")
+
+
+
+
+st_write(nga1819_adm2_sp ,"~/../General - MIMI Project/Nutrition analysis/shapefiles/nga_lss1819_adm2.shp")
