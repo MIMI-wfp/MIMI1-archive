@@ -133,7 +133,7 @@ state_reach <- st_as_sf(state_reach)
 # MAP COVERAGE: 
 
 # Create function to produce maps: 
-plot_map <- function(data, col, title, metric, caption) {
+plot_map <- function(data, col, title, metric,level, caption) {
   
   # Create a map: 
   map <- tm_shape(data) + 
@@ -146,7 +146,7 @@ plot_map <- function(data, col, title, metric, caption) {
     tm_layout(main.title = title, frame = F, main.title.size = 0.8, 
               main.title.position = "center", legend.outside.position = "bottom",
               legend.outside.size = 0.35) +
-    tm_text("zone", size = 0.5, along.lines = TRUE) +
+    tm_text(level, size = 0.5, along.lines = TRUE) +
     tm_borders(lwd = 0.2) + 
     tm_legend(show = F) + 
     tm_credits(caption, position = c("right", "bottom"), size = 0.5)
@@ -157,13 +157,160 @@ plot_map <- function(data, col, title, metric, caption) {
 # Change name of "South south" in zone_reach: 
 zone_reach$zone[zone_reach$zone == "South South"] <- "South South                                               "
 
+# Wheat flour (zone)
 wf_zone_reach <- plot_map(data = zone_reach, 
                           col = "reach_wheatflour", 
                           title = "Wheat flour",
                           metric = "Reach (%)",
+                          level = "zone",
                           caption = "Source: Nigeria Living Standards Survey 2018-2019")
 
 wf_zone_reach
+
+# tmap_save(wf_zone_reach, "data_rich/data_requests/nigeria_202405/vehicle_coverage/zone/wheat_flour.png", 
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(wf_zone_reach)
+
+# Wheat flour (state)
+wf_state_reach <- plot_map(data = state_reach, 
+                           col = "reach_wheatflour", 
+                           title = "Wheat flour",
+                           metric = "Reach (%)",
+                           level = "state",
+                           caption = "Source: Nigeria Living Standards Survey 2018-2019")
+
+wf_state_reach
+
+# tmap_save(wf_state_reach, "data_rich/data_requests/nigeria_202405/vehicle_coverage/state/wheat_flour.png", 
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(wf_state_reach)
+
+# Rice (zone)
+rice_zone_reach <- plot_map(data = zone_reach, 
+                            col = "reach_rice", 
+                            title = "Rice",
+                            metric = "Reach (%)",
+                            level = "zone",
+                            caption = "Source: Nigeria Living Standards Survey 2018-2019")
+
+rice_zone_reach
+
+# tmap_save(rice_zone_reach, "data_rich/data_requests/nigeria_202405/vehicle_coverage/zone/rice.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(rice_zone_reach)
+
+# Rice (state)
+rice_state_reach <- plot_map(data = state_reach, 
+                             col = "reach_rice", 
+                             title = "Rice",
+                             metric = "Reach (%)",
+                             level = "state",
+                             caption = "Source: Nigeria Living Standards Survey 2018-2019")
+
+rice_state_reach
+
+# tmap_save(rice_state_reach, "data_rich/data_requests/nigeria_202405/vehicle_coverage/state/rice.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(rice_state_reach)
+
+# Maize flour (zone)
+mf_zone_reach <- plot_map(data = zone_reach, 
+                          col = "reach_maizeflour", 
+                          title = "Maize flour",
+                          metric = "Reach (%)",
+                          level = "zone",
+                          caption = "Source: Nigeria Living Standards Survey 2018-2019")
+
+mf_zone_reach
+
+# tmap_save(mf_zone_reach, "data_rich/data_requests/nigeria_202405/vehicle_coverage/zone/maize_flour.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(mf_zone_reach)
+
+# Maize flour (state)
+mf_state_reach <- plot_map(data = state_reach, 
+                           col = "reach_maizeflour", 
+                           title = "Maize flour",
+                           metric = "Reach (%)",
+                           level = "state",
+                           caption = "Source: Nigeria Living Standards Survey 2018-2019")
+
+mf_state_reach
+
+# tmap_save(mf_state_reach, "data_rich/data_requests/nigeria_202405/vehicle_coverage/state/maize_flour.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(mf_state_reach)
+
+# Edible oil (zone)
+eo_zone_reach <- plot_map(data = zone_reach, 
+                          col = "reach_edible_oil", 
+                          title = "Edible oil",
+                          metric = "Reach (%)",
+                          level = "zone",
+                          caption = "Source: Nigeria Living Standards Survey 2018-2019")
+
+eo_zone_reach
+
+# tmap_save(eo_zone_reach, "data_rich/data_requests/nigeria_202405/vehicle_coverage/zone/edible_oil.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(eo_zone_reach)
+
+# Edible oil (state)
+eo_state_reach <- plot_map(data = state_reach, 
+                           col = "reach_edible_oil", 
+                           title = "Edible oil",
+                           metric = "Reach (%)",
+                           level = "state",
+                           caption = "Source: Nigeria Living Standards Survey 2018-2019")
+
+eo_state_reach
+
+# tmap_save(eo_state_reach, "data_rich/data_requests/nigeria_202405/vehicle_coverage/state/edible_oil.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(eo_state_reach)
+
+# Sugar (zone)
+sugar_zone_reach <- plot_map(data = zone_reach, 
+                             col = "reach_sugar", 
+                             title = "Sugar",
+                             metric = "Reach (%)",
+                             level = "zone",
+                             caption = "Source: Nigeria Living Standards Survey 2018-2019")
+
+sugar_zone_reach
+
+# tmap_save(sugar_zone_reach, "data_rich/data_requests/nigeria_202405/vehicle_coverage/zone/sugar.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(sugar_zone_reach)
+
+# Sugar(state)
+sugar_state_reach <- plot_map(data = state_reach, 
+                              col = "reach_sugar", 
+                              title = "Sugar",
+                              metric = "Reach (%)",
+                              level = "state",
+                              caption = "Source: Nigeria Living Standards Survey 2018-2019")
+
+sugar_state_reach
+
+# tmap_save(sugar_state_reach, "data_rich/data_requests/nigeria_202405/vehicle_coverage/state/sugar.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(sugar_state_reach, zone_reach, state_reach, plot_map)
+
+#-------------------------------------------------------------------------------
+
+# MICRONUTRIENT ADEQUACY
+
 
 
 
