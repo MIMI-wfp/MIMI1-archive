@@ -96,12 +96,18 @@ nigeria_zone <- nigeria_zone %>%
 # Check geometry: 
 plot(nigeria_zone$geometry)
 
+# Write zone shapefile: 
+# write_sf(nigeria_zone, "map_data/nga/new_shapefiles/nigeria_zone/nigeria_zone.shp")
+
 #-------------------------------------------------------------------------------
 
 # SELECT VARIABLES FOR MAPPING - VEHICLE COVERAGE:
 nga_coverage <- nga_estimates %>% 
   dplyr::select(zone, wflour_cov, rice_cov, mflour_cov, semolina_cov, oil_cov,
-                sugat_cov, salt_cov, bouillon_cov) %>% 
+                sugat_cov, salt_cov, bouillon_cov,
+                # And also purchased vehicles
+                pur_wflour_cov, pur_rice_cov, pur_mflour_cov, pur_semolina_cov,
+                pur_oil_cov, pur_sugar_cov, pur_salt_cov, pur_bouillon_cov) %>% 
   rename(sugar_cov = sugat_cov)
 
 # Left join the shapefile geometry: 
@@ -195,6 +201,23 @@ wf_cov
 
 rm(wf_cov)
 
+# Purchased wheat flour: 
+pur_wf_cov <- plot_map(data = nga_coverage,
+         col = "pur_wflour_cov",
+         title = "Purchased Wheat Flour",
+         metric = "Coverage (%)", 
+         caption = "  \n
+         \n
+         \n
+         Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
+
+pur_wf_cov
+
+# tmap_save(pur_wf_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/consumed_purchased/wflour.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(pur_wf_cov)
+
 # Maize flour: 
 mf_cov <- plot_map(data = nga_coverage,
          col = "mflour_cov",
@@ -211,6 +234,41 @@ mf_cov
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(mf_cov)
+
+# Purchased maize flour:
+pur_mf_cov <- plot_map(data = nga_coverage,
+         col = "pur_mflour_cov",
+         title = "Purchased Maize Flour",
+         metric = "Coverage (%)", 
+         caption = "  \n
+         \n
+         \n
+         Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
+
+pur_mf_cov
+
+# tmap_save(pur_mf_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/consumed_purchased/mflour.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(pur_mf_cov)
+
+# Rice: 
+
+rice_cov <- plot_map(data = nga_coverage,
+         col = "rice_cov",
+         title = "Rice",
+         metric = "Coverage (%)", 
+         caption = "  \n
+         \n
+         \n
+         Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
+
+rice_cov
+
+# tmap_save(rice_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/rice.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(rice_cov)
 
 # Semolina: 
 sem_cov <- plot_map(data = nga_coverage,
@@ -229,6 +287,23 @@ sem_cov
 
 rm(sem_cov)
 
+# Purchased semolina:
+pur_sem_cov <- plot_map(data = nga_coverage,
+         col = "pur_semolina_cov",
+         title = "Purchased Semolina",
+         metric = "Coverage (%)", 
+         caption = "  \n
+         \n
+         \n
+         Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
+
+pur_sem_cov
+
+# tmap_save(pur_sem_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/consumed_purchased/semolina.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(pur_sem_cov)
+
 # Edible oil: 
 oil_cov <- plot_map(data = nga_coverage,
          col = "oil_cov",
@@ -245,6 +320,23 @@ oil_cov
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(oil_cov)
+
+# Purchased edible oil: 
+pur_oil_cov <- plot_map(data = nga_coverage,
+         col = "pur_oil_cov",
+         title = "Purchased Edible Oil",
+         metric = "Coverage (%)", 
+         caption = "  \n
+         \n
+         \n
+         Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
+
+pur_oil_cov
+
+# tmap_save(pur_oil_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/consumed_purchased/oil.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(pur_oil_cov)
 
 # Sugar: 
 sugar_cov <- plot_map(data = nga_coverage,
@@ -263,6 +355,23 @@ sugar_cov
 
 rm(sugar_cov)
 
+# Purchased sugar:
+pur_sugar_cov <- plot_map(data = nga_coverage,
+         col = "pur_sugar_cov",
+         title = "Purchased Sugar",
+         metric = "Coverage (%)", 
+         caption = "  \n
+         \n
+         \n
+         Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
+
+pur_sugar_cov
+
+# tmap_save(pur_sugar_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/consumed_purchased/sugar.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(pur_sugar_cov)
+
 # Salt: 
 salt_cov <- plot_map(data = nga_coverage,
          col = "salt_cov",
@@ -280,6 +389,23 @@ salt_cov
 
 rm(salt_cov)
 
+# Purchaseed salt:
+pur_salt_cov <- plot_map(data = nga_coverage,
+         col = "pur_salt_cov",
+         title = "Purchased Salt",
+         metric = "Coverage (%)", 
+         caption = "  \n
+         \n
+         \n
+         Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
+
+pur_salt_cov
+
+# tmap_save(pur_salt_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/consumed_purchased/salt.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(pur_salt_cov)
+
 # Bouillon:
 bouillon_cov <- plot_map(data = nga_coverage,
          col = "bouillon_cov",
@@ -295,7 +421,24 @@ bouillon_cov
 # tmap_save(bouillon_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/bouillon.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
-rm(list = c("bouillon_cov", "nga_coverage"))
+rm(bouillon_cov)
+
+# Purchased bouillon:
+pur_bouillon_cov <- plot_map(data = nga_coverage,
+         col = "pur_bouillon_cov",
+         title = "Purchased Bouillon",
+         metric = "Coverage (%)", 
+         caption = "  \n
+         \n
+         \n
+         Source: The Nigerian National Food Consumption and Micronutrient Survey 2021")
+
+pur_bouillon_cov
+
+# tmap_save(pur_bouillon_cov, "data_rich/data_requests/bmgf_202405/nigeria/vehicle_coverage/consumed_purchased/bouillon.png",
+#           width = 9, height = 9, units = "in", dpi = 600)
+
+rm(pur_bouillon_cov, nga_coverage)
 
 #-------------------------------------------------------------------------------
 
@@ -585,7 +728,7 @@ ribo_vmd <- plot_map(data = nga_vmd,
 
 ribo_vmd
 
-# tmap_save(ribo_vmd, "data_rich/data_requests//vmd/riboflavin.png", 
+# tmap_save(ribo_vmd, "data_rich/data_requests/bmgf_202405/nigeria/vmd/riboflavin.png",
 #           width = 9, height = 9, units = "in", dpi = 600)
 
 rm(ribo_vmd)
