@@ -4,8 +4,8 @@ library(dplyr)
 library(tidyr)
 
 here::here()
-eth_18_nd_fe <- read_csv(here::here("universal_functions/iron_full_probability/data/eth_18_nd_fe.csv"))
-head(eth_18_nd_fe)
+# eth_18_nd_fe <- read_csv(here::here("universal_functions/iron_full_probability/data/eth_18_nd_fe.csv"))
+# head(eth_18_nd_fe)
 
 #Probabistic apparent intake inadequacy
 
@@ -24,7 +24,7 @@ fe_full_prob <- function(data, group1 = NULL, group2 = NULL, bio_avail = 5, adju
   if(missing(group1)&missing(group2)){
     if(adjust_afe == TRUE){data <- data %>%mutate(ai_afe = fe_supply / afe)}
     data %>% 
-      mutate(ai_afe = fe_supply / afe) %>%                   # Generating apparent iron intake variable
+      # mutate(ai_afe = fe_supply / afe) %>%                   # Generating apparent iron intake variable
       mutate(prob_inad = 
                case_when(
                  bio_avail == 5 ~
@@ -172,8 +172,8 @@ fe_full_prob <- function(data, group1 = NULL, group2 = NULL, bio_avail = 5, adju
     
 }
 
-eth_18_nd_fe %>%
-  fe_full_prob(bio_avail = 10,adjust_afe = FALSE)
+# eth_18_nd_fe %>%
+#   fe_full_prob(bio_avail = 10,adjust_afe = FALSE)
 # 
 # eth_18_nd_fe %>% 
 #   fe_full_prob(hh_res,bio_avail = 10)
