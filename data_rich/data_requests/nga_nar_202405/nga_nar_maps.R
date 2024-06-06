@@ -45,7 +45,7 @@ allen_ear <- data.frame(
   vitb6_mg = 1.3, 
   folate_mcg = 250, 
   vitb12_mcg = 2, 
-  fe_mg = 9.6, #moderate absorption
+  fe_mg = 22.4, #moderate absorption
   ca_mg = 860, 
   zn_mg = 11#semi unrefined
 )
@@ -119,6 +119,7 @@ nga_sw_mean_intake_lga_tot <- nga_sw_mean_intake %>%
   dplyr::ungroup() %>% 
   # dplyr::filter(!is.na(shapeID)) %>% 
   st_as_sf()
+
 
 
 # energy

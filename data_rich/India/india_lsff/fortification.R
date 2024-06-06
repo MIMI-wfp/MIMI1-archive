@@ -23,24 +23,14 @@ source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
 
 # -----------------------------------------------------------------------------
 # read in the base case and read in the fortifiable food vehicles 
+ind_ai <- apparent_intake("ind_nss1112", here::here("data_rich/India/data/processed/lsff//"))
 
+hh_info
 
 base_model <- read_csv(here::here("data_rich/India/data/final/extra_states/base_model.csv"))
 india_adm2 <- st_read(here::here("data_rich/India/data/processed/extra_states/district_shape.shp"))
 india_adm1 <- st_read(here::here("data_rich/India/data/processed/state_shape.shp"))
 
-household_characteristics <- read_csv(paste0("data_rich/India/data/processed/extra_states/household_char.csv"))
-# x <-  india_adm2%>% dplyr::anti_join(base_model, by = c("Dstrct_c" = "District_code"))
-
-read_in_survey("ind_nss1112")
-ind_nss1112_consumption <- food_consumption %>% 
-  left_join(hh_info, by= "hhid") %>% 
-  mutate(quantity_g = quantity_g/afe,
-         quantity_100g = quantity_100g/afe) %>% 
-  select(hhid, quantity_g,quantity_100g,item_code)
-rm(food_consumption)
-
-ind_nsso1112 <- apparent_intake("ind_nss1112")
 
 #isolate the rice PDS for now
 

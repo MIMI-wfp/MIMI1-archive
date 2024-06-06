@@ -78,3 +78,21 @@ nga1819_adm2_sp <- nga1819_hh_info %>%
 
 
 st_write(nga1819_adm2_sp ,"~/../General - MIMI Project/Nutrition analysis/shapefiles/nga_lss1819_adm2.shp")
+
+
+# INDIA ------------------------------------------------------------------------
+
+adm2_shrug <- read.csv(here::here("data_rich/India/data/processed/lsff/nss_shrug_adm2.csv"))
+
+shrug_adm2_sp <- st_read(here::here("../MIMI_data/shapefile_data/raw_shapefiles/shrug-pc11dist-poly-shp/district.shp"))
+
+
+ind_district <- adm2_shrug %>% 
+  select(-c(pc11_s_id,d_name)) %>% 
+  inner_join(shrug_adm2_sp %>% mutate(pc11_d_id = as.integer(pc11_d_id)), by = "pc11_d_id") %>% 
+  group_by(adm2_code) %>% 
+  mutate(geometry = sf::st_union(geometry)) %>%
+  slice(1)
+
+st_write(ind_district ,"~/../General - MIMI Project/Nutrition analysis/shapefiles/ind_lss1819_adm2.shp")
+
