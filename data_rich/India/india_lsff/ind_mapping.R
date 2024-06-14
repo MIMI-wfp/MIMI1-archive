@@ -23,7 +23,7 @@ source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
 
 # ------------------------------------------------------------------------------       
 # read in nsso clean data
-file_path <- here::here("data_rich/India/data/processed/lsff/")
+file_path <- here::here("data_rich/India/data/lsff//")
 
 ind_nsso1112_hh_info <-  read.csv(paste0(path_to_file, paste0("ind_nss1112", "_hh_info.csv")))
 food_consumption<- read.csv(paste0(path_to_file, paste0("ind_nss1112", "_food_consumption.csv")))
@@ -32,7 +32,7 @@ fc_table <- read.csv(paste0(path_to_file, "ind_nss1112_fct.csv"))
 india_adm2 <- st_read(here::here("data_rich/India/data/processed/extra_states/district_shape.shp"))
 india_adm1 <- st_read(here::here("data_rich/India/data/processed/state_shape.shp"))
 
-india_ai <- apparent_intake("ind_nss1112", here::here("data_rich/India/data/processed/lsff/"))
+india_ai <- apparent_intake("ind_nss1112", here::here("data_rich/India/data/processed/lsff//"))
 
 # Functions --------------------------------------------------------------------
 
@@ -188,7 +188,7 @@ ind_micronutrient_maps <- function (adm_selection, micronutrient, path_to_file =
   # create the map
   tm_shape(shape_file) +
     tm_fill(col = column_name, style = "cont",
-            #breaks = seq(0,1,by=.10),
+            breaks = seq(0,1,by=.10),
             palette = rev(wesanderson::wes_palette("Zissou1Continuous")),
             title = title_name ,
             legend.is.portrait = FALSE

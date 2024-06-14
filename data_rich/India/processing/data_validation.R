@@ -24,7 +24,7 @@ rm(list= c("rq_packages", "installed_packages"))
 # # read in cleaned and mathced data
 # path_to_data = here::here("data_rich", "India", "data", "processed/")
 
-path_to_data = here::here("data_rich","India", "data", "processed", "extra_states/")
+path_to_data = here::here("data_rich","India", "data", "processed", "extra_states//")
 
 consumption <- read_csv(paste0(path_to_data, "consumption.csv"))
 
@@ -34,6 +34,7 @@ demographics <- read_csv(paste0(path_to_data,"demographics.csv"))
 household_characteristics <- read_csv(paste0(path_to_data, "household_char.csv"))
 
 india_fct <- read_csv(here::here("data_rich","India", "data", "processed", "matched_fct.csv"))
+# india_fct <- read_xlsx("~/MIMI_mac/MIMI_data/India/India_NSSO_2012/nsso_fct_20240513.xlsx", sheet = 1)
 conversion <- read_csv(here::here("data_rich","India", "data", "processed", "conversion_factors.csv"))
 hdds <- read_csv(here::here("data_rich", "India", "data", "raw","hdds_nsso.csv"))
 
@@ -103,7 +104,7 @@ daily_food_items_consumed <- consumption %>%
   ) %>% 
   dplyr::mutate(
     dplyr::across(
-      -c(item_name, Item_Code, State_Code, District_code, HHID, quantity_100g, conversion_factor),
+      -c(item_name, Item_Code, State_code, District_code, HHID, quantity_100g, conversion_factor),
       ~.x*quantity_100g/30
     )
   ) %>% 
@@ -182,7 +183,7 @@ household_daily <- consumption %>%
     # ~ ifelse(Item_Code<180, .x/30,.x/7)
     ~.x/30
     )) %>%
-  dplyr::select(HHID,State_Code,Item_Code,item_name,Total_Consumption_Quantity,Total_Consumption_Value) %>%
+  dplyr::select(HHID,State_code,Item_Code,item_name,Total_Consumption_Quantity,Total_Consumption_Value) %>%
   dplyr::filter(
     !is.na(item_name)
   ) %>%
@@ -201,7 +202,7 @@ write.csv(household_daily,paste0(path_to_data, "india_daily_consumption.csv"))
 # path_to_new_data = "data_rich/India/data/data_052024_7day/"
 # write.csv(household_daily,paste0(path_to_new_data, "india_daily_consumption.csv"))
 
-
+# unique(household_daily$State_code)
 
 
 #remove large outliers based on energy
@@ -215,10 +216,12 @@ daily_food_items_consumed <- filter_households %>%
   select(HHID) %>% 
   left_join(daily_food_items_consumed, by = "HHID")
 
+write.csv(daily_food_items_consumed,paste0(path_to_data, "india_daily_consumption.csv"))
+
 ### check the individual(household) intake per month of rice and wheat
 
 
-
+max(filter_households$total_energy_hh)
 #### Calculate adult female equivalent per hh -----------------------------------
 
 

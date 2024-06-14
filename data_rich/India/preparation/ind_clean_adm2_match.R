@@ -19,23 +19,37 @@ library(here)
 # Read in files ---------------------------------------------------------------------------
 
 # choose whether we select all the states or just bmgf states
-# path_to_file <- "./India/data/raw/"
+path_to_file <- "./data_rich/India/data/raw/"
 # path_to_file <- "./India/data/raw/extra_states/"
 # all states
-path_to_file <- "~/Documents/MIMI/data_science_code/DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012/"
+# path_to_file <- "~/Documents/MIMI/data_science_code/DDI-IND-MOSPI-NSSO-68Rnd-Sch2.0-July2011-June2012/"
 
 # read in the data files
-block_1_2_identification <- read_csv(paste0(path_to_file, "Identification of Sample Household - Block 1 and 2 - Level 1 -  68.csv"))
-block_3_level_2_household_char <- read_csv(paste0(path_to_file, "Household Characteristics - Block 3 -  Level 2 -  68.csv"))
+# block_1_2_identification <- read_csv(paste0(path_to_file, "Identification of Sample Household - Block 1 and 2 - Level 1 -  68.csv"))
+# block_3_level_2_household_char <- read_csv(paste0(path_to_file, "Household Characteristics - Block 3 -  Level 2 -  68.csv"))
+# bloc_3_level_3 <- read_csv(paste0(path_to_file, "Household characteristics - Block 3 - Level 3.csv"))
+# block_4_demog <- read_csv(paste0(path_to_file, "Demographic and other particulars of household members - Block 4  - Level 4 - 68.csv"))
+# block_5_6_food_consumption <- read_csv(paste0(path_to_file, "Consumption of cereals-pulses- milk and milk products  during the last 30 days  - Block 5.1- 5.2- 6 - Level 5 - 68.csv"))
+# block_7_8_clothing_consumption <- read_csv(paste0(path_to_file, "Consumption of clothing, bedding and footwear during last 30 and 365 days - Block 7 and 8  - Level 6 -  68.csv"))
+# block_9_edu_expenditure <- read_csv( paste0(path_to_file, "Expenditure on Education and Medical (institutional) goods and services -  Block 9 - Level 7 -  68.csv"))
+# block_10_misc_expenditure <- read_csv( paste0(path_to_file, "Expenditure on miscellaneous goods and services including medical(non-institutional), rents and taxes during the last 30 days. Block 10 - Level 8 -68.csv"))
+# block_11_construction_expenditure <- read_csv(paste0(path_to_file, "Expenditure for purchase and construction (including repair and maintenance) of durable goods for domestic use-  Block 11 - Level 9 -  68.csv"))
+# block_12_consumer_expenditure <- read_csv(paste0(path_to_file, "Summary of Consumer Expenditure - Block 12 - Level 11 - 68.csv"))
+# block_13_yoga_ayurveda <- read_csv(paste0(path_to_file, "Information on Ayurveda, Yoga, Naturopathy, Unani, Siddha, Homeopathy(ASYUSH) - Block 13 - Level 10 - 68.csv"))
+
+block_1_2_identification <- read_csv(paste0(path_to_file, "block_1_2_identification.csv"))
+block_3_level_2_household_char <- read_csv(paste0(path_to_file, "block_3_level_2_household_char.csv"))
 bloc_3_level_3 <- read_csv(paste0(path_to_file, "Household characteristics - Block 3 - Level 3.csv"))
-block_4_demog <- read_csv(paste0(path_to_file, "Demographic and other particulars of household members - Block 4  - Level 4 - 68.csv"))
-block_5_6_food_consumption <- read_csv(paste0(path_to_file, "Consumption of cereals-pulses- milk and milk products  during the last 30 days  - Block 5.1- 5.2- 6 - Level 5 - 68.csv"))
-block_7_8_clothing_consumption <- read_csv(paste0(path_to_file, "Consumption of clothing, bedding and footwear during last 30 and 365 days - Block 7 and 8  - Level 6 -  68.csv"))
-block_9_edu_expenditure <- read_csv( paste0(path_to_file, "Expenditure on Education and Medical (institutional) goods and services -  Block 9 - Level 7 -  68.csv"))
-block_10_misc_expenditure <- read_csv( paste0(path_to_file, "Expenditure on miscellaneous goods and services including medical(non-institutional), rents and taxes during the last 30 days. Block 10 - Level 8 -68.csv"))
-block_11_construction_expenditure <- read_csv(paste0(path_to_file, "Expenditure for purchase and construction (including repair and maintenance) of durable goods for domestic use-  Block 11 - Level 9 -  68.csv"))
-block_12_consumer_expenditure <- read_csv(paste0(path_to_file, "Summary of Consumer Expenditure - Block 12 - Level 11 - 68.csv"))
-block_13_yoga_ayurveda <- read_csv(paste0(path_to_file, "Information on Ayurveda, Yoga, Naturopathy, Unani, Siddha, Homeopathy(ASYUSH) - Block 13 - Level 10 - 68.csv"))
+block_4_demog <- read_csv(paste0(path_to_file, "block_4_demog.csv"))
+block_5_6_food_consumption <- read_csv(paste0(path_to_file, "block_5_6_food_consumption.csv"))
+block_7_8_clothing_consumption <- read_csv(paste0(path_to_file,  "block_7_8_clothing_consumption.csv"))
+block_9_edu_expenditure <- read_csv( paste0(path_to_file, "block_9_edu_expenditure.csv"))
+block_10_misc_expenditure <- read_csv( paste0(path_to_file, "block_10_misc_expenditure.csv"))
+block_11_construction_expenditure <- read_csv(paste0(path_to_file, "block_11_construction_expenditure.csv"))
+block_12_consumer_expenditure <- read_csv(paste0(path_to_file,"block_12_consumer_expenditure.csv"))
+block_13_yoga_ayurveda <- read_csv(paste0(path_to_file, "block_13_yoga_ayurveda.csv"))
+
+
 
 
 # # Indian food composition table
@@ -312,7 +326,7 @@ readr::write_csv(demographics_b4, here::here("data_rich", "India",
 
 consumption_b5 <- block_5_6_food_consumption %>%
     dplyr::select(HHID,
-                  State_Code,
+                  State_code,
                   Item_Code,
                   Home_Produce_Quantity,
                   Home_Produce_Value,

@@ -236,7 +236,7 @@ tmap_save(legend, paste0(file_path, "legend.png"),
 # ETHIOPIA ---------------------------------------------------------------------
 
 eth_nns <- read.csv(paste0(file_path,"eth_nns22.csv"))
-eth_adm1 <-  st_read("../MIMI_data/shapefile_data/eth_adm_csa_bofedb_2021_shp/eth_admbnda_adm1_csa_bofedb_2021.shp")
+eth_adm1 <-  st_read("../MIMI_data/shapefile_data/raw_shapefiles/eth_adm_csa_bofedb_2021_shp/eth_admbnda_adm1_csa_bofedb_2021.shp")
 
 
 eth_adm1 <- eth_adm1 %>% 
@@ -413,7 +413,7 @@ tmap_save(legend, paste0(file_path, "eth_reach.png"),
 # reach of vehices
 eth_wheat <- tm_shape(eth_nns_sp) +
   tm_fill(col = "wheatflour",
-        title = "Reach (%)", 
+        title = "Reach (%)", breaks = seq(0,100,by=10),
         # palette = viridis(10, direction = -1), 
         style = "cont",
         textNA = "Missing Data",
@@ -433,7 +433,7 @@ tmap_save(eth_wheat, paste0(file_path, "eth_wheat.png"),
           width = 9, height = 9, units = "in", dpi = 600)
 
 eth_oil <- tm_shape(eth_nns_sp) +
-  tm_fill(col = "edible_oil",
+  tm_fill(col = "edible_oil",breaks = seq(0,100,by=10),
           title = "Reach (%)", 
           # palette = viridis(10, direction = -1), 
           style = "cont",
@@ -454,7 +454,7 @@ tmap_save(eth_oil, paste0(file_path, "eth_oil.png"),
 
 eth_salt <- tm_shape(eth_nns_sp) +
   tm_fill(col = "salt",
-          title = "Reach (%)", 
+          title = "Reach (%)", breaks = seq(0,100,by=10),
           # palette = viridis(10, direction = -1), 
           style = "cont",
           textNA = "Missing Data",
