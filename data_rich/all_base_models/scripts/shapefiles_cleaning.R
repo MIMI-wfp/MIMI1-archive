@@ -27,7 +27,7 @@ source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
 
 
 eth_adm2 <- st_read(here::here("../MIMI_data/Ethiopia/gadm41_ETH_shp/gadm41_ETH_2.shp"))
-eth_hices_adm2 <- read.xlsx("data_rich/all_base_models/data/ETH_HCES1516_district_codes.xlsx", 1)
+eth_hices_adm2 <- readxl::read_xlsx("data_rich/all_base_models/data/ETH_HCES1516_district_codes.xlsx", 1)
 
 eth_hices_sp <- eth_adm2 %>% 
   left_join(eth_hices_adm2 %>% select(GID_2, district_code), 
