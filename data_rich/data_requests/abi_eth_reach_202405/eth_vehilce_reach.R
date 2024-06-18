@@ -100,4 +100,15 @@ legend_reach <- tm_shape(eth_hices_reach_sp) +
 tmap_save(legend_reach, paste0(file_path, "eth_legend_reach.png"),
           width = 9, height = 9, units = "in", dpi = 600)
 
+# TABLE -----------------------------------------------------------------------
+eth_vehicles_purchased <- eth_hices_reach_sp %>% 
+  st_drop_geometry() %>% 
+  select(NAME_1,adm2, edible_oil,edible_oil_se, wheatflour,wheatflour_se, NAME_2) %>% 
+  # mutate(adm2 = ifelse(NAME_2 == "Addis Abeba", adm2, NAME_2)) %>% 
+  # select(-NAME_2) %>% 
+  filter(!is.na(edible_oil)) %>% 
+  distinct(adm2,.keep_all = T)
+
+file_path = "C:/Users/gabriel.battcock/OneDrive - World Food Programme/General - MIMI Project/data_requests/JG_JUN_2024_ETH/"
+writexl::write_xlsx(eth_vehicles_purchased,paste(file_path, "eth_vehicles_purchased_tab.xlsx"))
 

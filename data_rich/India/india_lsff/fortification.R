@@ -20,7 +20,7 @@ lapply(rq_packages, require, character.only = T)
 rm(list= c("rq_packages", "installed_packages"))
 
 source(here::here("data_rich/all_base_models/scripts/base_model_functions.R"))
-
+source(here::here("data_rich/India/india_lsff/ind_elig_classification.R"))
 # -----------------------------------------------------------------------------
 # read in the base case and read in the fortifiable food vehicles 
 ind_ai <- apparent_intake("ind_nss1112", here::here("data_rich/India/data/processed/lsff//"))
@@ -166,5 +166,43 @@ sw_mean_intake_district_tot <- fort_model %>%
   tm_borders(col = "black", lwd = 0)
 
 
+################################################################################
+################################################################################
+  
+  
+# remove pds rice receive and add back new amounts
+  
+ind_pds_eligible_pl <- get_eligible_households(pl = TRUE)
 
+  
+ind_pds_items <- ind_all_items %>% 
+    filter(hhid %in% ind_pds_eligible_pl$hhid) %>% 
+    select(hhid,afe, item_code,item_name, quantity_g, quantity_100g) %>% 
+    mutate(quantity_g = ifelse(item_code %in% c(101,107), 0, quantity_g),
+           quantity_100g = ifelse(item_code %in% c(101,107), 0, quantity_100g)) %>% 
+    left_join(ind_pds_eligible_pl %>% select(hhid,adm1,eligible), by = 'hhid') %>% 
+    mutate(
+      #elgibile household get a certain amount of grain
+      quantity_g = ifelse(eligible ==1, case_when(
+        adm1 == "Punjab" & item_code == 107 ~ 35000/(afe*30),
+        adm1 == "Haryana"& item_code == 107 ~ 35000/(afe*30),
+        adm1 == "Rajasthan"& item_code == 107 ~ 35000/(afe*30),
+        adm1 == "Chhattisgarh"& item_code == 101 ~ 35000/(afe*30),
+        adm1 == "Bihar"& item_code == 101 ~ 28000/(afe*30),
+        adm1 == "Bihar"& item_code == 107 ~ 7000/(afe*30),
+        adm1 == "UP"& item_code == 101 ~ 21000/(afe*30),
+        adm1 == "UP"& item_code == 107 ~ 14000/(afe*30),
+        .default = quantity_g
+      ), quantity_g)
+    ) %>% 
+    filter(eligible==1)
+
+# match to fct with fortificant added ------------------------------------------
+  
+
+  
+  
+  
+  
+  
 

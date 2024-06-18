@@ -168,8 +168,8 @@ eth_reach_tab <- eth_hices_reach_sp_edible_oil %>%
       select(adm2, wheatflour,wheatflour_se), 
     by = 'adm2'
   ) %>% 
-  mutate(adm2 = ifelse(NAME_2 == "Addis Abeba", adm2, NAME_2)) %>% 
-  select(-NAME_2) %>% 
+  # mutate(adm2 = ifelse(NAME_2 == "Addis Abeba", adm2, NAME_2)) %>% 
+  # select(-NAME_2) %>% 
   filter(!is.na(edibleoil))
 
 writexl::write_xlsx(eth_reach_tab,paste(file_path, "eth_vehilces_tab.xlsx"))
