@@ -430,7 +430,7 @@ hungermap_mimi <- hungermap_mimi %>%
   rename(iso3 = iso)
 
 # Write csv:
-write_csv(hungermap_mimi, "data_rich/data_requests/ram_mimi20240226/hungermap_mimi20240429.csv")
+write_csv(hungermap_mimi, "data_rich/data_requests/ram_mimi20240226/hungermap_mimi20240617.csv")
 
 rm(list = ls())
 
