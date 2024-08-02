@@ -717,18 +717,15 @@ rm(list = c("hh_info", "base_ai", "food_consumption", "vehicle_quantities"))
 # Get base case apparent intake data from NSSO:
 base_ai <- apparent_intake("ind_nss1112")
 
-
 # Save data-frame for base_ai:
 # write_csv(base_ai, "data_rich/fortification_models/data/ind_nss1112_base_ai.csv")
-
-
 
 # Select only required columns:
 food_consumption <- food_consumption %>% 
   dplyr::select("hhid", "item_code", "quantity_100g")
 
 # Get data on food purchases (from Block 5 and 6): 
-food_purchases <- read_csv("MIMI_data/India/nsso_data_subset/block_5_6_food_consumption.csv")
+food_purchases <- read_csv("MIMI_data/India/nsso_data_all/block_5_6_food_consumption.csv")
 
 # Select relevant variables:
 food_purchases <- food_purchases %>% 
@@ -812,7 +809,7 @@ food_consumption <- food_consumption  %>% mutate(food_item = dplyr::case_when(
   item_code == 102 ~ "Rice", # Rice - other sources
   item_code == 107 ~ "Wheat flour", # Wheat/atta - PDS
   item_code == 108 ~ "Wheat flour", # Wheat/atta - other sources
-  item_code == 110 ~ "Wheat flour", # Maida
+  # item_code == 110 ~ "Wheat flour", # Maida
   item_code == 113 ~ "Wheat flour", # Bread (bakery)
   item_code == 170 ~ "Salt",
   item_code == 171 ~ "Sugar", # Sugar - PDS
