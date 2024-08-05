@@ -162,11 +162,13 @@ thia_dumbell <- ggplot(data = thia_inadequacy) +
     values = c("Base" = "darkred", "wf" = "darkblue", "rice" = "darkorange", 
                "bouillon1" = "aquamarine4", "All1" = "darkgreen"),
     labels = c("Base" = "None (base case)", "wf" = "Wheat flour", "rice" = "Rice", 
-               "bouillon1" = "Bouillon", "All1" = "All vehicles")) +
+               "bouillon1" = "Bouillon", "All1" = "All vehicles"),
+    breaks = c("Base", "wf", "rice", "bouillon1", "All1")) +
   scale_shape_manual(name = "Fortification",
     values = c("Base" = 15, "wf" = 3, "rice" = 6, "bouillon1" = 4, "All1" = 16), 
     labels = c("Base" = "None (base case)", "wf" = "Wheat flour", "rice" = "Rice",
-               "bouillon1" = "Bouillon", "All1" = "All vehicles")) +
+               "bouillon1" = "Bouillon", "All1" = "All vehicles"),
+    breaks = c("Base", "wf", "rice", "bouillon1", "All1")) +
   theme_minimal()
 
 thia_dumbell
@@ -188,11 +190,13 @@ ribo_dumbell <- ggplot(data = ribo_inadequacy) +
     values = c("Base" = "darkred", "wf" = "darkblue", "rice" = "darkorange", 
                "bouillon1" = "aquamarine4", "All1" = "darkgreen"),
     labels = c("Base" = "None (base case)", "wf" = "Wheat flour", "rice" = "Rice", 
-               "bouillon1" = "Bouillon", "All1" = "All vehicles")) +
+               "bouillon1" = "Bouillon", "All1" = "All vehicles"),
+    breaks = c("Base", "wf", "rice", "bouillon1", "All1")) +
   scale_shape_manual(name = "Fortification",
     values = c("Base" = 15, "wf" = 3, "rice" = 6, "bouillon1" = 4, "All1" = 16), 
     labels = c("Base" = "None (base case)", "wf" = "Wheat flour", "rice" = "Rice",
-               "bouillon1" = "Bouillon", "All1" = "All vehicles")) +
+               "bouillon1" = "Bouillon", "All1" = "All vehicles"),
+    breaks = c("Base", "wf", "rice", "bouillon1", "All1")) +
   theme_minimal()
 
 ribo_dumbell
