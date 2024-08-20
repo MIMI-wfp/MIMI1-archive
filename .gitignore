@@ -22,4 +22,6 @@ survey_data/
 *.json
 *.geojson
 *.DS_Store
+.RData
+.RDataTmp
 
